@@ -117,7 +117,6 @@ app.post('/interactions', async function (req, res) {
       }
       ppString += 'D'
 
-      console.log(ppString)
 
       return res.send({
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
@@ -138,10 +137,11 @@ app.post('/interactions', async function (req, res) {
     }
 
     if(name === 'weather') {
-      const city = data.options[0].value
+      const cities = []
 
-      const forecastEmbed = await forecastAndPopulate([ city ])
-      console.log(forecastEmbed)
+      data.options.forEach(e => cities.push(e.value))
+
+      const forecastEmbed = await forecastAndPopulate(cities)
 
       return res.send({
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,

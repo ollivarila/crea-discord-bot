@@ -14,7 +14,7 @@ const getForecast = async (city) => {
       const res = await axios.get(url)
       return res.data.list
     } catch (e) {
-      console.error('error with getForecasts', e)
+      console.error('error with getForecasts', e.response.data)
       return null
     }
 
@@ -24,10 +24,8 @@ const parseDate = date => {
   return `${date.getDay()}.${date.getMonth()}`
 }
 
-
-
 const parseForecast = (city, forecast) => {
-  if(!forecast) { return 'Bad query' }
+  if(!forecast) { return null }
 
   const date = new Date(0)
   date.setUTCSeconds(forecast[0].dt)
@@ -54,7 +52,6 @@ const parseForecast = (city, forecast) => {
     const fc = forecast[i]
     const dateFc = new Date(0)
     dateFc.setUTCSeconds(fc.dt)
-    console.log(fc.weather)
 
     const temp = `Klo. ${dateFc.getHours()} Lämpötila: ${Math.round(fc.main.temp)} C ${emoji[fc.weather[0].description]}\n`
     str += temp
@@ -104,20 +101,6 @@ const exampleEmbed = new EmbedBuilder()
 .setFooter({ text: 'Some footer text here', iconURL: 'https://i.imgur.com/AfFp7pu.png' });
 */
 
-const forecast = {
-  type: 1,
-  name: 'weather',
-  description: 'get weather forecast for a city',
-  options: [
-    {
-      type: 3,
-      name: 'query',
-      description: 'name of the city',
-      required: true
-    }
-  ]
-}
-
 export const forecastAndPopulate = async cities => {
   const forecasts = []
 
@@ -135,11 +118,35 @@ export const forecastAndPopulate = async cities => {
   for(const fc of forecasts){
     const { city, forecast } = fc
     const parsedForecast = parseForecast(city, forecast)
-    parsedForecasts.push(parsedForecast)
+    if(parsedForecast) { parsedForecasts.push(parsedForecast) }
   }
 
   //Build embed
   return getEmbed(parsedForecasts)
+}
+
+const forecast = {
+  type: 1,
+  name: 'weather',
+  description: 'get weather forecast for a city',
+  options: [
+    {
+      type: 3,
+      name: 'query',
+      description: 'name of the city',
+      required: true
+    },
+    {
+      type: 3,
+      name: 'query2',
+      description: 'name of the city',
+    },
+    {
+      type: 3,
+      name: 'query3',
+      description: 'name of the city',
+    }
+  ]
 }
 
 export default forecast
