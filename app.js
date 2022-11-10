@@ -8,7 +8,7 @@ import {
   MessageComponentTypes,
   ButtonStyleTypes,
 } from 'discord-interactions';
-import { VerifyDiscordRequest, DiscordRequest } from './utils.js';
+import { VerifyDiscordRequest, } from './utils.js';
 import {
   HasGuildCommands,
 } from './commands.js';
@@ -19,7 +19,7 @@ import search, { createUrl } from './commands/search.js';
 import ROUTE_COMMAND, { getRoute } from './commands/hslroute.js';
 import PP_COMMAND from './commands/pp.js';
 import GAY_COMMAND, { getAnswer } from './commands/gay.js';
-import forecast, { getForecastString, getForecast, exampleEmbed } from './commands/weather.js';
+import forecast, { forecastAndPopulate} from './commands/weather.js';
 
 import { capitalize } from './utils.js';
 
@@ -32,7 +32,7 @@ const PORT = 3001
 
 
 // Parse request body and verifies incoming requests using discord-interactions package
-app.use(express.json({ verify: VerifyDiscordRequest(process.env.PUBLIC_KEY) }));
+app.use(express.json({ verify: VerifyDiscordRequest(process.env.PUBLICKEY) }));
 app.use(logger)
 
 /**
@@ -106,7 +106,7 @@ app.post('/interactions', async function (req, res) {
       const user = req.body.member.user.username
       let selection
       if(data.options){
-        selection = capitalize(data.options[0].value.toLowerCase())
+        selection = capitalize(data.options[0].value)
       }
       
       let ppString = `${selection ? selection : user}'s pp: B` 
@@ -137,15 +137,16 @@ app.post('/interactions', async function (req, res) {
     }
 
     if(name === 'weather') {
-      const city = data.options[0].value.toLowerCase()
-      const forecast = await getForecast(city)
+      const city = data.options[0].value
+
+      const forecastEmbed = forecastAndPopulate([ city ])
 
       return res.send({
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: {
-          content: getForecastString(capitalize(city), forecast),
+          //content: getForecastString(capitalize(city), forecast),
           embeds: [
-            exampleEmbed
+            forecastEmbed
           ]
         }
       })
@@ -157,7 +158,7 @@ app.post('/interactions', async function (req, res) {
 app.listen(PORT, async () => {
   console.log('Listening on port', PORT);
   // Check if guild commands from commands.js are installed (if not, install them)
-  HasGuildCommands(process.env.APP_ID, process.env.GUILD_ID, [
+  HasGuildCommands(process.env.APPID, process.env.GUILDID, [
     PING_COMMAND,
     ECHO_COMMAND,
     search,

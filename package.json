@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "start": "node app.js",
-    "dev": "nodemon app.js",
+    "dev": "nodemon --delay 500ms app.js",
     "reset": "node ./utils/removeCommands.js"
   },
   "author": "Olli Varila",

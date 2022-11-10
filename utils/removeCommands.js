@@ -1,40 +1,44 @@
 import axios from "axios";
 import dotenv from 'dotenv'
-import { sleep } from '../utils.js'
-dotenv.config()
+import { sleep,checkLimit } from '../utils.js'
 
 const baseUrl = 'https://discord.com/api/v10'
-const guild = process.env.GUILD_ID
-const appId = process.env.APP_ID
-
-const URL = `${baseUrl}/applications/${appId}/guilds/${guild}/commands`
+const { DISCORDTOKEN, APPID, GUILDID } = dotenv.config().parsed
 
 
-const res = await axios.get(URL, {
-  headers: {
-    Authorization: `Bot ${process.env.TOKEN}`
-  }
-})
 
-const data = await res.data
+const URL = `${baseUrl}/applications/${APPID}/guilds/${GUILDID}/commands`
 
-const commandIds = data.map(e => e.id)
+try {
+  const res = await axios.get(URL, {
+    headers: {
+      Authorization: `Bot ${DISCORDTOKEN}`
+    }
+  })
+  const data = res.data
+  const commandIds = data.map(e => e.id)
 
-console.log(commandIds);
+  console.log(commandIds);
 
-commandIds.forEach(async id => {
-  sleep(200).then( async () => {
+  for(const id of commandIds){
+    await sleep(200)
     const res = await axios.delete(`${URL}/${id}`, {
       headers: {
-        Authorization: `Bot ${process.env.TOKEN}`
+        Authorization: `Bot ${DISCORDTOKEN}`
       }
     })
+
+    await checkLimit(res)
+
     if(res.status === 204){
       console.log('Removed command ' + id)
     } else {
       console.error('Error removing command ' + id)
-    }  
-  })
-
-
-})
+    }
+  }
+} catch (error) {
+  console.log('error getting commands')
+  console.log('CODE', error.code)
+  console.log('DATA', error.response.data)
+}
+console.log('success')

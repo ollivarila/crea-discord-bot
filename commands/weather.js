@@ -1,13 +1,14 @@
 import axios from "axios"
 import dotenv from 'dotenv'
 import { EmbedBuilder } from 'discord.js'
+import { capitalize } from '../utils.js'
 
 dotenv.config()
 
 const baseUrl = 'https://api.openweathermap.org/data/2.5/forecast?units=metric&lang=en&'
 
-export const getForecast = async (city) => {
-    const endpoint = `q=${city}&appid=${process.env.WEATHER_KEY}`
+const getForecast = async (city) => {
+    const endpoint = `q=${city}&appid=${process.env.WEATHERTOKEN}`
     const url = baseUrl + endpoint
     try {
       const res = await axios.get(url)
@@ -25,12 +26,18 @@ const parseDate = date => {
 
 
 
-export const getForecastString = (city, forecast) => {
+const parseForecast = (city, forecast) => {
   if(!forecast) { return 'Bad query' }
 
   const date = new Date(0)
   date.setUTCSeconds(forecast[0].dt)
-  let str = '\`\`\`' + city + ' ennuste ' + parseDate(date) + '\n'
+
+  const parsedCity = capitalize(city)
+
+
+  //let str = '\`\`\`' + city + ' ennuste ' + parseDate(date) + '\n'
+
+  let str = ''
 
   const emoji = {
     'overcast clouds': '☁️',
@@ -48,26 +55,40 @@ export const getForecastString = (city, forecast) => {
 
   for(let i = 0; i < 8; i++){
     const fc = forecast[i]
-    const date = new Date(0)
+    const dateFc = new Date(0)
     date.setUTCSeconds(fc.dt)
     console.log(fc.weather)
 
-    const temp = `Klo. ${date.getHours()} Lämpötila: ${Math.round(fc.main.temp)} C ${emoji[fc.weather[0].description]}\n`
+    const temp = `Klo. ${dateFc.getHours()} Lämpötila: ${Math.round(fc.main.temp)} C ${emoji[fc.weather[0].description]}\n`
     str += temp
   }
-  /*forecast.forEach(elem => {
-    const date = new Date(0)
-    date.setUTCSeconds(elem.dt)
-    console.log('date', date)
-    console.log('temp', elem.main.temp)
-    console.log('weather obj', elem.weather);
 
-  })
-  */
-  return str + '\`\`\`'
+  return {
+    city: parsedCity,
+    dateStr: parseDate(date),
+    str: str
+  }
 }
 
-export const exampleEmbed = new EmbedBuilder()
+const getEmbed = data => {
+  const weatherEmbed = new EmbedBuilder()
+    .setTitle('Sääennusteet')
+    .setDescription('Jotain tietoja')
+
+  data.forEach(forecast => {
+    const { city, dateStr, str } = forecast
+    weatherEmbed
+      .addFields(
+        { name: `${city} sääennuste ${dateStr}`, value: str }
+      )
+  })
+  weatherEmbed.setFooter({ text: 'GreatestBotEver' })
+
+  return weatherEmbed
+}
+
+/*
+const exampleEmbed = new EmbedBuilder()
 .setColor(0x0099FF)
 .setTitle('Some title')
 .setURL('https://discord.js.org/')
@@ -84,6 +105,7 @@ export const exampleEmbed = new EmbedBuilder()
 .setImage('https://i.imgur.com/AfFp7pu.png')
 .setTimestamp()
 .setFooter({ text: 'Some footer text here', iconURL: 'https://i.imgur.com/AfFp7pu.png' });
+*/
 
 const forecast = {
   type: 1,
@@ -97,6 +119,30 @@ const forecast = {
       required: true
     }
   ]
+}
+
+export const forecastAndPopulate = async cities => {
+  const forecasts = []
+
+  //Get forecasts
+  for(const city of cities){
+    const forecast = await getForecast(city)
+    forecast.push({
+      city,
+      forecast
+    })
+  }
+
+  const parsedForecasts = []
+  //Build forecast strings
+  for(const fc of forecasts){
+    const { city, forecast } = fc
+    const parsedForecast = parseForecast(city, forecast)
+    parsedForecasts.push(parsedForecast)
+  }
+
+  //Build embed
+  return getEmbed(parsedForecasts)
 }
 
 export default forecast
