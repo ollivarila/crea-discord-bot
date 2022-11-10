@@ -1,7 +1,7 @@
 import axios from "axios";
 import { capitalize } from "../utils.js";
 
-const ROUTE_COMMAND = {
+const route = {
   type: 1,
   name: 'route',
   description: 'find hsl route',
@@ -112,4 +112,4 @@ const getRouteString = (route) => {
   return str
 } 
 
-export default ROUTE_COMMAND
+export default route

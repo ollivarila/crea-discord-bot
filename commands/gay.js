@@ -1,4 +1,4 @@
-const GAY_COMMAND = {
+const gay = {
   type: 1,
   name: 'gay',
   description: 'Find out how gay you are',
@@ -9,4 +9,4 @@ export const getAnswer = (user) => {
   return `${user} is ${percentage}% gay`
 }
 
-export default GAY_COMMAND
+export default gay

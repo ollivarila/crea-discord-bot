@@ -1,4 +1,4 @@
-const PP_COMMAND = {
+const pp = {
   type: 1,
   name: 'pp',
   description: 'Find out how long your pp is',
@@ -11,4 +11,4 @@ const PP_COMMAND = {
   ]
 }
 
-export default PP_COMMAND
+export default pp

@@ -1,4 +1,4 @@
-const ECHO_COMMAND = {
+const echo = {
   type: 1,
   name: 'echo',
   description: 'echo whatever you say',
@@ -12,4 +12,4 @@ const ECHO_COMMAND = {
   ]
 }
 
-export default ECHO_COMMAND
+export default echo

@@ -1,7 +1,4 @@
-
 import { discordRequest } from './requests.js'
-import dotenv from 'dotenv'
-dotenv.config()
 
  
 const baseUrl = 'https://discord.com/api/v10'

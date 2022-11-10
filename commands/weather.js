@@ -1,9 +1,6 @@
 import axios from "axios"
-import dotenv from 'dotenv'
 import { EmbedBuilder } from 'discord.js'
 import { capitalize } from '../utils.js'
-
-dotenv.config()
 
 const baseUrl = 'https://api.openweathermap.org/data/2.5/forecast?units=metric&lang=en&'
 
@@ -125,7 +122,7 @@ export const forecastAndPopulate = async cities => {
   return getEmbed(parsedForecasts)
 }
 
-const forecast = {
+const weather = {
   type: 1,
   name: 'weather',
   description: 'get weather forecast for a city',
@@ -149,4 +146,4 @@ const forecast = {
   ]
 }
 
-export default forecast
+export default weather

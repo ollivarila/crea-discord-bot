@@ -1,7 +1,12 @@
-const logger = (req, res, next) => {
-  console.log(`NEW REQUEST method: ${req.method} path: ${req.path}`)
-  console.log(req)
-  next()
+const info = (...params) => {
+  console.log(...params)
 }
 
-export default logger
+const error = (...params) => {
+  console.error(...params)
+}
+
+export default {
+  info,
+  error
+}
