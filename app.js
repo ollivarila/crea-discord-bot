@@ -1,5 +1,3 @@
-import dotenv from 'dotenv'
-dotenv.config()
 import express from 'express';
 import {
   InteractionType,
@@ -19,10 +17,13 @@ import search, { createUrl } from './commands/search.js';
 import ROUTE_COMMAND, { getRoute } from './commands/hslroute.js';
 import PP_COMMAND from './commands/pp.js';
 import GAY_COMMAND, { getAnswer } from './commands/gay.js';
-import forecast, { forecastAndPopulate} from './commands/weather.js';
+import forecast, { forecastAndPopulate } from './commands/weather.js';
+
 
 import { capitalize } from './utils.js';
 
+import dotenv from 'dotenv'
+dotenv.config()
 
 import logger from './utils/logger.js';
 
@@ -30,9 +31,9 @@ const app = express();
 
 const PORT = 3001
 
-
 // Parse request body and verifies incoming requests using discord-interactions package
 app.use(express.json({ verify: VerifyDiscordRequest(process.env.PUBLICKEY) }));
+
 app.use(logger)
 
 /**
@@ -139,15 +140,15 @@ app.post('/interactions', async function (req, res) {
     if(name === 'weather') {
       const city = data.options[0].value
 
-      const forecastEmbed = forecastAndPopulate([ city ])
+      const forecastEmbed = await forecastAndPopulate([ city ])
+      console.log(forecastEmbed)
 
       return res.send({
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: {
-          //content: getForecastString(capitalize(city), forecast),
           embeds: [
             forecastEmbed
-          ]
+          ]          
         }
       })
     }

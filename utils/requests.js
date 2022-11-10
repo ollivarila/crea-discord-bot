@@ -1,15 +1,16 @@
-import dotenv from 'dotenv'
 import axios from 'axios'
-
-const { DISCORDTOKEN, APPID, GUILDID } = dotenv.config().parsed
+import { sleep } from '../utils.js'
+import dotenv from 'dotenv'
+dotenv.config()
+const { APPID, GUILDID, DISCORDTOKEN } = process.env
 
 async function checkLimit(res){
-  const limitRemaining = parseInt(res.headers['x-ratelimit-remaining'])
-  const timeUntilReset = parseInt(res.headers['x-ratelimit-reset-after'])
-  console.log(res.headers)
-  console.log(`Limit remaining: ${limitRemaining}`)
+  const limitRemaining = res.headers['x-ratelimit-remaining']
+  const timeUntilReset = res.headers['x-ratelimit-reset-after']
+  
+  if(limitRemaining === undefined) { return }
 
-  if(!limitRemaining) { return }
+  console.log(`Limit remaining: ${limitRemaining}`)
 
   if(limitRemaining === 0){
     console.log(`Sleeping for ${timeUntilReset}`);
@@ -18,43 +19,37 @@ async function checkLimit(res){
 }
 
 export const installCommand = async command => {
-  const endpoint = `/${APPID}/guilds/${GUILDID}/commands`
+  const url = `https://discord.com/api/v10/applications/${APPID}/guilds/${GUILDID}/commands`
   try {
-    const res = await discordRequest(endpoint, {
-      method: 'post',
-      data: command
+    const res = await axios.post(url, command, {
+      headers: {
+        'Authorization': `Bot ${DISCORDTOKEN}`,
+        'User-Agent': 'DiscordBot (1.0.0)',
+      }
     })
-
+    await checkLimit(res)
     return res
   } catch (error) {
-    console.log('Error installing commands');
     console.log('CODE', error.code)
-    throw new Error(error.message)
+    console.log(error)
+    throw new Error('Error installing command')
   }
 }
 
 export async function discordRequest(endpoint, options){
   const baseurl = 'https://discord.com/api/v10'
   const url = baseurl + endpoint
-  console.log(options)
-  try {
-    const res = await axios({
-      url,
-      headers: {
-        Authorization: `Bot ${DISCORDTOKEN}`,
-        'Content-Type': 'application/json; charset=UTF-8',
-        'User-Agent': 'DiscordBot (1.0.0)',
-      },
-      ...options
-    })
+  const res = await axios({
+    url: url,
+    headers: {
+      Authorization: `Bot ${DISCORDTOKEN}`,
+      'User-Agent': 'DiscordBot (1.0.0)',
+    },
+    ...options
+  })
 
-    await checkLimit(res)
-
-    return res
-  } catch (error) {
-    console.log('Error with discord request function')
-    console.log('CODE', error.message)
-  }
+  await checkLimit(res)
+  return res
 }
 
 async function request(){

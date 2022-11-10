@@ -1,34 +1,26 @@
-import axios from "axios";
+
+import { discordRequest } from './requests.js'
 import dotenv from 'dotenv'
-import { sleep,checkLimit } from '../utils.js'
+dotenv.config()
 
+ 
 const baseUrl = 'https://discord.com/api/v10'
-const { DISCORDTOKEN, APPID, GUILDID } = dotenv.config().parsed
 
 
 
-const URL = `${baseUrl}/applications/${APPID}/guilds/${GUILDID}/commands`
+const URL = `/applications/${process.env.APPID}/guilds/${process.env.GUILDID}/commands`
 
 try {
-  const res = await axios.get(URL, {
-    headers: {
-      Authorization: `Bot ${DISCORDTOKEN}`
-    }
+  const res = await discordRequest(URL, {
+    method: 'get'
   })
   const data = res.data
   const commandIds = data.map(e => e.id)
 
-  console.log(commandIds);
-
   for(const id of commandIds){
-    await sleep(200)
-    const res = await axios.delete(`${URL}/${id}`, {
-      headers: {
-        Authorization: `Bot ${DISCORDTOKEN}`
-      }
+    const res = await discordRequest(`${URL}/${id}`, {
+      method: 'delete'
     })
-
-    await checkLimit(res)
 
     if(res.status === 204){
       console.log('Removed command ' + id)
@@ -37,8 +29,8 @@ try {
     }
   }
 } catch (error) {
-  console.log('error getting commands')
   console.log('CODE', error.code)
   console.log('DATA', error.response.data)
+  process.exit(1)
 }
 console.log('success')

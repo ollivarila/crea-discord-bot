@@ -34,9 +34,6 @@ const parseForecast = (city, forecast) => {
 
   const parsedCity = capitalize(city)
 
-
-  //let str = '\`\`\`' + city + ' ennuste ' + parseDate(date) + '\n'
-
   let str = ''
 
   const emoji = {
@@ -56,7 +53,7 @@ const parseForecast = (city, forecast) => {
   for(let i = 0; i < 8; i++){
     const fc = forecast[i]
     const dateFc = new Date(0)
-    date.setUTCSeconds(fc.dt)
+    dateFc.setUTCSeconds(fc.dt)
     console.log(fc.weather)
 
     const temp = `Klo. ${dateFc.getHours()} Lämpötila: ${Math.round(fc.main.temp)} C ${emoji[fc.weather[0].description]}\n`
@@ -127,7 +124,7 @@ export const forecastAndPopulate = async cities => {
   //Get forecasts
   for(const city of cities){
     const forecast = await getForecast(city)
-    forecast.push({
+    forecasts.push({
       city,
       forecast
     })
