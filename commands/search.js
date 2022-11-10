@@ -1,0 +1,20 @@
+const search = {
+  type: 1,
+  name: 'search',
+  description: 'search the web',
+  options: [
+    {
+      type: 3,
+      name: 'query',
+      description: 'query',
+      required: true
+    }
+  ]
+}
+
+export const createUrl = q => {
+  const baseUrl = 'https://www.google.com/search?q='
+  return `${baseUrl}${q}`
+}
+
+export default search
