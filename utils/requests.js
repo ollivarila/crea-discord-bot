@@ -12,7 +12,7 @@ async function checkLimit(res){
 
   console.log(`Limit remaining: ${limitRemaining}`)
 
-  if(limitRemaining === 0){
+  if(parseInt(limitRemaining) === 0){
     console.log(`Sleeping for ${timeUntilReset}`);
     await sleep(timeUntilReset * 1000 + 100)
   }

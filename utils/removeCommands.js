@@ -1,4 +1,4 @@
-import { discordRequest } from './requests.js'
+import { discordRequest } from "./requests.js"
 
  
 const baseUrl = 'https://discord.com/api/v10'
@@ -58,4 +58,8 @@ const removeCommands = async () => {
 }
 
 const name = process.env.REMOVETHIS
-name ? await removeCommand(name) : await removeCommands()
+if(name){
+  removeCommand(name)
+} else {
+  removeCommands()
+}
