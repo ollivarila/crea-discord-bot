@@ -1,3 +1,6 @@
+import mongoose from "mongoose"
+import Subscriber from "../models/Subscriber.js"
+
 const subscribe = {
   type: 1,
   name: 'subscribe',
@@ -21,3 +24,42 @@ const subscribe = {
     }
   ]
 }
+
+const parseTime = time => {
+  const parts = time.split(/:/)
+  return parts[0].concat(parts[1]) 
+}
+
+const parseTimezone = timezone => {
+  //weather api returns timezone use that
+}
+
+const parseCities = cities => {
+  return cities.split(/,\s*/)
+}
+
+const parseAndVerifydata = userdata => {
+  const { username, discordid, cities, time, timezone } = userdata
+  const cityJson = JSON.stringify({ ...parseCities(cities) })
+  const parsedData = {
+    username,
+    discordid,
+    cities: cityJson,
+    time: parseTime(time),
+    timezone: parseTimezone(timezone)
+  }
+
+  
+}
+
+const createUser = async userObj => {
+
+}
+
+export const subscribeUser = async userdata => {
+  const userObj = parseUserdata(userdata)
+  if(!userObj) { return null }
+}
+
+
+export default subscribe

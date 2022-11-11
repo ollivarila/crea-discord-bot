@@ -15,7 +15,6 @@ export async function HasGuildCommands(appId, guildId, commands) {
 // Checks for a command
 async function HasGuildCommand(data, command) {
   // API endpoint to get and post guild commands
-  try {
     if (data) {
       const installedNames = data.map((c) => c.name);
       // This is just matching on the name, so it's not good for updates
@@ -24,9 +23,6 @@ async function HasGuildCommand(data, command) {
         await InstallGuildCommand(command);
       }
     }
-  } catch (err) {
-    console.error(err);
-  }
 }
 
 // Installs a command

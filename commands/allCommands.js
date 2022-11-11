@@ -4,7 +4,7 @@ import route from "./hslroute.js";
 import ping from "./ping.js";
 import pp from "./pp.js";
 import search from "./search.js";
-//import subscribe from "./subscribe.js"
+import subscribe from "./subscribe.js"
 import weather from "./weather.js";
 
 const commands = [
@@ -14,7 +14,8 @@ const commands = [
   ping,
   pp,
   search,
-  weather
+  weather,
+  subscribe
 ]
 
 export default commands
