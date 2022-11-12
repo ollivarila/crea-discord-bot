@@ -38,9 +38,6 @@ async function handleInteractions (req, res) {
     case 'echo':
       handleEcho(req, res)
       break
-    case 'gay':
-      handleGay(req, res)
-      break
     case 'route':
       handleRoute(req, res)
       break
@@ -73,16 +70,6 @@ function handleEcho(req, res){
     type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
     data: {
       content: echo
-    }
-  })
-}
-
-function handleGay(req, res){
-  const user = req.body.data.member.user.username
-  return res.send({
-    type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-    data: {
-      content: getAnswer(user)
     }
   })
 }

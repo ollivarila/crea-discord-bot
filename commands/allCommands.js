@@ -1,5 +1,4 @@
 const {echo} = require("./echo.js")
-const { gay } = require("./gay.js")
 const {route} = require("./route.js")
 const {ping} = require("./ping.js")
 const {pp} = require("./pp.js")
@@ -9,7 +8,6 @@ const {weather} = require("./weather.js")
 
 const commands = [
   echo,
-  gay,
   route,
   ping,
   pp,
