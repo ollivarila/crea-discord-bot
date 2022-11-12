@@ -12,4 +12,6 @@ const echo = {
   ]
 }
 
-export default echo
+module.exports = {
+  echo
+}

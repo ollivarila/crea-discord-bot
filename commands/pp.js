@@ -11,4 +11,6 @@ const pp = {
   ]
 }
 
-export default pp
+module.exports = {
+  pp
+}

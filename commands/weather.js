@@ -1,6 +1,6 @@
-import axios from "axios"
-import { EmbedBuilder } from 'discord.js'
-import { capitalize } from '../utils.js'
+const { EmbedBuilder } = require('discord.js')
+const { capitalize } = require('../utils.js')
+const { request } = require('../utils/requests')
 
 const baseUrl = 'https://api.openweathermap.org/data/2.5/forecast?units=metric&lang=en&'
 
@@ -8,7 +8,7 @@ const getForecast = async (city) => {
     const endpoint = `q=${city}&appid=${process.env.WEATHERTOKEN}`
     const url = baseUrl + endpoint
     try {
-      const res = await axios.get(url)
+      const res = await request(url, { method: 'get' })
       return res.data.list
     } catch (e) {
       console.error('error with getForecasts', e.response.data)
@@ -98,12 +98,15 @@ const exampleEmbed = new EmbedBuilder()
 .setFooter({ text: 'Some footer text here', iconURL: 'https://i.imgur.com/AfFp7pu.png' });
 */
 
-export const forecastAndPopulate = async cities => {
+const forecastAndPopulate = async cities => {
   const forecasts = []
 
   //Get forecasts
   for(const city of cities){
     const forecast = await getForecast(city)
+
+    if(!forecast) { return null }
+
     forecasts.push({
       city,
       forecast
@@ -146,4 +149,7 @@ const weather = {
   ]
 }
 
-export default weather
+module.exports = {
+  weather,
+  forecastAndPopulate
+}

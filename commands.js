@@ -1,10 +1,10 @@
-import { installCommand, discordRequest } from './utils/requests.js'
+const { installCommand, discordGet } = require('./utils/requests.js')
 
-export async function HasGuildCommands(appId, guildId, commands) {
+async function HasGuildCommands(appId, guildId, commands) {
   if (guildId === '' || appId === '') return;
 
   const endpoint = `/applications/${appId}/guilds/${guildId}/commands`;
-  const res = await discordRequest(endpoint, { method: 'get' });
+  const res = await discordGet(endpoint, {});
   const data = res.data;
 
   for(const command of commands){
@@ -26,7 +26,12 @@ async function HasGuildCommand(data, command) {
 }
 
 // Installs a command
-export async function InstallGuildCommand(command) {
+async function InstallGuildCommand(command) {
   const res = await installCommand(command);
   console.log(`installed ${command.name}`)
+}
+
+module.exports = {
+  HasGuildCommands,
+  InstallGuildCommand
 }

@@ -1,5 +1,5 @@
-import mongoose from "mongoose";
-import Subscriber from '../models/Subscriber.js'
+const mongoose = require('mongoose')
+const Subscriber = require('../models/Subscriber.js')
 
 const get = async () => {
 
@@ -21,7 +21,7 @@ const getAll = async () => {
 
 }
 
-export default {
+module.exports = {
   get,
   create,
   update,

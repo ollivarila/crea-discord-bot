@@ -12,9 +12,12 @@ const search = {
   ]
 }
 
-export const createUrl = q => {
+const createUrl = q => {
   const baseUrl = 'https://www.google.com/search?q='
   return `${baseUrl}${q}`
 }
 
-export default search
+module.exports = {
+  search,
+  createUrl
+}

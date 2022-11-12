@@ -1,4 +1,4 @@
-import mongoose from "mongoose"
+const mongoose = require('mongoose')
 
 const subscriberSchema = new mongoose.Schema({
   username: {
@@ -31,6 +31,4 @@ subscriberSchema.set('toJSON', {
   }
 })
 
-const Subscriber = mongoose.model('Subscriber', subscriberSchema)
-
-export default Subscriber
+module.exports = mongoose.model('Subscriber', subscriberSchema)

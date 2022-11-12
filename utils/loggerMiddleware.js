@@ -1,8 +1,11 @@
-import logger from "./logger.js"
+const logger = require('./logger.js')
+require('dotenv').config()
 
 const loggerMiddleware = (req, res, next) => {
-  logger.info(`NEW REQUEST method: ${req.method} path: ${req.path}`)
+  if(process.env.NODE_ENV !== 'test'){
+    logger.info(`NEW REQUEST method: ${req.method} path: ${req.path}`)
+  }
   next()
 }
 
-export default loggerMiddleware
+module.exports = loggerMiddleware

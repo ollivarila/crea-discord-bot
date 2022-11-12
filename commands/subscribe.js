@@ -1,5 +1,4 @@
-import mongoose from "mongoose"
-import Subscriber from "../models/Subscriber.js"
+const mongoose = require('mongoose')
 
 const subscribe = {
   type: 1,
@@ -56,10 +55,13 @@ const createUser = async userObj => {
 
 }
 
-export const subscribeUser = async userdata => {
+const subscribeUser = async userdata => {
   const userObj = parseUserdata(userdata)
   if(!userObj) { return null }
 }
 
 
-export default subscribe
+module.exports = {
+  subscribe,
+  subscribeUser
+}

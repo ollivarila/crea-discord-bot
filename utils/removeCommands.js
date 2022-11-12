@@ -1,5 +1,4 @@
-import { discordRequest } from "./requests.js"
-
+const { discordRequest } = require('./requests.js')
  
 const baseUrl = 'https://discord.com/api/v10'
 const URL = `/applications/${process.env.APPID}/guilds/${process.env.GUILDID}/commands`

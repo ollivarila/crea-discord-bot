@@ -1,38 +1,34 @@
-import express from 'express'
-import { VerifyDiscordRequest, } from './utils.js'
-import { HasGuildCommands } from './commands.js'
-import dotenv from 'dotenv'
-import loggerMiddleware from './utils/loggerMiddleware.js'
-import requestMiddleware from './utils/requestMiddleware.js'
-import interactionRouter from './controllers/interactionRouter.js'
-import commands from './commands/allCommands.js'
-import mongoose from 'mongoose'
-import logger from './utils/logger.js'
+const express = require('express')
+require('express-async-errors')
+const { VerifyDiscordRequest } = require('./utils.js')
+const dotenv = require('dotenv')
+const loggerMiddleware = require('./utils/loggerMiddleware.js')
+const interactionRouter = require('./controllers/interactionRouter.js')
+
+const mongoose = require('mongoose')
+const { MONGODB_URI } = require('./config.js')
+const logger = require('./utils/logger')
 
 dotenv.config()
-
 const app = express()
 
-const PORT = 3001
-
-mongoose.connect(process.env.MONGODB_URI)
-  .then(() =>{
-    logger.info('Connected to MongoDB')
-  })
-  .catch(err => logger.error('Error connecting to MongoDB', err))
+mongoose.connect(MONGODB_URI).then(() => {
+  logger.info('Connected to MongoDB')
+}).catch(error => logger.error('Error connecting to MongoDB', error))
 
 // Parse request body and verifies incoming requests using discord-interactions package
-app.use(express.json({ verify: VerifyDiscordRequest(process.env.PUBLICKEY) }));
+if(process.env.NODE_ENV !== 'test'){
+  app.use(express.json({ verify: VerifyDiscordRequest(process.env.PUBLICKEY) }));
+} else {
+  app.use(express.json())
+}
+
 app.use(loggerMiddleware)
-app.use(requestMiddleware)
 
 /**
  * Interactions endpoint URL where Discord will send HTTP requests
  */
 app.use('/interactions', interactionRouter)
 
-app.listen(PORT, async () => {
-  console.log('Listening on port', PORT);
-  // Check if guild commands are installed (if not, install them)
-  HasGuildCommands(process.env.APPID, process.env.GUILDID, commands);
-})
+module.exports = app
+

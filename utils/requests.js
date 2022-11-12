@@ -1,6 +1,6 @@
-import axios from 'axios'
-import { sleep } from '../utils.js'
-import dotenv from 'dotenv'
+const axios = require('axios')
+const { sleep } = require('../utils.js')
+const dotenv = require('dotenv')
 dotenv.config()
 const { APPID, GUILDID, DISCORDTOKEN } = process.env
 
@@ -18,7 +18,7 @@ async function checkLimit(res){
   }
 }
 
-export const installCommand = async command => {
+const installCommand = async command => {
   const url = `https://discord.com/api/v10/applications/${APPID}/guilds/${GUILDID}/commands`
   try {
     const res = await axios.post(url, command, {
@@ -36,10 +36,27 @@ export const installCommand = async command => {
   }
 }
 
-export async function discordRequest(endpoint, options){
+async function discordGet(endpoint, options){
   const baseurl = 'https://discord.com/api/v10'
   const url = baseurl + endpoint
-  const res = await axios({
+  console.log(url)
+  const res = await axios.request({
+    url,
+    headers: {
+      Authorization: `Bot ${DISCORDTOKEN}`,
+      'User-Agent': 'DiscordBot (1.0.0)',
+    },
+    ...options
+  })
+
+  await checkLimit(res)
+  return res
+}
+
+async function discordPost(endpoint, options){
+  const baseurl = 'https://discord.com/api/v10'
+  const url = baseurl + endpoint
+  const res = await axios.request({
     url: url,
     headers: {
       Authorization: `Bot ${DISCORDTOKEN}`,
@@ -52,6 +69,17 @@ export async function discordRequest(endpoint, options){
   return res
 }
 
-async function request(){
+async function request(url, options){
+  const res = await axios.request({
+    url,
+    ...options
+  })
+  return res
+}
 
+module.exports = {
+  installCommand,
+  discordPost,
+  discordGet,
+  request
 }

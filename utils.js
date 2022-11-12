@@ -1,6 +1,6 @@
-import { verifyKey } from 'discord-interactions';
+const { verifyKey } = require('discord-interactions')
 
-export function VerifyDiscordRequest(clientKey) {
+function VerifyDiscordRequest(clientKey) {
   return function (req, res, buf, encoding) {
     const signature = req.get('X-Signature-Ed25519');
     const timestamp = req.get('X-Signature-Timestamp');
@@ -13,10 +13,16 @@ export function VerifyDiscordRequest(clientKey) {
   };
 }
 
-export function capitalize(str) {
+function capitalize(str) {
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 }
 
-export async function sleep(ms) {
+async function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+module.exports = {
+  VerifyDiscordRequest,
+  capitalize,
+  sleep
 }

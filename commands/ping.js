@@ -4,4 +4,6 @@ const ping = {
   description: 'Ping the bot'
 }
 
-export default ping
+module.exports = {
+  ping
+}
