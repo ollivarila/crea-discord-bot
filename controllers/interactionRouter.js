@@ -6,7 +6,6 @@ const {
   MessageComponentTypes,
   ButtonStyleTypes,
 } = require('discord-interactions')
-const { getAnswer } = require('../commands/gay.js')
 const { getRoute } = require('../commands/route.js')
 const { createUrl } = require('../commands/search.js')
 const { forecastAndPopulate } = require('../commands/weather.js')

@@ -55,14 +55,6 @@ describe('Discord interactions tests', () => {
       expect(res.body.type).toBe(4)
       expect(res.status).toBe(200)
       })
-    
-    test('Api responds correctly to /gay', async () => {
-      mockCommand.data.name = 'gay'
-      const res = await api.post('/interactions').send(mockCommand)
-      expect(res.body.data.content).toMatch(/testuser\s/)
-      expect(res.status).toBe(200)
-    })    
-
 
     test('Api responds correctly to /route', async () => {
       mockCommand.data.name = 'route'
