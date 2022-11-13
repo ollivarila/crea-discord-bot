@@ -1,4 +1,5 @@
-const mongoose = require('mongoose')
+const subDao = require('../dao/subscriberDao')
+const { checkInvalid, getTimezone } = require('./weather')
 
 const subscribe = {
   type: 1,
@@ -29,35 +30,63 @@ const parseTime = time => {
   return parts[0].concat(parts[1]) 
 }
 
-const parseTimezone = timezone => {
-  //weather api returns timezone use that
+const parseTimezone = async city => {
+  const timezone = await getTimezone(city)
+  if(!timezone){
+    return null
+  }
+  return timezone
 }
 
 const parseCities = cities => {
-  return cities.split(/,\s*/)
+  const parsed = cities.split(/,\s*/)
+  return parsed
 }
 
-const parseAndVerifydata = userdata => {
-  const { username, discordid, cities, time, timezone } = userdata
-  const cityJson = JSON.stringify({ ...parseCities(cities) })
-  const parsedData = {
-    username,
-    discordid,
-    cities: cityJson,
-    time: parseTime(time),
-    timezone: parseTimezone(timezone)
+const verifyCities = cities => {
+  const unverified  = []
+  cities.forEach(async c => {
+    const invalid = await checkInvalid(c)
+    if(invalid){
+      unverified.push(c)
+    }
+  })
+  return unverified
+}
+
+const parseAndVerifydata = async (userdata, callback) => {
+  const { username, discordid, citiesCsv, time, timezoneNumber } = userdata
+  const parsedCities = parseCities(citiesCsv)
+  const getThisTimezone = parsedCities[timezoneNumber - 1]
+
+  const timezone = await parseTimezone(getThisTimezone)
+
+  const unverified = verifyCities(parsedCities)
+
+  if(unverified.length > 0){
+    return callback(unverified)
   }
 
-  
+  return {
+    username,
+    discordid,
+    cities: citiesCsv,
+    time: parseTime(time),
+    timezone
+  }
 }
 
-const createUser = async userObj => {
-
-}
-
-const subscribeUser = async userdata => {
-  const userObj = parseUserdata(userdata)
+const subscribeUser = async (userdata, callback) => {
+  const userObj = await parseAndVerifydata(userdata, callback)
   if(!userObj) { return null }
+  const res = await subDao.create(userObj)
+
+  if(!res){
+    console.error('Subscription failed')
+    return 'Subscription failed'
+  }
+
+  return 'Subscribed!'
 }
 
 

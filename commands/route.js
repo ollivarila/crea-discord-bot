@@ -11,11 +11,13 @@ const route = {
       type: 3,
       name: 'start',
       description: 'starting address',
+      required: true
     },
     {
       type: 3,
       name: 'end',
       description: 'ending address',
+      required: true
     }
   ]
 }

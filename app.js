@@ -6,15 +6,23 @@ const loggerMiddleware = require('./utils/loggerMiddleware.js')
 const interactionRouter = require('./controllers/interactionRouter.js')
 
 const mongoose = require('mongoose')
+const Subscriber = require('./models/Subscriber')
 const { MONGODB_URI } = require('./config.js')
 const logger = require('./utils/logger')
 
 dotenv.config()
 const app = express()
 
+console.log(process.env.NODE_ENV)
+
 mongoose.connect(MONGODB_URI).then(() => {
-  logger.info('Connected to MongoDB')
-}).catch(error => logger.error('Error connecting to MongoDB', error))
+    logger.info('Connected to MongoDB')
+  }).catch(error => logger.error('Error connecting to MongoDB', error))
+
+if(process.env.NODE_ENV === 'development'){
+  Subscriber.deleteMany({})
+    .then(() => console.log('cleared database'))
+}
 
 // Parse request body and verifies incoming requests using discord-interactions package
 if(process.env.NODE_ENV !== 'test'){

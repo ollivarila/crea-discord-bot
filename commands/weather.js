@@ -17,6 +17,18 @@ const getForecast = async (city) => {
 
 }
 
+const getTimezone = async (city) => {
+  const endpoint = `q=${city}&appid=${process.env.WEATHERTOKEN}`
+  const url = baseUrl + endpoint
+  try {
+    const res = await request(url, { method: 'get' })
+    return res.data.city.timezone
+  } catch (e) {
+    console.error('error with getTimezone', e.response.data)
+    return null
+  }
+}
+
 const parseDate = date => {
   return `${date.getDay()}.${date.getMonth()}`
 }
@@ -125,6 +137,12 @@ const forecastAndPopulate = async cities => {
   return getEmbed(parsedForecasts)
 }
 
+const checkInvalid = async city => {
+  const forecast = await getForecast(city)
+  if(!forecast) { return true }
+  return false
+}
+
 const weather = {
   type: 1,
   name: 'weather',
@@ -151,5 +169,7 @@ const weather = {
 
 module.exports = {
   weather,
-  forecastAndPopulate
+  forecastAndPopulate,
+  checkInvalid,
+  getTimezone
 }

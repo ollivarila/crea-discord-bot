@@ -1,10 +1,10 @@
-const { installCommand, discordGet } = require('./utils/requests.js')
+const { installCommand, discordRequest } = require('./utils/requests.js')
 
 async function HasGuildCommands(appId, guildId, commands) {
   if (guildId === '' || appId === '') return;
 
   const endpoint = `/applications/${appId}/guilds/${guildId}/commands`;
-  const res = await discordGet(endpoint, {});
+  const res = await discordRequest(endpoint, { method: 'get' });
   const data = res.data;
 
   for(const command of commands){

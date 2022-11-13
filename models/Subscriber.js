@@ -18,7 +18,7 @@ const subscriberSchema = new mongoose.Schema({
     required: false
   },
   timezone: {
-    type: String,
+    type: Number,
     required: false
   }
 })

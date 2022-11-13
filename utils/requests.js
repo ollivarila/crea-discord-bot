@@ -19,52 +19,30 @@ async function checkLimit(res){
 }
 
 const installCommand = async command => {
-  const url = `https://discord.com/api/v10/applications/${APPID}/guilds/${GUILDID}/commands`
+  const endpoint = `/applications/${APPID}/guilds/${GUILDID}/commands`
   try {
-    const res = await axios.post(url, command, {
-      headers: {
-        'Authorization': `Bot ${DISCORDTOKEN}`,
-        'User-Agent': 'DiscordBot (1.0.0)',
-      }
+    const res = await discordRequest(endpoint, {
+      method: 'post',
+      data: command
     })
-    await checkLimit(res)
     return res
   } catch (error) {
-    console.log('CODE', error.code)
-    console.log(error)
-    throw new Error('Error installing command')
+    console.error(error)
   }
 }
 
-async function discordGet(endpoint, options){
+async function discordRequest(endpoint, options){
   const baseurl = 'https://discord.com/api/v10'
   const url = baseurl + endpoint
-  console.log(url)
+  const headers = {
+    Authorization: `Bot ${DISCORDTOKEN}`,
+    'User-Agent': 'DiscordBot (1.0.0)',
+  }
   const res = await axios.request({
     url,
-    headers: {
-      Authorization: `Bot ${DISCORDTOKEN}`,
-      'User-Agent': 'DiscordBot (1.0.0)',
-    },
+    headers,
     ...options
   })
-
-  await checkLimit(res)
-  return res
-}
-
-async function discordPost(endpoint, options){
-  const baseurl = 'https://discord.com/api/v10'
-  const url = baseurl + endpoint
-  const res = await axios.request({
-    url: url,
-    headers: {
-      Authorization: `Bot ${DISCORDTOKEN}`,
-      'User-Agent': 'DiscordBot (1.0.0)',
-    },
-    ...options
-  })
-
   await checkLimit(res)
   return res
 }
@@ -79,7 +57,6 @@ async function request(url, options){
 
 module.exports = {
   installCommand,
-  discordPost,
-  discordGet,
-  request
+  request,
+  discordRequest
 }

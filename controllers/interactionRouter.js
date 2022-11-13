@@ -10,6 +10,7 @@ const { getRoute } = require('../commands/route.js')
 const { createUrl } = require('../commands/search.js')
 const { forecastAndPopulate } = require('../commands/weather.js')
 const { capitalize } = require('../utils')
+const { subscribeUser } = require('../commands/subscribe')
 
 
 const interactionRouter = Router()
@@ -52,6 +53,9 @@ async function handleInteractions (req, res) {
     case 'weather':
       handleWeather(req, res)
       break
+    case 'subscribe':
+      handleSubscribe(req, res)
+      break
     default:
       return res.send({
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
@@ -61,6 +65,44 @@ async function handleInteractions (req, res) {
       })
     }
   } 
+}
+
+async function handleSubscribe(req, res){
+  const options = req.body.data.options
+  const username = req.body.member.user.username
+  const discordid = req.body.member.user.id
+  const citiesCsv = options[0].value
+  let time = '8:00'
+  let timezoneNumber = 1
+  try {
+    time = options[1].value
+    timezoneNumber = options[2].value
+  } catch (error) {
+    
+  }
+
+  const userdata = {
+    username,
+    discordid,
+    citiesCsv,
+    time,
+    timezoneNumber
+  }
+
+  const success = await subscribeUser(userdata, unverified => {
+    let str = 'Invalid cities: '
+    unverified.forEach(c => str += `${c} `)
+    str = str.trimEnd()
+    handleBadQuery(req, res, str)
+  })
+
+  return res.send({
+    type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+    data: {
+      content: success
+    }
+  })
+
 }
 
 function handleEcho(req, res){
@@ -105,7 +147,7 @@ function handlePP(req, res){
   const MIN = 1
   const MAX = 12
 
-  const user = req.body.data.member.user.username
+  const user = req.body.member.user.username
   let selection
   if(req.body.data.options){
     selection = capitalize(req.body.data.options[0].value)
