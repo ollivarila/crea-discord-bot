@@ -1,14 +1,13 @@
-const { GuildExplicitContentFilter } = require('discord.js')
 const mongoose = require('mongoose')
 const supertest = require('supertest')
 const app = require('../app.js')
 
-const api = supertest(app)
+let api
 
 let mockCommand
 
-beforeAll(() => {
-
+beforeAll(async () => {
+  api = supertest(app)
 })
 
 beforeEach(() => {
