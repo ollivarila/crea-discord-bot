@@ -1,5 +1,5 @@
-const mongoose = require('mongoose')
 const Subscriber = require('../models/Subscriber')
+const { error, info } = require('../utils/logger')
 
 const get = async discordid => {
   return await Subscriber.findOne({ discordid })
@@ -10,17 +10,17 @@ const create = async sub => {
     username: sub.username,
     discordid: sub.discordid,
     cities: sub.cities,
-    time: sub.time | 800,
-    timezone: sub.timezone | 7200
+    time: sub.time || 800,
+    utcOffset: sub.utcOffset || 0,
+    dmChannel: sub.dmChannel
   })
-  const created = await createThis.save()
-    .catch(err => {
-      return false
-    })
-  if(created) {
-    return true
+  try {
+    const created = await createThis.save()
+    return created ? true : false
+  } catch (err) {
+    error(err)
+    return false
   }
-  return false
 }
 
 const update = async (discordid, data) => {
@@ -31,18 +31,17 @@ const update = async (discordid, data) => {
   if(updateThis.cities){
     delete updateThis.cities
   }
-
-  return Subscriber.findOneAndUpdate(
-    { discordid }, 
-    updateThis, 
-    { runValidators: true })
-    .then(() => {
-      return true
-    })
-    .catch(err => {
-      console.error(err)
-      return false
-    })
+  try {
+    const updated = await Subscriber.findOneAndUpdate(
+      { discordid }, 
+      updateThis, 
+      { runValidators: true })
+    
+    return updated ? true : false
+  } catch (err) {
+    error(err)
+    return false
+  }
 }
 
 const remove = async discordid => {

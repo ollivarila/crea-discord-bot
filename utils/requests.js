@@ -27,7 +27,7 @@ const installCommand = async command => {
     })
     return res
   } catch (error) {
-    console.error(error)
+    console.error(error.response.data.errors.options['2'].name)
   }
 }
 

@@ -11,7 +11,7 @@ const { createUrl } = require('../commands/search.js')
 const { forecastAndPopulate } = require('../commands/weather.js')
 const { capitalize } = require('../utils')
 const { subscribeUser } = require('../commands/subscribe')
-
+const { getPP } = require('../commands/pp')
 
 const interactionRouter = Router()
 interactionRouter.post('/', handleInteractions)
@@ -68,15 +68,17 @@ async function handleInteractions (req, res) {
 }
 
 async function handleSubscribe(req, res){
+
+  //Gather user data
   const options = req.body.data.options
   const username = req.body.member.user.username
   const discordid = req.body.member.user.id
   const citiesCsv = options[0].value
   let time = '8:00'
-  let timezoneNumber = 1
+  let utcOffset = 0
   try {
     time = options[1].value
-    timezoneNumber = options[2].value
+    utcOffset = options[2].value
   } catch (error) {
     
   }
@@ -86,20 +88,17 @@ async function handleSubscribe(req, res){
     discordid,
     citiesCsv,
     time,
-    timezoneNumber
+    utcOffset
   }
 
-  const success = await subscribeUser(userdata, unverified => {
-    let str = 'Invalid cities: '
-    unverified.forEach(c => str += `${c} `)
-    str = str.trimEnd()
-    handleBadQuery(req, res, str)
-  })
+  //Try to subscribe
+  const message = await subscribeUser(userdata)
 
+  //Respond with message
   return res.send({
     type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
     data: {
-      content: success
+      content: message
     }
   })
 
@@ -144,22 +143,14 @@ function handlePing(req, res){
 }
 
 function handlePP(req, res){
-  const MIN = 1
-  const MAX = 12
-
   const user = req.body.member.user.username
+
   let selection
   if(req.body.data.options){
     selection = capitalize(req.body.data.options[0].value)
   }
   
-  let ppString = `${selection ? selection : user}'s pp: B=` 
-  const size = Math.floor((Math.random() * MAX) + MIN)
-  for(let i = 0; i < size; i++){
-    ppString += '='
-  }
-  ppString += 'D'
-
+  const ppString = getPP(selection ? selection : user)
 
   return res.send({
     type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,

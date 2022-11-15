@@ -43,10 +43,9 @@ Subscribe to daily weather updates
 
 TODO:
 ====
-- multiple weather queries (✔️)
-- subscribe to daily weather updates (almost done)
-- database for subscribed users (MongoDB) (✔️)
-- daily updates functionality
 - caching
 - use lichess api to create and stream games
 - website with React to display information about the bot
+- format weather message
+- remindme command
+- CI/CD deployment pipeline with Github Actions

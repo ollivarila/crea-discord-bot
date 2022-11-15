@@ -2,6 +2,8 @@ const { EmbedBuilder } = require('discord.js')
 const { capitalize } = require('../utils.js')
 const { request } = require('../utils/requests')
 
+const { info, error } = require('../utils/logger')
+
 const baseUrl = 'https://api.openweathermap.org/data/2.5/forecast?units=metric&lang=en&'
 
 const getForecast = async (city) => {
@@ -11,7 +13,7 @@ const getForecast = async (city) => {
       const res = await request(url, { method: 'get' })
       return res.data.list
     } catch (e) {
-      console.error('error with getForecasts', e.response.data)
+      error('error with getForecasts', e.response.data)
       return null
     }
 
@@ -24,13 +26,13 @@ const getTimezone = async (city) => {
     const res = await request(url, { method: 'get' })
     return res.data.city.timezone
   } catch (e) {
-    console.error('error with getTimezone', e.response.data)
+    error('error with getTimezone', e.response.data)
     return null
   }
 }
 
 const parseDate = date => {
-  return `${date.getDay()}.${date.getMonth()}`
+  return `${date.getDate()}.${date.getMonth()}`
 }
 
 const parseForecast = (city, forecast) => {

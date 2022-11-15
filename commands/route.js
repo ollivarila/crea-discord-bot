@@ -1,6 +1,7 @@
 const axios = require('axios').default
 const { capitalize } = require("../utils.js")
 const { request } = require('../utils/requests')
+const { error } = require('../utils/logger')
 
 const route = {
   type: 1,
@@ -45,8 +46,8 @@ const addressToCoords = async (locations) => {
         lon: coordsEnd[0]
       },
     }
-  } catch (error) {
-    console.error(error)
+  } catch (err) {
+    error(err)
     return null
   }
 }
@@ -103,8 +104,8 @@ const getRoute = async (locations) => {
     })
 
   return getRouteString(waypoints)
-  } catch (error) {
-    console.error(error)
+  } catch (err) {
+    error(err)
     return 'vammaset tiedot'
   }
 }

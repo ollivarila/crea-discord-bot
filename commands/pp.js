@@ -11,6 +11,19 @@ const pp = {
   ]
 }
 
+const getPP = (user) => {
+  const MIN = 1
+  const MAX = 12
+  let ppString = `${user}'s pp: B=` 
+  const size = Math.floor((Math.random() * MAX) + MIN)
+  for(let i = 0; i < size; i++){
+    ppString += '='
+  }
+  ppString += 'D'
+  return ppString
+}
+
 module.exports = {
-  pp
+  pp,
+  getPP
 }

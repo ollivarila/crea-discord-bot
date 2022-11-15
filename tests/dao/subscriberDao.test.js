@@ -2,15 +2,15 @@ const dao = require('../../dao/subscriberDao')
 const mongoose = require('mongoose')
 const config = require('../../config')
 const Subscriber = require('../../models/Subscriber')
-const { remove } = require('../../models/Subscriber')
-
+const { info, error } = require('../../utils/logger')
+ 
 //Connect to test DB
 beforeAll( async () => {
   return mongoose.connect(config.MONGODB_URI)
     .then(() => {
-      console.log('connected to mongodb')
+      info('connected to mongodb')
     })
-    .catch(err => console.error(err))
+    .catch(err => error(err))
 })
 
 describe('SubscriberDao', () => {
@@ -19,10 +19,11 @@ describe('SubscriberDao', () => {
   beforeEach(async () => {
     testSub = new Subscriber({
       username: 'testuser',
-      discordid: 123,
+      discordid: '123',
       cities: 'espoo, helsinki',
       time: '800',
-      timezone:  7200
+      utcOffset:  7200,
+      dmChannel: 321
     })
     await Subscriber.deleteMany({})
     await testSub.save()
@@ -35,22 +36,22 @@ describe('SubscriberDao', () => {
 
   test('get', async () => {
     const subscriber = await dao.get(123)
-    expect(subscriber.discordid).toBe(123)
+    expect(subscriber.discordid).toBe(testSub.discordid)
   })
 
   test('create', async () => {
     const newSub = {
       username: 'testuser2',
-      discordid: 12345,
+      discordid: '12345',
       cities: 'espoo, helsinki',
       time: '800',
-      timezone:  7200
+      utcOffset:  0,
+      dmChannel: 1234
     }
 
     const result = await dao.create(newSub)
     const created = await Subscriber.findOne({ discordid: 12345 })
     expect(created.discordid).toBe(newSub.discordid)
-    expect(result).toBe(true)
   })
 
   test('update', async () => {
@@ -89,19 +90,6 @@ describe('SubscriberDao', () => {
     expect(createdSub).toBe(null)
   })
 
-  test('update invalid data', async () => {
-    const newSub = {
-      username: 'testuser2',
-      discordid: 123,
-      cities: 'test',
-      time: '800',
-      timezone:  7800
-    }
-    const result = await dao.update(newSub.discordid, newSub)
-    const updated = await Subscriber.findOne({ discordid: newSub.discordid })
-    expect(result).toBe(true)
-    expect(updated.cities).toBe(testSub.cities)
-  })
 
   test('remove invalid data', async () => {
     const result = await dao.remove(132)
@@ -114,7 +102,7 @@ describe('SubscriberDao', () => {
 afterAll(async () => {
   await Subscriber.deleteMany({})
   return mongoose.connection.close().then(() => {
-    console.log('connection closed')
+    info('connection closed')
   })
-  .catch(err => console.error(err))
+  .catch(err => error(err))
 })

@@ -13,8 +13,6 @@ const logger = require('./utils/logger')
 dotenv.config()
 const app = express()
 
-console.log(process.env.NODE_ENV)
-
 mongoose.connect(MONGODB_URI).then(() => {
     logger.info('Connected to MongoDB')
   }).catch(error => logger.error('Error connecting to MongoDB', error))

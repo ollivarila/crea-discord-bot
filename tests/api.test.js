@@ -1,6 +1,7 @@
 const mongoose = require('mongoose')
 const supertest = require('supertest')
 const app = require('../app.js')
+const { discordRequest } = require('../utils/requests')
 
 let api
 
@@ -13,10 +14,11 @@ beforeAll(async () => {
 beforeEach(() => {
   mockCommand = {
     data: {
-      member: {
-        user: {
-          username: 'testuser'
-        }
+    },
+    member: {
+      user: {
+        username: 'testuser',
+        id: "188329879861723136"
       }
     },
     type: 2
@@ -71,7 +73,7 @@ describe('Discord interactions tests', () => {
       ]
       mockCommand.data.options = options
       const res = await api.post('/interactions').send(mockCommand)
-      expect(res.body.data.content).not.toBe('vammaset tiedot')
+      expect(res.body.data.content).not.toBe('Route not found')
       expect(res.status).toBe(200)
     })
 
@@ -135,7 +137,7 @@ describe('Discord interactions tests', () => {
       ]
       const res = await api.post('/interactions').send(mockCommand)
       
-      expect(res.body.data.content).toBe('Subscribed to espoo at 8:00')
+      expect(res.body.data.content).toBe('Subscribed!')
       expect(res.status).toBe(200)
     })
 
@@ -170,7 +172,6 @@ describe('Discord interactions tests', () => {
           value: 'incorrect'
         }]
         const res = await api.post('/interactions').send(mockCommand)
-        console.log(res.body.data)
         expect(res.body.data.content).toBe('Weather not found with queries: incorrect')
         expect(res.status).toBe(200)
       })
@@ -189,20 +190,24 @@ describe('Discord interactions tests', () => {
             value: '80:0'
           },
           {
-            name: 'timezone',
+            name: 'utcoffset',
             type: 3,
-            value: 7
+            value: 24
           }
         ]
         const res = await api.post('/interactions').send(mockCommand)
 
-        expect(res.body.data.content).toBe('Something went wrong with command check parameters: incorrect 80:0 7')
+        expect(res.body.data.content).toBe('Subscription failed, reason: 80:0, Offset should be between -12 and 14')
         expect(res.status).toBe(200)
       })
     })
   })
 })
 
-afterAll(() => {
+afterAll(async () => {
   mongoose.connection.close()
+  const endpoint ="/channels/1041324752293347358"
+  const res = await discordRequest(endpoint, {
+    method: 'delete'
+  })
 })

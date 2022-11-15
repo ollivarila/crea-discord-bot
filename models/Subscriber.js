@@ -6,7 +6,7 @@ const subscriberSchema = new mongoose.Schema({
     required: true
   },
   discordid: {
-    type: Number,
+    type: String,
     required: true
   },
   cities: {
@@ -17,9 +17,13 @@ const subscriberSchema = new mongoose.Schema({
     type: String,
     required: false
   },
-  timezone: {
+  utcOffset: {
     type: Number,
-    required: false
+    required: true
+  },
+  dmChannel: {
+    type: String,
+    required: true
   }
 })
 
