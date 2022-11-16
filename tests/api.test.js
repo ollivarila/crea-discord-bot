@@ -4,16 +4,11 @@ const supertest = require('supertest')
 const dotenv = require('dotenv')
 const app = require('../app')
 const { discordRequest } = require('../utils/requests')
+const subDao = require('../dao/subscriberDao')
 
 dotenv.config()
-
-let api
-
 let mockCommand
-
-beforeAll(async () => {
-  api = supertest(app)
-})
+const api = supertest(app)
 
 beforeEach(() => {
   mockCommand = {
@@ -130,7 +125,7 @@ describe('Discord interactions tests', () => {
           value: '8:00',
         },
         {
-          name: 'timezone',
+          name: 'utcoffset',
           type: 3,
           value: 1,
         },
@@ -139,6 +134,13 @@ describe('Discord interactions tests', () => {
 
       expect(res.body.data.content).toBe('Subscribed!')
       expect(res.status).toBe(200)
+    })
+
+    test('Api responds correctly to /unsubscribe', async () => {
+      mockCommand.data.name = 'unsubscribe'
+      const res = await api.post('/interactions').send(mockCommand)
+
+      expect(res.body.data.content).toBe('Unsubscribed!')
     })
 
     describe('Incorrect interaction options', () => {
@@ -204,6 +206,7 @@ describe('Discord interactions tests', () => {
 })
 
 afterAll(async () => {
+  await subDao.removeAll({})
   mongoose.connection.close()
   const endpoint = '/channels/1041324752293347358'
   await discordRequest(endpoint, {

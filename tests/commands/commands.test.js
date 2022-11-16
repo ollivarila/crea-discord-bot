@@ -28,7 +28,6 @@ describe('Subscribe tests', () => {
     expect(res.recipients[0].username).toBe('Crea')
   })
 
-  const mockCallback = jest.fn()
   test('subscribeUser()', async () => {
     const user = {
       username: 'test',
@@ -41,7 +40,6 @@ describe('Subscribe tests', () => {
       console.log(data)
     })
     expect(res).toBe('Subscribed!')
-    expect(mockCallback.mock.calls.length).toBe(0)
   })
 })
 

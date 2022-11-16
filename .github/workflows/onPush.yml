@@ -1,0 +1,30 @@
+name: Lint and test
+
+on:
+  push:
+    branches:
+    - dev
+
+jobs:
+  lint_and_test:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+      - name: npm install
+        run: npm install
+      - name: lint
+        run: npm run lint
+      - name: test
+        run: npm run test:deployment
+        env:
+          NODE_ENV: test
+          APPID: ${{ secrets.APPID }}
+          GUILDID: ${{ secrets.GUILDID }}
+          DISCORDTOKEN: ${{ secrets.DISCORDTOKEN }}
+          WEATHERTOKEN: ${{ secrets.WEATHERTOKEN }}
+          PORT: ${{ secrets.PORT }}
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+          TEST_MONGODB_URI: ${{ secrets.TEST_MONGODB_URI }}
+
+        

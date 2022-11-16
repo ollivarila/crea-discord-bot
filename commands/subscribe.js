@@ -174,7 +174,8 @@ const subscribeUser = async (userdata) => {
     }
 
     await subDao.create(userObj)
-    jobController.createJob(userObj, handleWeatherUpdate)
+    const jobs = jobController.createJob(userObj, handleWeatherUpdate)
+    info('jobs', jobs)
 
     return 'Subscribed!'
   } catch (err) {
@@ -183,8 +184,31 @@ const subscribeUser = async (userdata) => {
   }
 }
 
+const unsubscribeUser = async discordid => {
+  const res = await subDao.remove(discordid)
+  const res2 = jobController.removeJob(discordid)
+
+  if (!res) {
+    return 'Subscription not found from database'
+  }
+
+  if (!res2) {
+    return 'Job not found'
+  }
+
+  return 'Unsubscribed!'
+}
+
+const unsubscribe = {
+  type: 1,
+  name: 'unsubscribe',
+  description: 'Unsubscribe to weather forecast updates',
+}
+
 module.exports = {
   subscribe,
   subscribeUser,
   createDmChannel,
+  unsubscribe,
+  unsubscribeUser,
 }

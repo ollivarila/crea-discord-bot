@@ -29,13 +29,15 @@ const createCrontime = time => {
 }
 
 const removeJob = discordid => {
-  const jObject = jobs.find(j => j.discordid === discordid)
+  const joblist = jobs.filter(j => j.discordid === discordid)
 
-  if (!jObject) { return false }
+  if (joblist.length === 0) { return false }
 
-  if (jObject.job.running) {
-    jObject.job.stop()
-  }
+  joblist.forEach(job => {
+    if (job.running) {
+      job.stop()
+    }
+  })
   jobs = jobs.filter(j => j.discordid !== discordid)
   return jobs
 }
@@ -87,10 +89,13 @@ const stopAll = () => {
   jobs = []
 }
 
+const getAll = () => jobs
+
 module.exports = {
   createJob,
   removeJob,
   getJob,
   createCrontime,
   stopAll,
+  getAll,
 }

@@ -2,9 +2,9 @@ const http = require('http')
 const dotenv = require('dotenv')
 const app = require('./app')
 const config = require('./config')
-const { info } = require('./utils/logger')
 const { HasGuildCommands } = require('./commands')
 const commands = require('./commands/allCommands')
+const { info } = require('./utils/logger')
 
 dotenv.config()
 

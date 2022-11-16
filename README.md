@@ -43,8 +43,10 @@ Subscribe to daily weather updates
 
 TODO:
 ====
+- remove subscription
+- update subscription
+- user can only have one? subscription at a time
 - caching
 - use lichess api to create and stream games (/challenge command)
 - website with React to display information about the bot
 - remindme command
-- CI/CD deployment pipeline with Github Actions
