@@ -12,39 +12,39 @@ jobs:
   simple_deployment_pipeline:
     runs-on: ubuntu-20.04
     steps:
-    - uses: actions/checkout@v3
-    - uses: actions/setup-node@v3
-      if: ${{ github.event_name == 'push' }}
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        if: ${{ github.event_name == 'push' }}
       - uses: akhileshns/heroku-deploy@v3.12.12
-          with:
-            node-version: 19.0.0
-            heroku_api_key: ${{ secrets.HEROKU_TOKEN }}
-            heroku_app_name: crea-discord-bot
-            heroku_email: olli.varila@gmail.com
-            healthcheck: https://crea-discord-bot.herokuapp.com/health
-            checkstring: ok
-            rollbackonhealthcheckfailed: true
-          env:
-            HD_NODE_ENV: production
-            HD_APPID: ${{ secrets.APPID }}
-            HD_GUILDID: ${{ secrets.GUILDID }}
-            HD_PUBLICKEY: ${{ secrets.PUBLICKEY }}
-            HD_DISCORDTOKEN: ${{ secrets.DISCORDTOKEN }}
-            HD_WEATHERTOKEN: ${{ secrets.WEATHERTOKEN }}
-            HD_PORT: ${{ secrets.PORT }}
-            HD_MONGODB_URI: ${{ secrets.MONGODB_URI }}
-    - name: npm install
-      run: npm install
-    - name: lint
-      run: npm run lint
-    - name: test
-      run: npm run test:deployment
-      env:
-        NODE_ENV: test
-        APPID: ${{ secrets.APPID }}
-        GUILDID: ${{ secrets.GUILDID }}
-        DISCORDTOKEN: ${{ secrets.DISCORDTOKEN }}
-        WEATHERTOKEN: ${{ secrets.WEATHERTOKEN }}
-        PORT: ${{ secrets.PORT }}
-        MONGODB_URI: ${{ secrets.MONGODB_URI }}
-        TEST_MONGODB_URI: ${{ secrets.TEST_MONGODB_URI }}
+        with:
+          node-version: 19.0.0
+          heroku_api_key: ${{ secrets.HEROKU_TOKEN }}
+          heroku_app_name: crea-discord-bot
+          heroku_email: olli.varila@gmail.com
+          healthcheck: https://crea-discord-bot.herokuapp.com/health
+          checkstring: ok
+          rollbackonhealthcheckfailed: true
+        env:
+          HD_NODE_ENV: production
+          HD_APPID: ${{ secrets.APPID }}
+          HD_GUILDID: ${{ secrets.GUILDID }}
+          HD_PUBLICKEY: ${{ secrets.PUBLICKEY }}
+          HD_DISCORDTOKEN: ${{ secrets.DISCORDTOKEN }}
+          HD_WEATHERTOKEN: ${{ secrets.WEATHERTOKEN }}
+          HD_PORT: ${{ secrets.PORT }}
+          HD_MONGODB_URI: ${{ secrets.MONGODB_URI }}
+      - name: npm install
+        run: npm install
+      - name: lint
+        run: npm run lint
+      - name: test
+        run: npm run test:deployment
+        env:
+          NODE_ENV: test
+          APPID: ${{ secrets.APPID }}
+          GUILDID: ${{ secrets.GUILDID }}
+          DISCORDTOKEN: ${{ secrets.DISCORDTOKEN }}
+          WEATHERTOKEN: ${{ secrets.WEATHERTOKEN }}
+          PORT: ${{ secrets.PORT }}
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+          TEST_MONGODB_URI: ${{ secrets.TEST_MONGODB_URI }}
