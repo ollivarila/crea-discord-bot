@@ -7,7 +7,7 @@ const { getRoute } = require('../commands/route')
 const { createUrl } = require('../commands/search')
 const { forecastAndPopulate } = require('../commands/weather')
 const { capitalize } = require('../utils')
-const { subscribeUser } = require('../commands/subscribe')
+const { subscribeUser, unsubscribeUser } = require('../commands/subscribe')
 const { getPP } = require('../commands/pp')
 const { error } = require('../utils/logger')
 
@@ -151,6 +151,18 @@ async function handleWeather(req, res) {
   })
 }
 
+async function handleUnsubscribbe(req, res) {
+  const discordid = req.body.member.user.id
+  const message = await unsubscribeUser(discordid)
+
+  return res.send({
+    type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+    data: {
+      content: message,
+    },
+  })
+}
+
 async function handleInteractions(req, res) {
   // Interaction type and data
   const { type } = req.body;
@@ -190,6 +202,9 @@ async function handleInteractions(req, res) {
       break
     case 'subscribe':
       handleSubscribe(req, res)
+      break
+    case 'unsubscribe':
+      handleUnsubscribbe(req, res)
       break
     default:
       return res.send({

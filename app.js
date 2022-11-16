@@ -4,21 +4,21 @@ const mongoose = require('mongoose')
 const { VerifyDiscordRequest } = require('./utils')
 const loggerMiddleware = require('./utils/loggerMiddleware')
 const interactionRouter = require('./controllers/interactionRouter')
-
-const Subscriber = require('./models/Subscriber')
 const { MONGODB_URI } = require('./config')
 const { info, error } = require('./utils/logger')
+const subDao = require('./dao/subscriberDao')
+const jobController = require('./controllers/jobController')
 
 const app = express()
 
-mongoose.connect(MONGODB_URI).then(() => {
+mongoose.connect(MONGODB_URI).then(async () => {
   info('Connected to MongoDB')
+  const subs = await subDao.getAll()
+  subs.forEach(sub => {
+    jobController.createJob(sub)
+  })
+  info(jobController.getAll())
 }).catch(err => error('Error connecting to MongoDB', err))
-
-if (process.env.NODE_ENV === 'development') {
-  Subscriber.deleteMany({})
-    .then(() => info('cleared database'))
-}
 
 // Parse request body and verifies incoming requests using discord-interactions package
 if (process.env.NODE_ENV !== 'test') {

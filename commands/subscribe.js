@@ -174,7 +174,8 @@ const subscribeUser = async (userdata) => {
     }
 
     await subDao.create(userObj)
-    jobController.createJob(userObj, handleWeatherUpdate)
+    const jobs = jobController.createJob(userObj, handleWeatherUpdate)
+    info('jobs', jobs)
 
     return 'Subscribed!'
   } catch (err) {
@@ -200,7 +201,7 @@ const unsubscribeUser = async discordid => {
 
 const unsubscribe = {
   type: 1,
-  name: 'unsubscibe',
+  name: 'unsubscribe',
   description: 'Unsubscribe to weather forecast updates',
 }
 
