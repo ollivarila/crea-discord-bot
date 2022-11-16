@@ -17,5 +17,14 @@ jobs:
         run: npm install
       - name: lint
         run: npm run lint
-
+      - name: test
+        env:
+          APPID: ${{ secrets.APPID }}
+          GUILDID: ${{ secrets.GUILDID }}
+          DISCORDTOKEN: ${{ secrets.DISCORDTOKEN }}
+          WEATHERTOKEN: ${{ secrets.WEATHERTOKEN }}
+          PORT: ${{ secrets.PORT }}
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+          TEST_MONGODB_URI: ${{ secrets.TEST_MONGODB_URI }}
+        run: npm run test
 
