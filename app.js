@@ -4,14 +4,14 @@ const mongoose = require('mongoose')
 const { VerifyDiscordRequest } = require('./utils')
 const loggerMiddleware = require('./utils/loggerMiddleware')
 const interactionRouter = require('./controllers/interactionRouter')
-const { MONGODB_URI } = require('./config')
 const { info, error } = require('./utils/logger')
 const subDao = require('./dao/subscriberDao')
 const jobController = require('./controllers/jobController')
+const config = require('./config')
 
 const app = express()
 
-mongoose.connect(MONGODB_URI).then(async () => {
+mongoose.connect(config.MONGODB_URI).then(async () => {
   info('Connected to MongoDB')
   const subs = await subDao.getAll()
   subs.forEach(sub => {

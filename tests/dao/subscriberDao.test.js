@@ -63,7 +63,7 @@ describe('SubscriberDao', () => {
   test('remove', async () => {
     const result = await dao.remove(123)
     const removed = await Subscriber.findOne({ discordid: 123 })
-    expect(result).toBe(true)
+    expect(result).toBeDefined()
     expect(removed).toBeFalsy()
   })
 
@@ -92,7 +92,7 @@ describe('SubscriberDao', () => {
   test('remove invalid data', async () => {
     const result = await dao.remove(132)
     const user = await Subscriber.findOne({ discordid: testSub.discordid })
-    expect(result).toBe(false)
+    expect(result).toBe(null)
     expect(user.discordid).toBe(testSub.discordid)
   })
 })

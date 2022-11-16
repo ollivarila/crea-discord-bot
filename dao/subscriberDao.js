@@ -47,10 +47,13 @@ const remove = async discordid => Subscriber.findOneAndRemove({ discordid })
 
 const getAll = async () => Subscriber.find({})
 
+const removeAll = async () => Subscriber.deleteMany({})
+
 module.exports = {
   get,
   create,
   update,
   remove,
   getAll,
+  removeAll,
 }
