@@ -26,5 +26,5 @@ jobs:
           PORT: ${{ secrets.PORT }}
           MONGODB_URI: ${{ secrets.MONGODB_URI }}
           TEST_MONGODB_URI: ${{ secrets.TEST_MONGODB_URI }}
-        run: npm run test
+        run: npm run test:deployment
 
