@@ -46,6 +46,5 @@ TODO:
 - caching
 - use lichess api to create and stream games
 - website with React to display information about the bot
-- format weather message
 - remindme command
 - CI/CD deployment pipeline with Github Actions
