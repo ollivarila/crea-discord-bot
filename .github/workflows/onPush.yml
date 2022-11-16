@@ -16,7 +16,7 @@ jobs:
       - name: lint
         run: npm run lint
       - if: ${{ github.event_name != 'push' }}
-      - name: test
+        name: test
         run: npm run test:deployment
         env:
           NODE_ENV: test
