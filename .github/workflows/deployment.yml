@@ -21,11 +21,11 @@ jobs:
           HD_NODE_ENV: production
           HD_APPID: ${{ secrets.APPID }}
           HD_GUILDID: ${{ secrets.GUILDID }}
+          HD_PUBLICKEY: ${{ secrets.PUBLICKEY }}
           HD_DISCORDTOKEN: ${{ secrets.DISCORDTOKEN }}
           HD_WEATHERTOKEN: ${{ secrets.WEATHERTOKEN }}
           HD_PORT: ${{ secrets.PORT }}
           HD_MONGODB_URI: ${{ secrets.MONGODB_URI }}
-          HD_TEST_MONGODB_URI: ${{ secrets.TEST_MONGODB_URI }}   
       - name: npm install
         run: npm install
       - name: lint
