@@ -48,3 +48,7 @@ jobs:
           PORT: ${{ secrets.PORT }}
           MONGODB_URI: ${{ secrets.MONGODB_URI }}
           TEST_MONGODB_URI: ${{ secrets.TEST_MONGODB_URI }}
+      - name: uninstall commands
+        run: npm run reset
+      - name: install commands
+        run: npm run install:commands
