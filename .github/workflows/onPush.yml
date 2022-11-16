@@ -15,7 +15,7 @@ jobs:
         run: npm install
       - name: lint
         run: npm run lint
-        name: test
+      - name: test
         run: npm run test:deployment
         env:
           NODE_ENV: test
