@@ -4,7 +4,10 @@ on:
   push:
     branches:
     - main
-    
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize]
+
 jobs:
   deployment_pipeline:
     runs-on: ubuntu-20.04

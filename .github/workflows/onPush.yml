@@ -26,3 +26,8 @@ jobs:
           PORT: ${{ secrets.PORT }}
           MONGODB_URI: ${{ secrets.MONGODB_URI }}
           TEST_MONGODB_URI: ${{ secrets.TEST_MONGODB_URI }}
+      - if: ${{ github.event_name == 'push' }}
+        name: echo something
+        run: echo "something"
+
+        
