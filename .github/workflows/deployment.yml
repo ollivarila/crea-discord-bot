@@ -51,6 +51,24 @@ jobs:
       - if: ${{ github.event_name == 'push' }}          
         name: uninstall commands
         run: npm run reset
+        env:
+          NODE_ENV: test
+          APPID: ${{ secrets.APPID }}
+          GUILDID: ${{ secrets.GUILDID }}
+          DISCORDTOKEN: ${{ secrets.DISCORDTOKEN }}
+          WEATHERTOKEN: ${{ secrets.WEATHERTOKEN }}
+          PORT: ${{ secrets.PORT }}
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+          TEST_MONGODB_URI: ${{ secrets.TEST_MONGODB_URI }}        
       - if: ${{ github.event_name == 'push' }}       
         name: install commands
         run: npm run install:commands
+        env:
+          NODE_ENV: test
+          APPID: ${{ secrets.APPID }}
+          GUILDID: ${{ secrets.GUILDID }}
+          DISCORDTOKEN: ${{ secrets.DISCORDTOKEN }}
+          WEATHERTOKEN: ${{ secrets.WEATHERTOKEN }}
+          PORT: ${{ secrets.PORT }}
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+          TEST_MONGODB_URI: ${{ secrets.TEST_MONGODB_URI }}
