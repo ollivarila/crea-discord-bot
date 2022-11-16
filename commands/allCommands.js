@@ -5,6 +5,7 @@ const { pp } = require('./pp')
 const { search } = require('./search')
 const { subscribe, unsubscribe } = require('./subscribe')
 const { weather } = require('./weather')
+const { challenge } = require('./challenge')
 
 const commands = [
   echo,
@@ -15,6 +16,7 @@ const commands = [
   weather,
   subscribe,
   unsubscribe,
+  challenge,
 ]
 
 module.exports = commands
