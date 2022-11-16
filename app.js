@@ -8,11 +8,13 @@ const { info, error } = require('./utils/logger')
 const subDao = require('./dao/subscriberDao')
 const jobController = require('./controllers/jobController')
 const config = require('./config')
+const Challenge = require('./models/Challenge')
 
 const app = express()
 
 mongoose.connect(config.MONGODB_URI).then(async () => {
   info('Connected to MongoDB')
+  await Challenge.deleteMany({})
   const subs = await subDao.getAll()
   subs.forEach(sub => {
     jobController.createJob(sub)
