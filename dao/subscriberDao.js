@@ -43,10 +43,7 @@ const update = async (discordid, data) => {
   }
 }
 
-const remove = async discordid => {
-  const result = await Subscriber.findOneAndRemove({ discordid })
-  return !!result
-}
+const remove = async discordid => Subscriber.findOneAndRemove({ discordid })
 
 const getAll = async () => Subscriber.find({})
 
