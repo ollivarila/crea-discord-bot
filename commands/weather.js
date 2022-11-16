@@ -1,50 +1,30 @@
 const { EmbedBuilder } = require('discord.js')
-const { capitalize } = require('../utils.js')
+const { capitalize } = require('../utils')
 const { request } = require('../utils/requests')
-
-const { info, error } = require('../utils/logger')
 
 const baseUrl = 'https://api.openweathermap.org/data/2.5/forecast?units=metric&lang=en&'
 
 const getForecast = async (city) => {
-    const endpoint = `q=${city}&appid=${process.env.WEATHERTOKEN}`
-    const url = baseUrl + endpoint
-    try {
-      const res = await request(url, { method: 'get' })
-      return res.data.list
-    } catch (e) {
-      error('error with getForecasts', e.response.data)
-      return null
-    }
-
-}
-
-const getTimezone = async (city) => {
   const endpoint = `q=${city}&appid=${process.env.WEATHERTOKEN}`
   const url = baseUrl + endpoint
-  try {
-    const res = await request(url, { method: 'get' })
-    return res.data.city.timezone
-  } catch (e) {
-    error('error with getTimezone', e.response.data)
-    return null
-  }
+  const res = await request(url, { method: 'get' })
+  return res ? res.data.list : null
 }
 
-const parseDate = date => {
-  return `${date.getDate()}.${date.getMonth()}`
+const adjustForTimezone = (date, offset) => {
+  const timeOffsetInMs = (offset * 60) * 60000
+  date.setTime(date.getTime() + timeOffsetInMs)
+  return date
 }
 
-const parseForecast = (city, forecast) => {
-  if(!forecast) { return null }
+const parseDate = (date) => {
+  const day = date.getUTCDate()
+  const month = date.getUTCMonth()
 
-  const date = new Date(0)
-  date.setUTCSeconds(forecast[0].dt)
+  return `${day}.${month}`
+}
 
-  const parsedCity = capitalize(city)
-
-  let str = ''
-
+const getForecastLine = (fc, date) => {
   const emoji = {
     'overcast clouds': '☁️',
     'light rain': '☁️💧',
@@ -52,26 +32,46 @@ const parseForecast = (city, forecast) => {
     'scattered clouds': '⛅',
     'few clouds': '⛅',
     'shower rain': '🌧',
-    'rain': '☔',
-    'thunderstorm': '⛈⚡',
-    'snow': '🌨',
-    'mist': '🌫',
-    'clear sky': '🌞'
+    rain: '☔',
+    thunderstorm: '⛈⚡',
+    snow: '🌨',
+    mist: '🌫',
+    'clear sky': '🌞',
+  }
+  return `Klo. ${date.getUTCHours()} Lämpötila: ${Math.round(fc.main.temp)} C ${emoji[fc.weather[0].description]}\n`
+}
+
+const parseForecast = (city, forecast, offset) => {
+  if (!forecast) { return null }
+
+  let date = new Date(0)
+  date.setUTCSeconds(forecast[0].dt)
+
+  if (offset > 0) {
+    date = adjustForTimezone(date, offset)
   }
 
-  for(let i = 0; i < 8; i++){
+  const parsedCity = capitalize(city)
+
+  let str = ''
+
+  for (let i = 0; i < 8; i++) {
     const fc = forecast[i]
-    const dateFc = new Date(0)
+    let dateFc = new Date(0)
     dateFc.setUTCSeconds(fc.dt)
 
-    const temp = `Klo. ${dateFc.getHours()} Lämpötila: ${Math.round(fc.main.temp)} C ${emoji[fc.weather[0].description]}\n`
+    if (offset > 0) {
+      dateFc = adjustForTimezone(dateFc, offset)
+    }
+
+    const temp = getForecastLine(fc, dateFc)
     str += temp
   }
 
   return {
     city: parsedCity,
     dateStr: parseDate(date),
-    str: str
+    str,
   }
 }
 
@@ -84,7 +84,7 @@ const getEmbed = data => {
     const { city, dateStr, str } = forecast
     weatherEmbed
       .addFields(
-        { name: `${city} sääennuste ${dateStr}`, value: str }
+        { name: `${city} sääennuste ${dateStr}`, value: str },
       )
   })
   weatherEmbed.setFooter({ text: 'GreatestBotEver' })
@@ -112,36 +112,36 @@ const exampleEmbed = new EmbedBuilder()
 .setFooter({ text: 'Some footer text here', iconURL: 'https://i.imgur.com/AfFp7pu.png' });
 */
 
-const forecastAndPopulate = async cities => {
+const forecastAndPopulate = async (cities, offset = 0) => {
   const forecasts = []
 
-  //Get forecasts
-  for(const city of cities){
+  // Get forecasts
+  for (const city of cities) {
     const forecast = await getForecast(city)
 
-    if(!forecast) { return null }
+    if (!forecast) { return null }
 
     forecasts.push({
       city,
-      forecast
+      forecast,
     })
   }
 
   const parsedForecasts = []
-  //Build forecast strings
-  for(const fc of forecasts){
+  // Build forecast strings
+  for (const fc of forecasts) {
     const { city, forecast } = fc
-    const parsedForecast = parseForecast(city, forecast)
-    if(parsedForecast) { parsedForecasts.push(parsedForecast) }
+    const parsedForecast = parseForecast(city, forecast, offset)
+    if (parsedForecast) { parsedForecasts.push(parsedForecast) }
   }
 
-  //Build embed
+  // Build embed
   return getEmbed(parsedForecasts)
 }
 
 const checkInvalid = async city => {
   const forecast = await getForecast(city)
-  if(!forecast) { return true }
+  if (!forecast) { return true }
   return false
 }
 
@@ -153,25 +153,19 @@ const weather = {
     {
       type: 3,
       name: 'query',
-      description: 'name of the city',
-      required: true
+      description: 'names of cities separated by a comma',
+      required: true,
     },
     {
-      type: 3,
-      name: 'query2',
-      description: 'name of the city',
+      type: 4,
+      name: 'utcoffset',
+      description: 'utc offset',
     },
-    {
-      type: 3,
-      name: 'query3',
-      description: 'name of the city',
-    }
-  ]
+  ],
 }
 
 module.exports = {
   weather,
   forecastAndPopulate,
   checkInvalid,
-  getTimezone
 }

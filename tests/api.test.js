@@ -1,7 +1,11 @@
+/* eslint-disable no-undef */
 const mongoose = require('mongoose')
 const supertest = require('supertest')
-const app = require('../app.js')
+const dotenv = require('dotenv')
+const app = require('../app')
 const { discordRequest } = require('../utils/requests')
+
+dotenv.config()
 
 let api
 
@@ -18,19 +22,17 @@ beforeEach(() => {
     member: {
       user: {
         username: 'testuser',
-        id: "188329879861723136"
-      }
+        id: '188329879861723136',
+      },
     },
-    type: 2
+    type: 2,
   }
 })
 
-
 describe('Discord interactions tests', () => {
-  
   test('Api responds to verification requests', async () => {
     const res = await api.post('/interactions').send({
-      type: 1
+      type: 1,
     })
     expect(res.status).toBe(200)
     expect(res.body.type).toBe(1)
@@ -43,33 +45,32 @@ describe('Discord interactions tests', () => {
   })
 
   describe('Interactions', () => {
-
-    test('Api responds correctly to /echo', async () => { 
+    test('Api responds correctly to /echo', async () => {
       mockCommand.data.name = 'echo'
       mockCommand.data.options = [{
-          name: "message",
-          type: 3,
-          value: "moi"
+        name: 'message',
+        type: 3,
+        value: 'moi',
       }]
       const res = await api.post('/interactions').send(mockCommand)
       expect(res.body.data.content).toBe('moi')
       expect(res.body.type).toBe(4)
       expect(res.status).toBe(200)
-      })
+    })
 
     test('Api responds correctly to /route', async () => {
       mockCommand.data.name = 'route'
       const options = [
         {
-            name: "start",
-            type: 3,
-            value: "kamppi"
+          name: 'start',
+          type: 3,
+          value: 'kamppi',
         },
         {
-            name: "end",
-            type: 3,
-            value: "pasila"
-        }
+          name: 'end',
+          type: 3,
+          value: 'pasila',
+        },
       ]
       mockCommand.data.options = options
       const res = await api.post('/interactions').send(mockCommand)
@@ -84,20 +85,19 @@ describe('Discord interactions tests', () => {
       expect(res.status).toBe(200)
     })
 
-    test('Api responds correctly to /pp', async () => { 
+    test('Api responds correctly to /pp', async () => {
       mockCommand.data.name = 'pp'
       const res = await api.post('/interactions').send(mockCommand)
       expect(res.body.data.content).toMatch(/B=*D/)
       expect(res.status).toBe(200)
     })
 
-
     test('Api responds correctly to /search', async () => {
       mockCommand.data.name = 'search'
       mockCommand.data.options = [{
-        name: "query",
+        name: 'query',
         type: 3,
-        value: "test"
+        value: 'test',
       }]
       const res = await api.post('/interactions').send(mockCommand)
       expect(res.body.data.content).toMatch(/https:/)
@@ -109,7 +109,7 @@ describe('Discord interactions tests', () => {
       mockCommand.data.options = [{
         name: 'query',
         type: 3,
-        value: 'espoo'
+        value: 'espoo',
       }]
       const res = await api.post('/interactions').send(mockCommand)
       expect(res.body.data.embeds).toBeDefined()
@@ -122,40 +122,39 @@ describe('Discord interactions tests', () => {
         {
           name: 'query',
           type: 3,
-          value: 'espoo'
+          value: 'espoo',
         },
         {
           name: 'time',
           type: 3,
-          value: '8:00'
+          value: '8:00',
         },
         {
           name: 'timezone',
           type: 3,
-          value: 1
-        }
+          value: 1,
+        },
       ]
       const res = await api.post('/interactions').send(mockCommand)
-      
+
       expect(res.body.data.content).toBe('Subscribed!')
       expect(res.status).toBe(200)
     })
 
     describe('Incorrect interaction options', () => {
-
       test('/route', async () => {
         mockCommand.data.name = 'route'
         const options = [
           {
-              name: "start",
-              type: 3,
-              value: "incorrect"
+            name: 'start',
+            type: 3,
+            value: 'incorrect',
           },
           {
-              name: "end",
-              type: 3,
-              value: "definitely incorrect"
-          }
+            name: 'end',
+            type: 3,
+            value: 'definitely incorrect',
+          },
         ]
         mockCommand.data.options = options
         const res = await api.post('/interactions').send(mockCommand)
@@ -169,7 +168,7 @@ describe('Discord interactions tests', () => {
         mockCommand.data.options = [{
           name: 'query',
           type: 3,
-          value: 'incorrect'
+          value: 'incorrect',
         }]
         const res = await api.post('/interactions').send(mockCommand)
         expect(res.body.data.content).toBe('Weather not found with queries: incorrect')
@@ -182,18 +181,18 @@ describe('Discord interactions tests', () => {
           {
             name: 'query',
             type: 3,
-            value: 'incorrect'
+            value: 'incorrect',
           },
           {
             name: 'time',
             type: 3,
-            value: '80:0'
+            value: '80:0',
           },
           {
             name: 'utcoffset',
             type: 3,
-            value: 24
-          }
+            value: 24,
+          },
         ]
         const res = await api.post('/interactions').send(mockCommand)
 
@@ -206,8 +205,8 @@ describe('Discord interactions tests', () => {
 
 afterAll(async () => {
   mongoose.connection.close()
-  const endpoint ="/channels/1041324752293347358"
-  const res = await discordRequest(endpoint, {
-    method: 'delete'
+  const endpoint = '/channels/1041324752293347358'
+  await discordRequest(endpoint, {
+    method: 'delete',
   })
 })

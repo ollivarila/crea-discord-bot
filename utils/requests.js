@@ -1,62 +1,75 @@
 const axios = require('axios')
-const { sleep } = require('../utils.js')
 const dotenv = require('dotenv')
+const { sleep } = require('../utils')
+const { info, error } = require('./logger')
+
 dotenv.config()
+
 const { APPID, GUILDID, DISCORDTOKEN } = process.env
 
-async function checkLimit(res){
+async function checkLimit(res) {
   const limitRemaining = res.headers['x-ratelimit-remaining']
   const timeUntilReset = res.headers['x-ratelimit-reset-after']
-  
-  if(limitRemaining === undefined) { return }
 
-  console.log(`Limit remaining: ${limitRemaining}`)
+  if (limitRemaining === undefined) { return }
 
-  if(parseInt(limitRemaining) === 0){
-    console.log(`Sleeping for ${timeUntilReset}`);
+  info(`Limit remaining: ${limitRemaining}`)
+  if (parseInt(limitRemaining, 10) === 0) {
+    info(`Sleeping for ${timeUntilReset}`);
     await sleep(timeUntilReset * 1000 + 100)
   }
 }
 
-const installCommand = async command => {
-  const endpoint = `/applications/${APPID}/guilds/${GUILDID}/commands`
-  try {
-    const res = await discordRequest(endpoint, {
-      method: 'post',
-      data: command
-    })
-    return res
-  } catch (error) {
-    console.error(error.response.data.errors.options['2'].name)
-  }
-}
-
-async function discordRequest(endpoint, options){
+async function discordRequest(endpoint, options) {
   const baseurl = 'https://discord.com/api/v10'
   const url = baseurl + endpoint
   const headers = {
     Authorization: `Bot ${DISCORDTOKEN}`,
     'User-Agent': 'DiscordBot (1.0.0)',
   }
-  const res = await axios.request({
-    url,
-    headers,
-    ...options
-  })
-  await checkLimit(res)
-  return res
+  try {
+    const res = await axios.request({
+      url,
+      headers,
+      ...options,
+    })
+    await checkLimit(res)
+    return res
+  } catch (err) {
+    error(err)
+    return null
+  }
 }
 
-async function request(url, options){
-  const res = await axios.request({
-    url,
-    ...options
+const installCommand = async command => {
+  const endpoint = `/applications/${APPID}/guilds/${GUILDID}/commands`
+  info(`Installing "${command.name}"`);
+  const res = await discordRequest(endpoint, {
+    method: 'post',
+    data: command,
   })
-  return res
+  if (!res) {
+    error('Error installing command')
+  } else {
+    info(`installed command ${command.name}`)
+  }
+}
+
+async function request(url, options) {
+  try {
+    const res = await axios.request({
+      url,
+      ...options,
+    })
+    return res
+  } catch (err) {
+    error(err)
+    return null
+  }
 }
 
 module.exports = {
   installCommand,
   request,
-  discordRequest
+  discordRequest,
 }

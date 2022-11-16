@@ -1,5 +1,4 @@
-const axios = require('axios').default
-const { capitalize } = require("../utils.js")
+const { capitalize } = require('../utils')
 const { request } = require('../utils/requests')
 const { error } = require('../utils/logger')
 
@@ -12,15 +11,15 @@ const route = {
       type: 3,
       name: 'start',
       description: 'starting address',
-      required: true
+      required: true,
     },
     {
       type: 3,
       name: 'end',
       description: 'ending address',
-      required: true
-    }
-  ]
+      required: true,
+    },
+  ],
 }
 
 const routeBaseUrl = 'https://api.digitransit.fi/routing/v1/routers/hsl/index/graphql'
@@ -32,18 +31,18 @@ const addressToCoords = async (locations) => {
     const url = `${addressToCoordsBaseUrl}?text=`
     let res = await request(url + start, { method: 'get' })
     const coordsStart = res.data.features[0].geometry.coordinates
-  
+
     res = await await request(url + end, { method: 'get' })
     const coordsEnd = res.data.features[0].geometry.coordinates
-  
+
     return {
       start: {
         lat: coordsStart[1],
-        lon: coordsStart[0]
+        lon: coordsStart[0],
       },
       end: {
         lat: coordsEnd[1],
-        lon: coordsEnd[0]
+        lon: coordsEnd[0],
       },
     }
   } catch (err) {
@@ -52,12 +51,21 @@ const addressToCoords = async (locations) => {
   }
 }
 
+const getRouteString = (itinerary) => {
+  let str = ''
+  itinerary.forEach((waypoint, i) => {
+    const temp = `${i + 1}. ${capitalize(waypoint.mode)}, from ${waypoint.from} to ${waypoint.to} \n`
+    str += temp
+  })
+  return str
+}
+
 const getRoute = async (locations) => {
-  //const coordinates = addressToCoords(locations)
+  // const coordinates = addressToCoords(locations)
 
   const coords = await addressToCoords(locations)
 
-  if(!coords) { return null }
+  if (!coords) { return null }
 
   const { start, end } = coords
   const query = {
@@ -85,10 +93,10 @@ const getRoute = async (locations) => {
         }
       }
     }
-  `
+  `,
   }
   try {
-    const res = await request(routeBaseUrl, { method: 'post', data: query})
+    const res = await request(routeBaseUrl, { method: 'post', data: query })
     const itins = res.data.data.plan.itineraries
     const waypoints = []
 
@@ -97,29 +105,20 @@ const getRoute = async (locations) => {
         const waypoint = {
           mode: leg.mode,
           from: leg.from.name,
-          to: leg.to.name
+          to: leg.to.name,
         }
         waypoints.push(waypoint)
       })
     })
 
-  return getRouteString(waypoints)
+    return getRouteString(waypoints)
   } catch (err) {
     error(err)
     return 'vammaset tiedot'
   }
 }
 
-const getRouteString = (route) => {
-  let str = ''
-  route.forEach((waypoint, i) => {
-    const temp = `${i + 1}. ${capitalize(waypoint.mode)}, from ${waypoint.from} to ${waypoint.to} \n`
-    str += temp
-  })
-  return str
-} 
-
 module.exports = {
   route,
-  getRoute
+  getRoute,
 }

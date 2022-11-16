@@ -1,9 +1,7 @@
 const Subscriber = require('../models/Subscriber')
-const { error, info } = require('../utils/logger')
+const { error } = require('../utils/logger')
 
-const get = async discordid => {
-  return await Subscriber.findOne({ discordid })
-}
+const get = async discordid => Subscriber.findOne({ discordid })
 
 const create = async sub => {
   const createThis = new Subscriber({
@@ -12,11 +10,11 @@ const create = async sub => {
     cities: sub.cities,
     time: sub.time || 800,
     utcOffset: sub.utcOffset || 0,
-    dmChannel: sub.dmChannel
+    dmChannel: sub.dmChannel,
   })
   try {
     const created = await createThis.save()
-    return created ? true : false
+    return !!created
   } catch (err) {
     error(err)
     return false
@@ -25,19 +23,20 @@ const create = async sub => {
 
 const update = async (discordid, data) => {
   const updateThis = {
-    ...data
+    ...data,
   }
 
-  if(updateThis.cities){
+  if (updateThis.cities) {
     delete updateThis.cities
   }
   try {
     const updated = await Subscriber.findOneAndUpdate(
-      { discordid }, 
-      updateThis, 
-      { runValidators: true })
-    
-    return updated ? true : false
+      { discordid },
+      updateThis,
+      { runValidators: true },
+    )
+
+    return !!updated
   } catch (err) {
     error(err)
     return false
@@ -45,18 +44,16 @@ const update = async (discordid, data) => {
 }
 
 const remove = async discordid => {
-  const result = await Subscriber.findOneAndRemove({ discordid: discordid })
-  return result ? true : false
+  const result = await Subscriber.findOneAndRemove({ discordid })
+  return !!result
 }
 
-const getAll = async () => {
-  return await Subscriber.find({})
-}
+const getAll = async () => Subscriber.find({})
 
 module.exports = {
   get,
   create,
   update,
   remove,
-  getAll
+  getAll,
 }

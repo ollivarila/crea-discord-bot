@@ -1,29 +1,28 @@
-const dao = require('../../dao/subscriberDao')
+/* eslint-disable no-undef */
 const mongoose = require('mongoose')
+const dao = require('../../dao/subscriberDao')
 const config = require('../../config')
 const Subscriber = require('../../models/Subscriber')
 const { info, error } = require('../../utils/logger')
- 
-//Connect to test DB
-beforeAll( async () => {
-  return mongoose.connect(config.MONGODB_URI)
-    .then(() => {
-      info('connected to mongodb')
-    })
-    .catch(err => error(err))
-})
+
+// Connect to test DB
+beforeAll(async () => mongoose.connect(config.MONGODB_URI)
+  .then(() => {
+    info('connected to mongodb')
+  })
+  .catch(err => error(err)))
 
 describe('SubscriberDao', () => {
   let testSub
-  //Remove all subs and create one
+  // Remove all subs and create one
   beforeEach(async () => {
     testSub = new Subscriber({
       username: 'testuser',
       discordid: '123',
       cities: 'espoo, helsinki',
       time: '800',
-      utcOffset:  7200,
-      dmChannel: 321
+      utcOffset: 7200,
+      dmChannel: 321,
     })
     await Subscriber.deleteMany({})
     await testSub.save()
@@ -45,11 +44,11 @@ describe('SubscriberDao', () => {
       discordid: '12345',
       cities: 'espoo, helsinki',
       time: '800',
-      utcOffset:  0,
-      dmChannel: 1234
+      utcOffset: 0,
+      dmChannel: 1234,
     }
 
-    const result = await dao.create(newSub)
+    await dao.create(newSub)
     const created = await Subscriber.findOne({ discordid: 12345 })
     expect(created.discordid).toBe(newSub.discordid)
   })
@@ -82,14 +81,13 @@ describe('SubscriberDao', () => {
     const falseUser = {
       username: 'testuser2',
       discordid: 1234,
-      timezone:  7200
+      timezone: 7200,
     }
     const created = await dao.create(falseUser)
     const createdSub = await Subscriber.findOne({ discordid: falseUser.discordid })
     expect(created).toBe(false)
     expect(createdSub).toBe(null)
   })
-
 
   test('remove invalid data', async () => {
     const result = await dao.remove(132)
@@ -104,5 +102,5 @@ afterAll(async () => {
   return mongoose.connection.close().then(() => {
     info('connection closed')
   })
-  .catch(err => error(err))
+    .catch(err => error(err))
 })

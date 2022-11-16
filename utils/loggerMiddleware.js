@@ -1,8 +1,8 @@
-const logger = require('./logger.js')
+const logger = require('./logger')
 require('dotenv').config()
 
 const loggerMiddleware = (req, res, next) => {
-  if(process.env.NODE_ENV !== 'test'){
+  if (process.env.NODE_ENV !== 'test') {
     logger.info(`NEW REQUEST method: ${req.method} path: ${req.path}`)
   }
   next()

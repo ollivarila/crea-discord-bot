@@ -1,11 +1,13 @@
+const dotenv = require('dotenv')
 const subDao = require('../dao/subscriberDao')
-const { checkInvalid, getTimezone } = require('./weather')
+const { checkInvalid } = require('./weather')
 const { discordRequest } = require('../utils/requests')
 const { info, error } = require('../utils/logger')
 const { forecastAndPopulate } = require('./weather')
 
+dotenv.config()
+
 const jobController = require('../controllers/jobController')
-const { startSession } = require('../models/Subscriber')
 
 const subscribe = {
   type: 1,
@@ -16,7 +18,7 @@ const subscribe = {
       type: 3,
       name: 'query',
       description: 'Names of cities separated by a comma i.e espoo, helsinki... ',
-      required: 'true'
+      required: 'true',
     },
     {
       type: 3,
@@ -27,12 +29,12 @@ const subscribe = {
       type: 3,
       name: 'utc_offset',
       description: 'hours offset from UTC time, i.e -2 or +8',
-    }
-  ]
+    },
+  ],
 }
 
 const parseUtcOffset = offset => {
-  if(offset > 14 || offset < -12){
+  if (offset > 14 || offset < -12) {
     return false
   }
   return true
@@ -44,10 +46,10 @@ const parseCities = cities => {
 }
 
 const verifyCities = cities => {
-  const unverified  = []
+  const unverified = []
   cities.forEach(async c => {
     const invalid = await checkInvalid(c)
-    if(invalid){
+    if (invalid) {
       unverified.push(c)
     }
   })
@@ -55,112 +57,115 @@ const verifyCities = cities => {
 }
 
 const createDmChannel = async discordid => {
-  const endpoint = `/users/@me/channels`
+  const endpoint = '/users/@me/channels'
   const res = await discordRequest(endpoint, {
     method: 'post',
     data: {
-      "recipient_id": discordid
-    }
+      recipient_id: discordid,
+    },
   })
-  return res.data
+  return res ? res.data : null
 }
 
 const verifyTime = time => {
-  if(time.includes('+') || time.includes('-')){
+  if (time.includes('+') || time.includes('-')) {
     return false
   }
 
   const parsed = time.split(/:/)
-  if(parsed.length === 1){
-    return false
-  }
-  
-  const hours = parseInt(parsed[0])
-  const minutes = parseInt(parsed[1])
-
-  if((!hours && hours !== 0) || (!minutes && minutes !== 0)){
+  if (parsed.length === 1) {
     return false
   }
 
-  if(hours > 23 || minutes > 59 || hours < 0 || minutes < 0){
+  const hours = parseInt(parsed[0], 10)
+  const minutes = parseInt(parsed[1], 10)
+
+  if ((!hours && hours !== 0) || (!minutes && minutes !== 0)) {
+    return false
+  }
+
+  if (hours > 23 || minutes > 59 || hours < 0 || minutes < 0) {
     return false
   }
   return true
 }
 
-
 const parseAndVerifydata = async (userdata, callback) => {
-  const { username, discordid, citiesCsv, time, utcOffset } = userdata
+  const {
+    username, discordid, citiesCsv, time, utcOffset,
+  } = userdata
   const badData = []
-  //Verify that data is correct
+  // Verify that data is correct
   const parsedCities = parseCities(citiesCsv)
   const unverified = verifyCities(parsedCities)
-  if(unverified.length > 0){
+  if (unverified.length > 0) {
     badData.push(...unverified)
   }
 
-  if(!verifyTime(time)){
+  if (!verifyTime(time)) {
     badData.push(time)
   }
 
-
-  if(!parseUtcOffset(utcOffset)){
+  if (!parseUtcOffset(utcOffset)) {
     badData.push('Offset should be between -12 and 14')
   }
 
-  if(badData.length > 0){
+  if (badData.length > 0) {
     callback(badData)
     return null
   }
 
-  //Create dm channel
+  // Create dm channel
   const res = await createDmChannel(discordid)
     .catch(err => {
       error(err.message)
       throw new Error('Failed to create dm')
     })
-  
-  
+
   const dmChannel = res.id
   return {
     username,
     discordid,
     cities: citiesCsv,
-    time: time,
+    time,
     utcOffset,
-    dmChannel
+    dmChannel,
   }
 }
 
 const handleWeatherUpdate = async data => {
   const { discordid } = data
-  //Get subscriber
+  // Get subscriber
   const sub = await subDao.get(discordid)
-  //Get forecast
-  const forecastEmbed = await forecastAndPopulate(sub.cities.split(/,\s*/))
-  
-  //Send embed as dm to user
+  // Get forecast
+  const forecastEmbed = await forecastAndPopulate(sub.cities.split(/,\s*/), sub.utcOffset)
+
+  // Send embed as dm to user
   const endpoint = `/channels/${sub.dmChannel}/messages`
   info(`Sending forecast to ${endpoint} (${sub.username})`)
-  const result = await discordRequest(endpoint, {
+
+  const res = await discordRequest(endpoint, {
     method: 'post',
     data: {
       embeds: [
-        forecastEmbed
-      ]
-    }
+        forecastEmbed,
+      ],
+    },
   })
+  if (res === null) {
+    error('Error occurred while sending request to discord')
+  }
 }
 
 const subscribeUser = async (userdata) => {
-  try {  
-    //Parse and verify user data
+  try {
+    // Parse and verify user data
     let badData = null
     const userObj = await parseAndVerifydata(userdata, data => {
       badData = data
     })
 
-    if(badData){
+    if (badData) {
       let str = 'Subscription failed, reason: '
       badData.forEach(d => {
         str += `${d}, `
@@ -181,5 +186,5 @@ const subscribeUser = async (userdata) => {
 module.exports = {
   subscribe,
   subscribeUser,
-  createDmChannel
+  createDmChannel,
 }

@@ -1,10 +1,10 @@
-const {echo} = require("./echo.js")
-const {route} = require("./route.js")
-const {ping} = require("./ping.js")
-const {pp} = require("./pp.js")
-const {search} = require("./search.js")
-const {subscribe} = require("./subscribe.js")
-const {weather} = require("./weather.js")
+const { echo } = require('./echo')
+const { route } = require('./route')
+const { ping } = require('./ping')
+const { pp } = require('./pp')
+const { search } = require('./search')
+const { subscribe } = require('./subscribe')
+const { weather } = require('./weather')
 
 const commands = [
   echo,
@@ -13,7 +13,7 @@ const commands = [
   pp,
   search,
   weather,
-  subscribe
+  subscribe,
 ]
 
 module.exports = commands

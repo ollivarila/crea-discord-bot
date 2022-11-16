@@ -7,11 +7,11 @@ const echo = {
       type: 3,
       name: 'message',
       description: 'message',
-      required: 'true'
-    }
-  ]
+      required: 'true',
+    },
+  ],
 }
 
 module.exports = {
-  echo
+  echo,
 }

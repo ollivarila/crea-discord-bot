@@ -1,29 +1,27 @@
 const express = require('express')
 require('express-async-errors')
-const { VerifyDiscordRequest } = require('./utils.js')
-const dotenv = require('dotenv')
-const loggerMiddleware = require('./utils/loggerMiddleware.js')
-const interactionRouter = require('./controllers/interactionRouter.js')
-
 const mongoose = require('mongoose')
-const Subscriber = require('./models/Subscriber')
-const { MONGODB_URI } = require('./config.js')
-const logger = require('./utils/logger')
+const { VerifyDiscordRequest } = require('./utils')
+const loggerMiddleware = require('./utils/loggerMiddleware')
+const interactionRouter = require('./controllers/interactionRouter')
 
-dotenv.config()
+const Subscriber = require('./models/Subscriber')
+const { MONGODB_URI } = require('./config')
+const { info, error } = require('./utils/logger')
+
 const app = express()
 
 mongoose.connect(MONGODB_URI).then(() => {
-    logger.info('Connected to MongoDB')
-  }).catch(error => logger.error('Error connecting to MongoDB', error))
+  info('Connected to MongoDB')
+}).catch(err => error('Error connecting to MongoDB', err))
 
-if(process.env.NODE_ENV === 'development'){
+if (process.env.NODE_ENV === 'development') {
   Subscriber.deleteMany({})
-    .then(() => console.log('cleared database'))
+    .then(() => info('cleared database'))
 }
 
 // Parse request body and verifies incoming requests using discord-interactions package
-if(process.env.NODE_ENV !== 'test'){
+if (process.env.NODE_ENV !== 'test') {
   app.use(express.json({ verify: VerifyDiscordRequest(process.env.PUBLICKEY) }));
 } else {
   app.use(express.json())
@@ -37,4 +35,3 @@ app.use(loggerMiddleware)
 app.use('/interactions', interactionRouter)
 
 module.exports = app
-

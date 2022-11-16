@@ -7,9 +7,9 @@ const search = {
       type: 3,
       name: 'query',
       description: 'query',
-      required: true
-    }
-  ]
+      required: true,
+    },
+  ],
 }
 
 const createUrl = q => {
@@ -19,5 +19,5 @@ const createUrl = q => {
 
 module.exports = {
   search,
-  createUrl
+  createUrl,
 }

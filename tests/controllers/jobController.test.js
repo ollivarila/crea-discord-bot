@@ -1,4 +1,10 @@
-const { createJob, removeJob, getJob, createCrontime } = require('../../controllers/jobController')
+/* eslint-disable no-undef */
+const dotenv = require('dotenv')
+const {
+  createJob, removeJob, getJob, createCrontime,
+} = require('../../controllers/jobController')
+
+dotenv.config()
 
 describe('Job tests', () => {
   let jobs
@@ -7,14 +13,13 @@ describe('Job tests', () => {
     jobs = removeJob('234234')
   })
 
-
   test('createJob()', () => {
     const data = {
       time: '8:00',
       utcOffset: '+2',
-      discordid: '234234'
+      discordid: '234234',
     }
-    jobs = createJob(data, async (data) => {
+    jobs = createJob(data, async () => {
     })
     expect(jobs.length).toBe(1)
   })
@@ -23,9 +28,9 @@ describe('Job tests', () => {
     const data = {
       time: '8:00',
       utcOffset: '+2',
-      discordid: '234234'
+      discordid: '234234',
     }
-    createJob(data, (data) => {
+    createJob(data, () => {
     })
     jobs = removeJob(data.discordid)
     expect(jobs.length).toBe(0)
@@ -35,9 +40,9 @@ describe('Job tests', () => {
     const data = {
       time: '8:00',
       utcOffset: '+2',
-      discordid: '234234'
+      discordid: '234234',
     }
-    createJob(data, (data) => {
+    createJob(data, () => {
     })
     const job = getJob(data.discordid)
     expect(job.discordid).toBe(data.discordid)
@@ -58,7 +63,7 @@ describe('Job tests', () => {
       ':-0',
       ':',
       ' ',
-      '-0:-0'
+      '-0:-0',
     ]
     timesToTest.forEach(time => {
       expect(createCrontime(time)).toBe(shouldBe)
