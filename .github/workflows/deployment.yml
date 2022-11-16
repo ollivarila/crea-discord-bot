@@ -48,3 +48,9 @@ jobs:
           PORT: ${{ secrets.PORT }}
           MONGODB_URI: ${{ secrets.MONGODB_URI }}
           TEST_MONGODB_URI: ${{ secrets.TEST_MONGODB_URI }}
+      - if: ${{ github.event_name == 'push' }}          
+        name: uninstall commands
+        run: npm run reset
+      - if: ${{ github.event_name == 'push' }}       
+        name: install commands
+        run: npm run install:commands
