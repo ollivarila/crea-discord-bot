@@ -15,6 +15,7 @@ jobs:
         run: npm install
       - name: lint
         run: npm run lint
+      - if: ${{ github.event_name != 'push' }}
       - name: test
         run: npm run test:deployment
         env:
@@ -26,7 +27,7 @@ jobs:
           PORT: ${{ secrets.PORT }}
           MONGODB_URI: ${{ secrets.MONGODB_URI }}
           TEST_MONGODB_URI: ${{ secrets.TEST_MONGODB_URI }}
-      - if: ${{ github.event_name == 'push' }}
+      - if: ${{ github.event_name != 'push' }}
         name: echo something
         run: echo "something"
 
