@@ -34,4 +34,14 @@ app.use(loggerMiddleware)
  */
 app.use('/interactions', interactionRouter)
 
+// For health checks
+app.get('/health', (req, res) => {
+  res.send('ok')
+})
+
+// To see if version has actually updated
+app.get('/version', (req, res) => {
+  res.send('1')
+})
+
 module.exports = app
