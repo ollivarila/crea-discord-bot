@@ -4,10 +4,10 @@
   "description": "discord bot with various features",
   "main": "index.js",
   "scripts": {
-    "start": "cross-env NODE_ENV=production node index.js",
+    "start": "node index.js",
     "dev": "cross-env NODE_ENV=development nodemon index.js",
     "test": "clear && cross-env NODE_ENV=test jest --verbose --runInBand --forceExit",
-    "test:deployment": "cross-env NODE_ENV=test jest --verbose --runInBand --forceExit",
+    "test:deployment": "jest --verbose --runInBand --forceExit",
     "reset": "node ./utils/removeCommands.js",
     "lint": "eslint ."
   },
