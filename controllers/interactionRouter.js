@@ -9,7 +9,7 @@ const {
 const { getRoute } = require('../commands/route')
 const { createUrl } = require('../commands/search')
 const { forecastAndPopulate } = require('../commands/weather')
-const { capitalize } = require('../utils')
+const { capitalize } = require('../utils/utils')
 const { subscribeUser, unsubscribeUser } = require('../commands/subscribe')
 const { getPP } = require('../commands/pp')
 const { error } = require('../utils/logger')

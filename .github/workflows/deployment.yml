@@ -45,6 +45,7 @@ jobs:
           GUILDID: ${{ secrets.GUILDID }}
           DISCORDTOKEN: ${{ secrets.DISCORDTOKEN }}
           WEATHERTOKEN: ${{ secrets.WEATHERTOKEN }}
+          PUBLICKEY: ${{ secrets.PUBLICKEY }}
           PORT: ${{ secrets.PORT }}
           MONGODB_URI: ${{ secrets.MONGODB_URI }}
           TEST_MONGODB_URI: ${{ secrets.TEST_MONGODB_URI }}
@@ -57,6 +58,7 @@ jobs:
           GUILDID: ${{ secrets.GUILDID }}
           DISCORDTOKEN: ${{ secrets.DISCORDTOKEN }}
           WEATHERTOKEN: ${{ secrets.WEATHERTOKEN }}
+          PUBLICKEY: ${{ secrets.PUBLICKEY }}
           PORT: ${{ secrets.PORT }}
           MONGODB_URI: ${{ secrets.MONGODB_URI }}
           TEST_MONGODB_URI: ${{ secrets.TEST_MONGODB_URI }}        
@@ -69,6 +71,7 @@ jobs:
           GUILDID: ${{ secrets.GUILDID }}
           DISCORDTOKEN: ${{ secrets.DISCORDTOKEN }}
           WEATHERTOKEN: ${{ secrets.WEATHERTOKEN }}
+          PUBLICKEY: ${{ secrets.PUBLICKEY }}
           PORT: ${{ secrets.PORT }}
           MONGODB_URI: ${{ secrets.MONGODB_URI }}
           TEST_MONGODB_URI: ${{ secrets.TEST_MONGODB_URI }}

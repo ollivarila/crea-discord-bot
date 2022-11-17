@@ -198,7 +198,7 @@ describe('Discord interactions tests', () => {
         ]
         const res = await api.post('/interactions').send(mockCommand)
 
-        expect(res.body.data.content).toBe('Subscription failed, reason: 80:0, Offset should be between -12 and 14')
+        expect(res.body.data.content).toBe('Subscription failed, reason: incorrect, 80:0, Offset should be between -12 and 14')
         expect(res.status).toBe(200)
       })
     })
