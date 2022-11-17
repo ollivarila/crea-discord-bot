@@ -2,14 +2,13 @@
 /* eslint-disable no-undef */
 const mongoose = require('mongoose')
 const axios = require('axios')
-const MockAdapter = require('axios-mock-adapter')
+const { default: MockAdapter } = require('axios-mock-adapter')
 const { createDmChannel, subscribeUser } = require('../../commands/subscribe')
 const { getPP } = require('../../commands/pp')
 const config = require('../../config')
 const { info, error } = require('../../utils/logger')
 
 describe('Subscribe tests', () => {
-  let mock = new MockAdapter(axios)
   const discordid = '188329879861723136'
 
   beforeAll(async () => {
@@ -49,7 +48,6 @@ describe('Subscribe tests', () => {
 
     const res = await createDmChannel(discordid)
     // expect(res.recipients[0].username).toBe('Crea')
-    console.log(res)
     expect(res).toEqual(mockRes.data)
   })
 
@@ -81,14 +79,12 @@ describe('Subscribe tests', () => {
       },
     }
     const url2 = 'https://discord.com/api/v10/users/@me/channels'
-    mock.onPost(url, undefined, {
-      Authorization: expect.not.stringMatching(/undefined/),
-      'User-Agent': expect.stringContaining('Discord bot'),
-    }).reply(200, mockRes.data)
+    const urlCreateDm = 'https://discord.com/api/v10/users/@me/channels'
+    mock.onPost(url).reply(200, mockRes.data)
+    mock.onPost(urlCreateDm).reply(200, { id: 123 })
 
     mock.onGet(url).reply(200, { list: [1, 2, 3] })
     const res = await subscribeUser(user, (data) => {
-      console.log(data)
     })
     expect(res).toBe('Subscribed!')
   })

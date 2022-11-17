@@ -1,7 +1,7 @@
 const express = require('express')
 require('express-async-errors')
 const mongoose = require('mongoose')
-const { VerifyDiscordRequest } = require('./utils')
+const { VerifyDiscordRequest } = require('./utils/utils')
 const loggerMiddleware = require('./utils/loggerMiddleware')
 const interactionRouter = require('./controllers/interactionRouter')
 const { info, error } = require('./utils/logger')

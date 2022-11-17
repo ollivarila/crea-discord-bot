@@ -45,14 +45,14 @@ const parseCities = cities => {
   return parsed
 }
 
-const verifyCities = cities => {
+const verifyCities = async cities => {
   const unverified = []
-  cities.forEach(async c => {
-    const invalid = await checkInvalid(c)
-    if (invalid) {
-      unverified.push(c)
+  for await (const city of cities){
+    const invalid = await checkInvalid(city)
+    if(invalid){
+      unverified.push(city)
     }
-  })
+  }
   return unverified
 }
 
@@ -97,9 +97,9 @@ const parseAndVerifydata = async (userdata, callback) => {
   const badData = []
   // Verify that data is correct
   const parsedCities = parseCities(citiesCsv)
-  const unverified = verifyCities(parsedCities)
+  const unverified = await verifyCities(parsedCities)
   if (unverified.length > 0) {
-    badData.push(...unverified)
+    badData.push(unverified)
   }
 
   if (!verifyTime(time)) {
@@ -180,7 +180,6 @@ const subscribeUser = async (userdata) => {
     return 'Subscribed!'
   } catch (err) {
     error(err)
-    console.error(err)
     return err.message
   }
 }
