@@ -211,4 +211,5 @@ module.exports = {
   createDmChannel,
   unsubscribe,
   unsubscribeUser,
+  handleWeatherUpdate,
 }

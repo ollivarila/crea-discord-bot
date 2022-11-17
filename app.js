@@ -8,6 +8,7 @@ const { info, error } = require('./utils/logger')
 const subDao = require('./dao/subscriberDao')
 const jobController = require('./controllers/jobController')
 const config = require('./config')
+const { handleWeatherUpdate } = require('./commands/subscribe')
 
 const app = express()
 
@@ -15,7 +16,7 @@ mongoose.connect(config.MONGODB_URI).then(async () => {
   info('Connected to MongoDB')
   const subs = await subDao.getAll()
   subs.forEach(sub => {
-    jobController.createJob(sub)
+    jobController.createJob(sub, handleWeatherUpdate({ discordid: sub.discordid }))
   })
   info(jobController.getAll())
 }).catch(err => error('Error connecting to MongoDB', err))
