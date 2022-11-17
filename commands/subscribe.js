@@ -180,6 +180,7 @@ const subscribeUser = async (userdata) => {
     return 'Subscribed!'
   } catch (err) {
     error(err)
+    console.error(err)
     return err.message
   }
 }
