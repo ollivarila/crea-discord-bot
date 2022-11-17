@@ -8,6 +8,7 @@
     "dev": "cross-env NODE_ENV=development nodemon index.js",
     "test": "clear && cross-env NODE_ENV=test jest --verbose --runInBand --forceExit",
     "test:deployment": "jest --verbose --runInBand --forceExit",
+    "install:commands": "node ./utils/installCommands.js",
     "reset": "node ./utils/removeCommands.js",
     "lint": "eslint ."
   },

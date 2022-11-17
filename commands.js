@@ -2,7 +2,7 @@ const { installCommand, discordRequest } = require('./utils/requests')
 
 // Installs a command
 async function InstallGuildCommand(command) {
-  await installCommand(command);
+  return installCommand(command);
 }
 
 // Checks for a command
@@ -25,7 +25,7 @@ async function HasGuildCommands(appId, guildId, commands) {
   const { data } = res
 
   for (const command of commands) {
-    HasGuildCommand(data, command)
+    await HasGuildCommand(data, command)
   }
 }
 

@@ -77,6 +77,7 @@ const parseForecast = (city, forecast, offset) => {
 
 const getEmbed = data => {
   const weatherEmbed = new EmbedBuilder()
+    .setColor(0x8a00c2)
     .setTitle('Sääennusteet')
     .setDescription('Jotain tietoja')
 
