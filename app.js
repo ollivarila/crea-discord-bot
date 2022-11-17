@@ -10,7 +10,14 @@ const jobController = require('./controllers/jobController')
 const config = require('./config')
 const Challenge = require('./models/Challenge')
 
+const {
+  PUBLICKEY, GUILDID, APPID, DISCORDTOKEN, WEATHERTOKEN,
+} = process.env
 const app = express()
+
+if (!(PUBLICKEY && GUILDID && APPID && DISCORDTOKEN && WEATHERTOKEN)) {
+  throw new Error('Environment variables not set correctly')
+}
 
 mongoose.connect(config.MONGODB_URI).then(async () => {
   info('Connected to MongoDB')
