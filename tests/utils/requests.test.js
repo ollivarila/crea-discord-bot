@@ -1,6 +1,7 @@
-const { request, discordRequest, installCommand } = require('../../utils/requests')
+/* eslint-disable no-undef */
 const axios = require('axios')
 const { default: MockAdapter } = require('axios-mock-adapter')
+const { request, discordRequest, installCommand } = require('../../utils/requests')
 const { ping } = require('../../commands/ping')
 
 describe('Request utils internal functionality tests', () => {
@@ -17,15 +18,14 @@ describe('Request utils internal functionality tests', () => {
     const testurl = 'https://localhost:3000/test'
     mock.onGet(testurl, { test: 'test' }).reply(200, { test: 'test' })
 
-
     const res = await request(testurl, {
       method: 'get',
       headers: {
-        Authorization: 'test'
+        Authorization: 'test',
       },
       date: {
-        test: 'test'
-      }
+        test: 'test',
+      },
     })
     expect(res.data.test).toBe('test')
     expect(mock.history.get[0].url).toBe(testurl)
@@ -37,11 +37,11 @@ describe('Request utils internal functionality tests', () => {
       Authorization: expect.not.stringContaining('undefined'),
     })).reply(200, { testRes: 'test' })
 
-    const res = await discordRequest(`/channels`, {
+    const res = await discordRequest('/channels', {
       method: 'post',
       data: {
-        testBody: 'test'
-      }
+        testBody: 'test',
+      },
     })
     expect(res.data.testRes).toBe('test')
     expect(mock.history.post[0].url).toBe(`${testUrl}/channels`)

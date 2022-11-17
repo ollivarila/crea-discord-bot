@@ -78,14 +78,12 @@ describe('Subscribe tests', () => {
         ],
       },
     }
-    const url2 = 'https://discord.com/api/v10/users/@me/channels'
     const urlCreateDm = 'https://discord.com/api/v10/users/@me/channels'
     mock.onPost(url).reply(200, mockRes.data)
     mock.onPost(urlCreateDm).reply(200, { id: 123 })
 
     mock.onGet(url).reply(200, { list: [1, 2, 3] })
-    const res = await subscribeUser(user, (data) => {
-    })
+    const res = await subscribeUser(user)
     expect(res).toBe('Subscribed!')
   })
 })

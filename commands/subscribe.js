@@ -47,9 +47,9 @@ const parseCities = cities => {
 
 const verifyCities = async cities => {
   const unverified = []
-  for await (const city of cities){
+  for await (const city of cities) {
     const invalid = await checkInvalid(city)
-    if(invalid){
+    if (invalid) {
       unverified.push(city)
     }
   }
