@@ -4,7 +4,7 @@
   "description": "discord bot with various features",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
+    "start": "node app.js",
     "dev": "cross-env NODE_ENV=development nodemon index.js",
     "test": "clear && cross-env NODE_ENV=test jest --verbose --runInBand --forceExit",
     "test:deployment": "jest --verbose --runInBand --forceExit",
@@ -38,5 +38,8 @@
   },
   "jest": {
     "testEnvironment": "node"
+  },
+  "engines" : { 
+    "node" : "19.0.0" 
   }
 }

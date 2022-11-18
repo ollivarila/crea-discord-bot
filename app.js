@@ -30,6 +30,16 @@ mongoose.connect(config.MONGODB_URI).then(async () => {
   info(jobController.getAll())
 }).catch(err => error('Error connecting to MongoDB', err))
 
+// For health checks
+app.get('/health', (req, res) => {
+  res.send('ok')
+})
+
+// To see if version has actually updated
+app.get('/version', (req, res) => {
+  res.send('1')
+})
+
 // Parse request body and verifies incoming requests using discord-interactions package
 if (process.env.NODE_ENV !== 'test') {
   app.use(express.json({ verify: VerifyDiscordRequest(process.env.PUBLICKEY) }));
@@ -44,14 +54,6 @@ app.use(loggerMiddleware)
  */
 app.use('/interactions', interactionRouter)
 
-// For health checks
-app.get('/health', (req, res) => {
-  res.send('ok')
-})
-
-// To see if version has actually updated
-app.get('/version', (req, res) => {
-  res.send('1')
-})
+app.listen(8080, () => info('listening on port 8080'))
 
 module.exports = app

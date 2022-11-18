@@ -8,6 +8,17 @@ on:
     branches: [main]
     types: [opened, synchronize]
 
+env:
+  APPID: ${{ secrets.APPID }}
+  GUILDID: ${{ secrets.GUILDID }}
+  DISCORDTOKEN: ${{ secrets.DISCORDTOKEN }}
+  WEATHERTOKEN: ${{ secrets.WEATHERTOKEN }}
+  PUBLICKEY: ${{ secrets.PUBLICKEY }}
+  PORT: ${{ secrets.PORT }}
+  MONGODB_URI: ${{ secrets.MONGODB_URI }}
+  TEST_MONGODB_URI: ${{ secrets.TEST_MONGODB_URI }}
+  FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
 jobs:
   deployment_pipeline:
     runs-on: ubuntu-20.04
@@ -15,24 +26,10 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
       - if: ${{ github.event_name == 'push' }}
-        uses: akhileshns/heroku-deploy@v3.12.12
-        with:
-          node-version: 19.0.0
-          heroku_api_key: ${{ secrets.HEROKU_TOKEN }}
-          heroku_app_name: crea-discord-bot
-          heroku_email: olli.varila@gmail.com
-          healthcheck: https://crea-discord-bot.herokuapp.com/health
-          checkstring: ok
-          rollbackonhealthcheckfailed: true
-        env:
-          HD_NODE_ENV: production
-          HD_APPID: ${{ secrets.APPID }}
-          HD_GUILDID: ${{ secrets.GUILDID }}
-          HD_PUBLICKEY: ${{ secrets.PUBLICKEY }}
-          HD_DISCORDTOKEN: ${{ secrets.DISCORDTOKEN }}
-          HD_WEATHERTOKEN: ${{ secrets.WEATHERTOKEN }}
-          HD_PORT: ${{ secrets.PORT }}
-          HD_MONGODB_URI: ${{ secrets.MONGODB_URI }}
+        uses: superfly/flyctl-actions/setup-flyctl@master
+      - if: ${{ github.event_name == 'push' }}
+        name: Deploy to fly.io
+        run: flyctl deploy --remote-only -e APPID=${{ secrets.APPID }} -e GUILDID=${{ secrets.GUILDID }} -e DISCORDTOKEN=${{ secrets.DISCORDTOKEN }} -e WEATHERTOKEN=${{ secrets.DISCORDTOKEN }} -e PUBLICKEY=${{ secrets.PUBLICKEY }} -e MONGODB_URI=${{ secrets.MONGODB_URI }}
       - name: npm install
         run: npm install
       - name: lint
@@ -41,37 +38,13 @@ jobs:
         run: npm run test:deployment
         env:
           NODE_ENV: test
-          APPID: ${{ secrets.APPID }}
-          GUILDID: ${{ secrets.GUILDID }}
-          DISCORDTOKEN: ${{ secrets.DISCORDTOKEN }}
-          WEATHERTOKEN: ${{ secrets.WEATHERTOKEN }}
-          PUBLICKEY: ${{ secrets.PUBLICKEY }}
-          PORT: ${{ secrets.PORT }}
-          MONGODB_URI: ${{ secrets.MONGODB_URI }}
-          TEST_MONGODB_URI: ${{ secrets.TEST_MONGODB_URI }}
       - if: ${{ github.event_name == 'push' }}          
         name: uninstall commands
         run: npm run reset
         env:
-          NODE_ENV: test
-          APPID: ${{ secrets.APPID }}
-          GUILDID: ${{ secrets.GUILDID }}
-          DISCORDTOKEN: ${{ secrets.DISCORDTOKEN }}
-          WEATHERTOKEN: ${{ secrets.WEATHERTOKEN }}
-          PUBLICKEY: ${{ secrets.PUBLICKEY }}
-          PORT: ${{ secrets.PORT }}
-          MONGODB_URI: ${{ secrets.MONGODB_URI }}
-          TEST_MONGODB_URI: ${{ secrets.TEST_MONGODB_URI }}        
+          NODE_ENV: production
       - if: ${{ github.event_name == 'push' }}       
         name: install commands
         run: npm run install:commands
         env:
-          NODE_ENV: test
-          APPID: ${{ secrets.APPID }}
-          GUILDID: ${{ secrets.GUILDID }}
-          DISCORDTOKEN: ${{ secrets.DISCORDTOKEN }}
-          WEATHERTOKEN: ${{ secrets.WEATHERTOKEN }}
-          PUBLICKEY: ${{ secrets.PUBLICKEY }}
-          PORT: ${{ secrets.PORT }}
-          MONGODB_URI: ${{ secrets.MONGODB_URI }}
-          TEST_MONGODB_URI: ${{ secrets.TEST_MONGODB_URI }}
+          NODE_ENV: production
