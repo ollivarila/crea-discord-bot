@@ -1,9 +1,9 @@
 const dotenv = require('dotenv')
 const subDao = require('../dao/subscriberDao')
 const { checkInvalid } = require('./weather')
-const { discordRequest } = require('../utils/requests')
 const { info, error } = require('../utils/logger')
 const { forecastAndPopulate } = require('./weather')
+const { createDmChannel, sendDm } = require('../utils/discordUtils')
 
 dotenv.config()
 
@@ -56,17 +56,6 @@ const verifyCities = async cities => {
   return unverified
 }
 
-const createDmChannel = async discordid => {
-  const endpoint = '/users/@me/channels'
-  const res = await discordRequest(endpoint, {
-    method: 'post',
-    data: {
-      recipient_id: discordid,
-    },
-  })
-  return res ? res.data : null
-}
-
 const verifyTime = time => {
   if (time.includes('+') || time.includes('-')) {
     return false
@@ -116,13 +105,13 @@ const parseAndVerifydata = async (userdata, callback) => {
   }
 
   // Create dm channel
-  const res = await createDmChannel(discordid)
+  // CAN BE NULL FIX THIS
+  const dmChannel = await createDmChannel(discordid)
     .catch(err => {
       error(err.message)
       throw new Error('Failed to create dm')
     })
 
-  const dmChannel = res.id
   return {
     username,
     discordid,
@@ -144,14 +133,8 @@ const handleWeatherUpdate = async data => {
   const endpoint = `/channels/${sub.dmChannel}/messages`
   info(`Sending forecast to ${endpoint} (${sub.username})`)
 
-  const res = await discordRequest(endpoint, {
-    method: 'post',
-    data: {
-      embeds: [
-        forecastEmbed,
-      ],
-    },
-  })
+  const res = await sendDm(sub.dmChannel, { embeds: [forecastEmbed] })
+
   if (res === null) {
     error('Error occurred while sending request to discord')
   }
@@ -208,7 +191,6 @@ const unsubscribe = {
 module.exports = {
   subscribe,
   subscribeUser,
-  createDmChannel,
   unsubscribe,
   unsubscribeUser,
   handleWeatherUpdate,
