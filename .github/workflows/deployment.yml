@@ -27,6 +27,8 @@ jobs:
       - uses: actions/setup-node@v3
       - if: ${{ github.event_name == 'push' }}
         uses: superfly/flyctl-actions/setup-flyctl@master
+      - if: ${{ github.event_name == 'push' }}
+        name: Deploy to fly.io
         run: flyctl deploy --remote-only
       - name: npm install
         run: npm install
