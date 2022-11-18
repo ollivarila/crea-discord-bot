@@ -27,8 +27,7 @@ jobs:
       - uses: actions/setup-node@v3
       - name: Set secrets
         run: |
-        flyctl secrets set --stage APPID=${{ secrets.APPID }} GUILDID=${{ secrets.GUILDID }} DISCORDTOKEN=${{ secrets.DISCORDTOKEN }} |
-        WEATHERTOKEN=${{ secrets.DISCORDTOKEN }} PUBLICKEY=${{ secrets.PUBLICKEY }} MONGODB_URI=${{ secrets.MONGODB_URI }}
+        flyctl secrets set --stage APPID=${{ secrets.APPID }} GUILDID=${{ secrets.GUILDID }} DISCORDTOKEN=${{ secrets.DISCORDTOKEN }} WEATHERTOKEN=${{ secrets.DISCORDTOKEN }} PUBLICKEY=${{ secrets.PUBLICKEY }} MONGODB_URI=${{ secrets.MONGODB_URI }}
       - if: ${{ github.event_name == 'push' }}
         uses: superfly/flyctl-actions/setup-flyctl@master
       - if: ${{ github.event_name == 'push' }}
