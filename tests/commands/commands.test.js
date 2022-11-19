@@ -3,14 +3,12 @@
 const mongoose = require('mongoose')
 const axios = require('axios')
 const { default: MockAdapter } = require('axios-mock-adapter')
-const { createDmChannel, subscribeUser } = require('../../commands/subscribe')
+const { subscribeUser } = require('../../commands/subscribe')
 const { getPP } = require('../../commands/pp')
 const config = require('../../config')
 const { info, error } = require('../../utils/logger')
 
 describe('Subscribe tests', () => {
-  const discordid = '188329879861723136'
-
   beforeAll(async () => {
     mock = new MockAdapter(axios)
     return mongoose.connect(config.MONGODB_URI)
@@ -23,7 +21,7 @@ describe('Subscribe tests', () => {
   afterEach(async () => {
     mock.reset()
   })
-
+  /*
   test('createDmChannel()', async () => {
     const mockRes = {
       data: {
@@ -50,7 +48,7 @@ describe('Subscribe tests', () => {
     // expect(res.recipients[0].username).toBe('Crea')
     expect(res).toEqual(mockRes.data)
   })
-
+*/
   test('subscribeUser()', async () => {
     const user = {
       username: 'test',

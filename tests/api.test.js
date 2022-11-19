@@ -3,8 +3,9 @@ const mongoose = require('mongoose')
 const supertest = require('supertest')
 const dotenv = require('dotenv')
 const app = require('../app')
-const { discordRequest } = require('../utils/requests')
 const subDao = require('../dao/subscriberDao')
+const mock = require('./__mocks__/mockAxios')
+const Subscriber = require('../models/Subscriber')
 
 dotenv.config()
 let mockCommand
@@ -25,6 +26,10 @@ beforeEach(() => {
 })
 
 describe('Discord interactions tests', () => {
+  afterEach(() => {
+    mock.resetHistory()
+  })
+
   test('Api responds to verification requests', async () => {
     const res = await api.post('/interactions').send({
       type: 1,
@@ -59,16 +64,17 @@ describe('Discord interactions tests', () => {
         {
           name: 'start',
           type: 3,
-          value: 'kamppi',
+          value: 'mockValue',
         },
         {
           name: 'end',
           type: 3,
-          value: 'pasila',
+          value: 'mockValue',
         },
       ]
       mockCommand.data.options = options
       const res = await api.post('/interactions').send(mockCommand)
+
       expect(res.body.data.content).not.toBe('Route not found')
       expect(res.status).toBe(200)
     })
@@ -104,7 +110,7 @@ describe('Discord interactions tests', () => {
       mockCommand.data.options = [{
         name: 'query',
         type: 3,
-        value: 'espoo',
+        value: 'mockValue',
       }]
       const res = await api.post('/interactions').send(mockCommand)
       expect(res.body.data.embeds).toBeDefined()
@@ -117,7 +123,7 @@ describe('Discord interactions tests', () => {
         {
           name: 'query',
           type: 3,
-          value: 'espoo',
+          value: 'mockValue',
         },
         {
           name: 'time',
@@ -134,13 +140,37 @@ describe('Discord interactions tests', () => {
 
       expect(res.body.data.content).toBe('Subscribed!')
       expect(res.status).toBe(200)
+      await subDao.removeAll()
     })
 
     test('Api responds correctly to /unsubscribe', async () => {
+      const mockUser = {
+        username: 'test',
+        discordid: '188329879861723136',
+        cities: 'test',
+        utcOffset: 0,
+        dmChannel: 'test',
+      }
+      const sub = new Subscriber(mockUser)
+      await sub.save()
       mockCommand.data.name = 'unsubscribe'
       const res = await api.post('/interactions').send(mockCommand)
 
       expect(res.body.data.content).toBe('Unsubscribed!')
+    })
+
+    test('Api responds correctly to /remindme', async () => {
+      mockCommand.data.name = 'remindme'
+      mockCommand.data.options = [
+        {
+          type: 3,
+          name: 'time',
+          value: '5 seconds',
+        },
+      ]
+      const res = await api.post('/interactions').send(mockCommand)
+      expect(res.body.data.content).toBe('I will remind you in 5 seconds')
+      expect(mock.history.post[0].url).toBe('https://discord.com/api/v10/users/@me/channels')
     })
 
     describe('Incorrect interaction options', () => {
@@ -201,6 +231,20 @@ describe('Discord interactions tests', () => {
         expect(res.body.data.content).toBe('Subscription failed, reason: incorrect, 80:0, Offset should be between -12 and 14')
         expect(res.status).toBe(200)
       })
+
+      test('/remindme', async () => {
+        mockCommand.data.name = 'remindme'
+        mockCommand.data.options = [
+          {
+            type: 3,
+            name: 'time',
+            value: '1 hour second minute',
+          },
+        ]
+        const res = await api.post('/interactions').send(mockCommand)
+        expect(res.body.data.content).toBe('Error parsing time')
+        expect(mock.history.post[0].url).toBe('https://discord.com/api/v10/users/@me/channels')
+      })
     })
   })
 })
@@ -208,8 +252,4 @@ describe('Discord interactions tests', () => {
 afterAll(async () => {
   await subDao.removeAll({})
   mongoose.connection.close()
-  const endpoint = '/channels/1041324752293347358'
-  await discordRequest(endpoint, {
-    method: 'delete',
-  })
 })

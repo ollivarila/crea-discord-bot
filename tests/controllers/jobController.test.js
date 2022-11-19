@@ -10,14 +10,15 @@ describe('Job tests', () => {
   let jobs
 
   afterEach(() => {
-    jobs = removeJob('234234')
+    removeJob('234234')
+    jobs = []
   })
 
   test('createJob()', () => {
     const data = {
       time: '8:00',
       utcOffset: '+2',
-      discordid: '234234',
+      id: '234234',
     }
     jobs = createJob(data, async () => {
     })
@@ -28,11 +29,11 @@ describe('Job tests', () => {
     const data = {
       time: '8:00',
       utcOffset: '+2',
-      discordid: '234234',
+      id: '234234',
     }
-    createJob(data, () => {
+    createJob(data, async () => {
     })
-    jobs = removeJob(data.discordid)
+    jobs = removeJob(data.id)
     expect(jobs.length).toBe(0)
   })
 
@@ -40,12 +41,12 @@ describe('Job tests', () => {
     const data = {
       time: '8:00',
       utcOffset: '+2',
-      discordid: '234234',
+      id: '234234',
     }
     createJob(data, () => {
     })
-    const job = getJob(data.discordid)
-    expect(job.discordid).toBe(data.discordid)
+    const job = getJob(data.id)
+    expect(job.id).toBe(data.id)
   })
 
   test('createCrontime()', () => {

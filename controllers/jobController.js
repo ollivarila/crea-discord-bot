@@ -28,41 +28,48 @@ const createCrontime = time => {
   return `0 ${minutes} ${hours} * * *`
 }
 
-const removeJob = discordid => {
-  const joblist = jobs.filter(j => j.discordid === discordid)
+const removeJob = id => {
+  const cronjob = jobs.filter(job => job.id === id).pop()
 
-  if (joblist.length === 0) { return false }
+  if (!cronjob) {
+    return jobs
+  }
 
-  joblist.forEach(job => {
-    if (job.running) {
-      job.stop()
-    }
-  })
-  jobs = jobs.filter(j => j.discordid !== discordid)
+  if (cronjob.cj.running) {
+    cronjob.cj.stop()
+  }
+  jobs = jobs.filter(j => j.id !== id)
   return jobs
 }
+/**
+ *
+ // eslint-disable-next-line max-len
+ * @param {{ time: String, utcOffset: number, discordid: String }} data
+ * @param {Function} jobToRun Function that will be called onTick
+ * @returns
+ */
 
 const createJob = (data, jobToRun) => {
-  const { time, utcOffset, discordid } = data
+  const { time, utcOffset, id } = data
   info('creating job')
   const crontime = createCrontime(time)
   if (!crontime) {
     throw new Error(`Invalid time: ${time}`)
   }
 
-  const job = new CronJob(
+  const cj = new CronJob(
     crontime,
     async () => {
-      info(`running job ${discordid}`)
+      info(`running job ${id}`)
       return jobToRun(data)
         .catch(err => {
           error(err)
-          job.stop()
+          cj.stop()
         })
     },
     () => {
-      info(`Stopped job ${discordid}`)
-      removeJob(discordid)
+      info(`Stopped job ${id}`)
+      removeJob(id)
     },
     true,
     null,
@@ -70,15 +77,15 @@ const createJob = (data, jobToRun) => {
     null,
     utcOffset,
   )
-  info(`created job ${discordid} running at ${time} / ${crontime} UTC offset: ${utcOffset}`)
+  info(`created job ${id} running at ${time} / ${crontime} UTC offset: ${utcOffset}`)
   jobs.push({
-    job,
-    discordid,
+    cj,
+    id,
   })
   return jobs
 }
 
-const getJob = discordid => jobs.find(job => job.discordid === discordid)
+const getJob = id => jobs.find(job => job.id === id)
 
 const stopAll = () => {
   jobs.forEach(j => {
