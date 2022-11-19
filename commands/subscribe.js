@@ -3,7 +3,7 @@ const subDao = require('../dao/subscriberDao')
 const { checkInvalid } = require('./weather')
 const { info, error } = require('../utils/logger')
 const { forecastAndPopulate } = require('./weather')
-const { createDmChannel, sendDm } = require('../utils/discordUtils')
+const { createDmChannel, sendMessage } = require('../utils/discordUtils')
 
 dotenv.config()
 
@@ -116,7 +116,7 @@ const parseAndVerifydata = async (userdata, callback) => {
     username,
     discordid,
     cities: citiesCsv,
-    time,
+    time: jobController.createCrontime(time),
     utcOffset,
     dmChannel,
   }
@@ -133,7 +133,7 @@ const handleWeatherUpdate = async data => {
   const endpoint = `/channels/${sub.dmChannel}/messages`
   info(`Sending forecast to ${endpoint} (${sub.username})`)
 
-  const res = await sendDm(sub.dmChannel, { embeds: [forecastEmbed] })
+  const res = await sendMessage(sub.dmChannel, { embeds: [forecastEmbed] })
 
   if (res === null) {
     error('Error occurred while sending request to discord')

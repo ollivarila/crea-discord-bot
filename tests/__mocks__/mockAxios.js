@@ -608,6 +608,19 @@ const mockItinerary = {
   },
 }
 
+const mockPlayerData = {
+  username: 'mockPlayer',
+  avatar_hash: '327137462fbcb3d1272285bc2027c268eb0d7c8b',
+  wins: 636,
+  losses: 592,
+  elo: 1709,
+  kills: 23726,
+  deaths: 22216,
+  matches: 1301,
+  mvps: 123,
+  headshots: 9258,
+}
+
 const mock = new MockAdapter(axios)
 mock.onGet('https://api.digitransit.fi/geocoding/v1/search?text=mockValue').reply(200, { features: [{ geometry: { coordinates: [123, 321] } }] })
 mock.onPost('https://api.digitransit.fi/routing/v1/routers/hsl/index/graphql', expect.objectContaining({
@@ -624,11 +637,28 @@ mock.onPost(lichessUrl, expect.objectContaining({
   },
 })).reply(200, { challenge: { url: 'test' } })
 
+// Discord
 mock.onPost(createDmUrl, expect.objectContaining({
   recipient_id: expect.anything(),
-})).reply(200, { id: 'mockId' })
-mock.onPost(/https:\/\/discord.com\/api\/v10\/channels/, null, expect.objectContaining({
+})).reply(200, { id: 'mockChannelId' })
+
+const sendDmUrl = 'https://discord.com/api/v10/channels/mockChannelId/messages'
+
+mock.onPost(sendDmUrl, expect.anything(), expect.objectContaining({
   Authorization: expect.not.stringContaining('undefined'),
-})).reply(200)
+})).reply(200, { id: 'mockMessageId' })
+
+mock.onPost(`${sendDmUrl}/mockMessageId`, expect.anything(), expect.objectContaining({
+  Authorization: expect.not.stringContaining('undefined'),
+})).reply(200, { id: 'mockMessageId' })
+
+mock.onPatch(`${sendDmUrl}/mockMessageId`, expect.anything(), expect.objectContaining({
+  Authorization: expect.not.stringContaining('undefined'),
+})).reply(200, { id: 'mockMessageId' })
+
+// Esportal
+const requestUrl = 'https://esportal.com/api/user_profile/get?username=mockPlayer'
+
+mock.onGet(requestUrl).reply(200, mockPlayerData)
 
 module.exports = mock

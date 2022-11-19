@@ -1,3 +1,12 @@
+/* eslint-disable no-underscore-dangle */
+const { EmbedBuilder } = require('discord.js')
+const Leaderboard = require('../models/Leaderboard')
+const Player = require('../models/Player')
+const { sendMessage, updateMessage } = require('../utils/discordUtils')
+const jobController = require('../controllers/jobController')
+const { info, error } = require('../utils/logger')
+const { request } = require('../utils/requests')
+
 const leaderboard = {
   type: 1,
   name: 'leaderboard',
@@ -80,9 +89,33 @@ const esportal = {
 }
 
 const getLeaderboardEmbed = leaderboardData => {
+  const { name, players } = leaderboardData
+  const sortedPlayers = [...players].sort((a, b) => a.elo - b.elo)
   // construct embed
+
+  const embed = new EmbedBuilder()
+  embed.setColor('#8a00c2')
+    .setTitle(`${name} leaderboard`)
+  let str = ''
+  sortedPlayers.forEach((p, i) => {
+    const kd = (p.kills / p.deaths).toFixed(2)
+    str = str.concat(`${i + 1}. ${p.username} rank: ${p.elo} k/d: ${kd} mvps: ${p.mvps} matches: ${p.matches}\n`)
+  })
+  embed.setFields({ name: 'Leaderboard', value: str === '' ? 'empty' : str })
+  embed.setFooter({ text: 'CreaBot' })
+  return embed
 }
 
+const getPlayerData = async name => {
+  const url = `https://esportal.com/api/user_profile/get?username=${name}`
+  const res = await request(url, { method: 'get' })
+  if (!res) {
+    throw new Error(`Error getting data from esportal with name ${name}`)
+  }
+  return res.data
+}
+
+// For sending individual leaderboards with /current
 const constructLeaderboard = async guildId => {
   // get leaderboard from db (populated with players)
 
@@ -92,49 +125,130 @@ const constructLeaderboard = async guildId => {
 
 }
 
-const updateLeaderboard = async id => {
-  // get leaderboard from db
+const getPlayersData = async (players) => {
+  const playersData = []
 
-  // get player data
-
-  // construct embed
-
-  // update leaderboard
+  await Promise.all(players.map(async p => {
+    const playerData = await getPlayerData(p.name)
+    playersData.push(playerData)
+  }))
+  return playersData
 }
 
-const createLeaderboard = async channelId => {
+const updateLeaderboard = async data => {
+  const { id } = data
+
+  try {
+    // get leaderboard from db
+    const lb = await Leaderboard.findOne({ guildId: id }).populate('players')
+    const { players } = lb
+    // get player data
+    const playersData = getPlayersData(players)
+    // construct embed
+    const embed = getLeaderboardEmbed({ name: lb.name, players: playersData })
+    // update leaderboard
+    const res = updateMessage(lb.channelId, lb.messageId, { embeds: embed })
+
+    if (!res) {
+      throw new Error('Error updating leaderboard message')
+    }
+  } catch (err) {
+    error(err)
+    jobController.removeJob(id)
+    return err.message
+  }
+}
+
+const createLeaderboard = async (guildId, channelId, name = 'Esportal') => {
+  try {
   // try to create leaderboard with channel id
+    const lb = new Leaderboard({
+      name,
+      guildId,
+      channelId,
+    })
+    // create job to update leaderboard
+    jobController.createJob({
+      time: '* 12 12 * * *',
+      utcOffset: 0,
+      id: guildId,
+    }, updateLeaderboard)
 
-  // save to db
+    // construct embed
+    const embed = getLeaderboardEmbed({ name, players: [] })
 
-  // create job to update leaderboard
+    // post leaderboard on channel
+    const res = await sendMessage(channelId, embed)
+    if (!res) {
+      throw new Error('Error sending leaderboard to channel')
+    }
 
-  // construct embed
+    lb.messageId = res.data.id
+    // save to db
+    await lb.save()
 
-  // post leadeboard on channel
-
+    return 'Leaderboard created!'
+  } catch (err) {
+    error(err)
+    jobController.removeJob(guildId)
+    return err.message
+  }
 }
 
 const addPlayer = async (guildId, playerName) => {
-  // try to get data from esportal
+  try {
+    // try to get data from esportal
+    const data = await getPlayerData(playerName)
 
-  // create player info and save to db
+    if (!data) {
+      throw new Error(`Could not find player with that name ${playerName}`)
+    }
 
-  // add player to leaderboard (db)
+    const lb = await Leaderboard.findOne({ guildId })
+    // create player and save to db
+    // add player to leaderboard (db)
 
-  // return proper reply
+    const player = new Player({
+      name: playerName,
+    })
+    const saved = await player.save()
+    lb.players = lb.players.concat(saved._id)
+    await lb.save()
+
+    updateLeaderboard({ id: guildId })
+
+    // return proper reply
+    return `Added player ${playerName}`
+  } catch (err) {
+    error(err)
+    return err.message
+  }
 }
 
 const removePlayer = async (guildId, playerName) => {
   // remove player from db
+  const removed = await Player.findOneAndRemove({ name: playerName })
+  if (!removed) {
+    return 'Player not found'
+  }
 
+  const lb = await Leaderboard.findById(removed.leaderboard)
+  lb.players = lb.players.filter(p => p.name !== removed.name)
+  await lb.save()
   // update leaderboard ?
+  updateLeaderboard({ id: guildId })
 }
 
 const currentLeaderboard = async guildId => {
-  // Get leaderboard from db
-
-  //
+  try {
+    // Get leaderboard from db
+    const lb = await Leaderboard.findOne({ guildId }).populate('players')
+    const playersData = getPlayersData(lb.players)
+    return getLeaderboardEmbed({ name: lb.name, players: playersData })
+  } catch (err) {
+    error(err)
+    return err.message
+  }
 }
 
 const deleteLeaderboard = async guildId => {
