@@ -28,17 +28,17 @@ const createCrontime = time => {
   return `0 ${minutes} ${hours} * * *`
 }
 
-const removeJob = discordid => {
-  const joblist = jobs.filter(j => j.discordid === discordid)
+const removeJob = id => {
+  const cronjob = jobs.filter(job => job.id === id).pop()
 
-  if (joblist.length === 0) { return false }
+  if (!cronjob) {
+    return jobs
+  }
 
-  joblist.forEach(job => {
-    if (job.running) {
-      job.stop()
-    }
-  })
-  jobs = jobs.filter(j => j.discordid !== discordid)
+  if (cronjob.cj.running) {
+    cronjob.cj.stop()
+  }
+  jobs = jobs.filter(j => j.id !== id)
   return jobs
 }
 /**
@@ -57,14 +57,14 @@ const createJob = (data, jobToRun) => {
     throw new Error(`Invalid time: ${time}`)
   }
 
-  const job = new CronJob(
+  const cj = new CronJob(
     crontime,
     async () => {
       info(`running job ${id}`)
       return jobToRun(data)
         .catch(err => {
           error(err)
-          job.stop()
+          cj.stop()
         })
     },
     () => {
@@ -79,7 +79,7 @@ const createJob = (data, jobToRun) => {
   )
   info(`created job ${id} running at ${time} / ${crontime} UTC offset: ${utcOffset}`)
   jobs.push({
-    job,
+    cj,
     id,
   })
   return jobs

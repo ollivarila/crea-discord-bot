@@ -30,9 +30,9 @@ const addressToCoords = async (locations) => {
     const { start, end } = locations
     const url = `${addressToCoordsBaseUrl}?text=`
     let res = await request(url + start, { method: 'get' })
-    const coordsStart = res.data.features[0].geometry.coordinates
 
-    res = await await request(url + end, { method: 'get' })
+    const coordsStart = res.data.features[0].geometry.coordinates
+    res = await request(url + end, { method: 'get' })
     const coordsEnd = res.data.features[0].geometry.coordinates
 
     return {
@@ -114,7 +114,7 @@ const getRoute = async (locations) => {
     return getRouteString(waypoints)
   } catch (err) {
     error(err)
-    return 'vammaset tiedot'
+    return 'Route not found'
   }
 }
 
