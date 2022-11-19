@@ -34,7 +34,6 @@ const handleReminder = async data => {
 }
 // 1 hours 1 minute 20 seconds
 const parseTime = time => {
-  console.log(time)
   let hours = 0
   let minutes = 0
   let seconds = 0
@@ -57,8 +56,6 @@ const parseTime = time => {
   } catch (error) {
     throw new Error('Error parsing time')
   }
-
-  console.log(hours, minutes, seconds)
 
   const MAX_VALUE = 24 * 60 * 60 * 1000 // 24 hours
   const ms = timeToMs(hours, minutes, seconds)

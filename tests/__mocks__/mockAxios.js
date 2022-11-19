@@ -624,7 +624,9 @@ mock.onPost(lichessUrl, expect.objectContaining({
   },
 })).reply(200, { challenge: { url: 'test' } })
 
-mock.onPost(createDmUrl)
+mock.onPost(createDmUrl, expect.objectContaining({
+  recipient_id: expect.anything(),
+})).reply(200, { id: 'mockId' })
 mock.onPost(/https:\/\/discord.com\/api\/v10\/channels/, null, expect.objectContaining({
   Authorization: expect.not.stringContaining('undefined'),
 })).reply(200)

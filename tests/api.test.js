@@ -159,6 +159,20 @@ describe('Discord interactions tests', () => {
       expect(res.body.data.content).toBe('Unsubscribed!')
     })
 
+    test('Api responds correctly to /remindme', async () => {
+      mockCommand.data.name = 'remindme'
+      mockCommand.data.options = [
+        {
+          type: 3,
+          name: 'time',
+          value: '5 seconds',
+        },
+      ]
+      const res = await api.post('/interactions').send(mockCommand)
+      expect(res.body.data.content).toBe('I will remind you in 5 seconds')
+      expect(mock.history.post[0].url).toBe('https://discord.com/api/v10/users/@me/channels')
+    })
+
     describe('Incorrect interaction options', () => {
       test('/route', async () => {
         mockCommand.data.name = 'route'
@@ -216,6 +230,20 @@ describe('Discord interactions tests', () => {
 
         expect(res.body.data.content).toBe('Subscription failed, reason: incorrect, 80:0, Offset should be between -12 and 14')
         expect(res.status).toBe(200)
+      })
+
+      test('/remindme', async () => {
+        mockCommand.data.name = 'remindme'
+        mockCommand.data.options = [
+          {
+            type: 3,
+            name: 'time',
+            value: '1 hour second minute',
+          },
+        ]
+        const res = await api.post('/interactions').send(mockCommand)
+        expect(res.body.data.content).toBe('Error parsing time')
+        expect(mock.history.post[0].url).toBe('https://discord.com/api/v10/users/@me/channels')
       })
     })
   })
