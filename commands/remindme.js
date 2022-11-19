@@ -1,4 +1,5 @@
-const jobController = require('../controllers/jobController')
+/* eslint-disable prefer-destructuring */
+/* eslint-disable no-const-assign */
 const { createDmChannel, sendDm } = require('../utils/discordUtils')
 
 const remindme = {
@@ -27,53 +28,57 @@ const timeToMs = (hours, minutes, seconds) => {
 }
 
 const handleReminder = async data => {
-  const { message, channelid, discordid } = data
+  const { message, channelid } = data
   // Send message to dm
   sendDm(channelid, { content: message })
-  jobController.removeJob(discordid)
 }
 // 1 hours 1 minute 20 seconds
 const parseTime = time => {
-  const now = new Date(Date.now())
-  const parsed = time.split(' ')
+  console.log(time)
   let hours = 0
   let minutes = 0
   let seconds = 0
-  parsed.forEach((e, i) => {
-    if (e.includes('hour')) {
-      hours = parsed[i - 1]
+
+  try {
+    if (time.includes('sec')) {
+      const parsed = time.match(/\d+\s*sec/)[0]
+      seconds = parsed.match(/\d+/)[0]
     }
-    if (e.includes('min')) {
-      minutes = parsed[i - 1]
+
+    if (time.includes('min')) {
+      const parsed = time.match(/\d+\s*min/)[0]
+      minutes = parsed.match(/\d+/)[0]
     }
-    if (e.includes('sec')) {
-      seconds = parsed[i - 1]
+
+    if (time.includes('hour')) {
+      const parsed = time.match(/\d+\s*hour/)[0]
+      hours = parsed.match(/\d+/)[0]
     }
-  })
-  if (hours && minutes && seconds) {
-    throw new Error('Something went wrong parsing time')
+  } catch (error) {
+    throw new Error('Error parsing time')
   }
 
+  console.log(hours, minutes, seconds)
+
+  const MAX_VALUE = 24 * 60 * 60 * 1000 // 24 hours
   const ms = timeToMs(hours, minutes, seconds)
-  now.setTime(now.getTime() + ms)
-  return `${now.getSeconds()} ${now.getMinutes()} ${now.getHours()} * * *`
+
+  if (ms > MAX_VALUE) {
+    throw new Error('Time too large')
+  }
+
+  return ms
 }
 
-const createReminder = async (discordid, interactionid, time, message = 'Hey I\'m here to remind you') => {
+const createReminder = async (discordid, time, message = 'Hey I\'m here to remind you') => {
   try {
     // Create dm channel
-    const channelid = createDmChannel(discordid)
+    const channelid = await createDmChannel(discordid)
 
-    // Parse time
-    const parsedTime = parseTime(time)
-    // Create job
-    jobController.createJob({
-      time: parsedTime,
-      utcOffset: null,
-      id: interactionid,
-      message,
-      channelid,
-    }, handleReminder)
+    const ms = parseTime(time)
+    // Set timeout for message
+    setTimeout(() => { handleReminder({ message, channelid }) }, ms)
+
     // Return appropriate message
     return `I will remind you in ${time}`
   } catch (err) {

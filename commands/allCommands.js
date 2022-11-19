@@ -6,6 +6,7 @@ const { search } = require('./search')
 const { subscribe, unsubscribe } = require('./subscribe')
 const { weather } = require('./weather')
 const { challenge } = require('./challenge')
+const { remindme } = require('./remindme')
 
 const commands = [
   echo,
@@ -17,6 +18,7 @@ const commands = [
   subscribe,
   unsubscribe,
   challenge,
+  remindme,
 ]
 
 module.exports = commands

@@ -25,9 +25,8 @@ mongoose.connect(config.MONGODB_URI).then(async () => {
   await Challenge.deleteMany({})
   const subs = await subDao.getAll()
   subs.forEach(sub => {
-    jobController.createJob(sub, handleWeatherUpdate({ discordid: sub.discordid }))
+    jobController.createJob(sub, handleWeatherUpdate)
   })
-  info(jobController.getAll())
 }).catch(err => error('Error connecting to MongoDB', err))
 
 // For health checks
@@ -53,7 +52,7 @@ app.use(loggerMiddleware)
  * Interactions endpoint URL where Discord will send HTTP requests
  */
 app.use('/interactions', interactionRouter)
-
-app.listen(8080, () => info('listening on port 8080'))
+const port = process.env.PORT || 3000
+app.listen(port, () => info(`Listening on port ${port}`))
 
 module.exports = app

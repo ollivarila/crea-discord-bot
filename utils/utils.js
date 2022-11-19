@@ -1,4 +1,4 @@
-const { verifyKey } = require('discord-interactions')
+const { verifyKey } = require('discord-interactions');
 
 function VerifyDiscordRequest(clientKey) {
   // eslint-disable-next-line no-unused-vars, func-names

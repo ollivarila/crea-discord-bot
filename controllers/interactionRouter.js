@@ -16,6 +16,7 @@ const { error } = require('../utils/logger')
 const { getChallengeUrl, getChallengeEmbed } = require('../commands/challenge')
 const Challenge = require('../models/Challenge')
 const { discordRequest } = require('../utils/requests')
+const { createReminder } = require('../commands/remindme')
 
 async function handleBadQuery(req, res, message) {
   return res.send({
@@ -207,12 +208,26 @@ async function handleWeather(req, res) {
 
 async function handleUnsubscribbe(req, res) {
   const discordid = req.body.member.user.id
-  const message = await unsubscribeUser(discordid)
+  const reply = await unsubscribeUser(discordid)
 
   return res.send({
     type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
     data: {
-      content: message,
+      content: reply,
+    },
+  })
+}
+
+async function handleRemindme(req, res) {
+  const discordid = req.body.member.user.id
+  const time = req.body.data.options[0].value
+  const message = req.body.data.options[1] ? req.body.data.options[1].value : undefined
+  const reply = await createReminder(discordid, time, message)
+
+  return res.send({
+    type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+    data: {
+      content: reply,
     },
   })
 }
@@ -262,6 +277,9 @@ async function handleInteractions(req, res) {
       break
     case 'challenge':
       handleChallenge(req, res)
+      break
+    case 'remindme':
+      handleRemindme(req, res)
       break
     default:
       return res.send({
