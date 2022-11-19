@@ -2,9 +2,9 @@
 const { EmbedBuilder } = require('discord.js')
 const Leaderboard = require('../models/Leaderboard')
 const Player = require('../models/Player')
-const { sendMessage, updateMessage } = require('../utils/discordUtils')
+const { sendMessage, updateMessage, deleteMessage } = require('../utils/discordUtils')
 const jobController = require('../controllers/jobController')
-const { info, error } = require('../utils/logger')
+const { error } = require('../utils/logger')
 const { request } = require('../utils/requests')
 
 const leaderboard = {
@@ -115,16 +115,6 @@ const getPlayerData = async name => {
   return res.data
 }
 
-// For sending individual leaderboards with /current
-const constructLeaderboard = async guildId => {
-  // get leaderboard from db (populated with players)
-
-  // get player data
-
-  // construct embed
-
-}
-
 const getPlayersData = async (players) => {
   const playersData = []
 
@@ -143,7 +133,7 @@ const updateLeaderboard = async data => {
     const lb = await Leaderboard.findOne({ guildId: id }).populate('players')
     const { players } = lb
     // get player data
-    const playersData = getPlayersData(players)
+    const playersData = await getPlayersData(players)
     // construct embed
     const embed = getLeaderboardEmbed({ name: lb.name, players: playersData })
     // update leaderboard
@@ -210,6 +200,7 @@ const addPlayer = async (guildId, playerName) => {
 
     const player = new Player({
       name: playerName,
+      guildId,
     })
     const saved = await player.save()
     lb.players = lb.players.concat(saved._id)
@@ -227,23 +218,33 @@ const addPlayer = async (guildId, playerName) => {
 
 const removePlayer = async (guildId, playerName) => {
   // remove player from db
-  const removed = await Player.findOneAndRemove({ name: playerName })
+  const found = await Player.find({ name: playerName })
+  const player = found.filter(p => p.guildId === guildId).pop()
+
+  if (!player) {
+    return 'Player not found'
+  }
+
+  const lb = await Leaderboard.findById(player.leaderboard).populate('players')
+  const removed = await Player.findByIdAndRemove(player._id)
+
   if (!removed) {
     return 'Player not found'
   }
 
-  const lb = await Leaderboard.findById(removed.leaderboard)
   lb.players = lb.players.filter(p => p.name !== removed.name)
   await lb.save()
   // update leaderboard ?
   updateLeaderboard({ id: guildId })
+
+  return `Removed player ${playerName}`
 }
 
 const currentLeaderboard = async guildId => {
   try {
     // Get leaderboard from db
     const lb = await Leaderboard.findOne({ guildId }).populate('players')
-    const playersData = getPlayersData(lb.players)
+    const playersData = await getPlayersData(lb.players)
     return getLeaderboardEmbed({ name: lb.name, players: playersData })
   } catch (err) {
     error(err)
@@ -252,9 +253,22 @@ const currentLeaderboard = async guildId => {
 }
 
 const deleteLeaderboard = async guildId => {
-  // remove leaderboard from db
+  try {
+    // remove leaderboard from db
+    const removed = await Leaderboard.findOneAndRemove({ guildId }).populate('players')
+    if (!removed) {
+      throw new Error('Could not remove leaderboard')
+    }
+    // delete message
+    await deleteMessage(removed.channelId, removed.messageId)
 
-  // delete message
+    // remove users
+    await Promise.all(removed.players.map(p => Player.findByIdAndRemove(p._id)))
+    return 'Removed leaderboard'
+  } catch (err) {
+    error(err)
+    return err.message
+  }
 }
 
 module.exports = {

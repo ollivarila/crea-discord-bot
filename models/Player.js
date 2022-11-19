@@ -2,6 +2,7 @@ const mongoose = require('mongoose')
 
 const playerSchema = new mongoose.Schema({
   name: String,
+  guildId: String,
   leaderboard: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Leaderboard',

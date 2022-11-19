@@ -22,9 +22,10 @@ describe('Esportal command tests', () => {
     })
     const savedLb = await mockLb.save()
     const mockPlayer = new Player({
-      name: 'mockUser',
+      name: 'mockPlayer',
       leaderboard: savedLb._id,
-      stats: 'mockStats'
+      stats: 'mockStats',
+      guildId: 'mockGuildId'
     })
     const savedPlayer = await mockPlayer.save()
     savedLb.players = savedLb.players.concat(savedPlayer._id)
@@ -52,21 +53,20 @@ describe('Esportal command tests', () => {
   })
 
   test('Removing player from leaderboard', async () => {
-    const removed = await removePlayer('mockId', 'mockUser')
+    const removed = await removePlayer('mockGuildId', 'mockPlayer')
     const lbFromDb = await Leaderboard.findOne({ guildId: 'mockGuildId' })
-    expect(removed).toBe('Removed player mockUser')
+    expect(removed).toBe('Removed player mockPlayer')
     expect(lbFromDb.players.length).toBe(0)
   })
 
   test('Getting current leaderboard', async () => {
-    const embed = await currentLeaderboard('mockId')
-    console.log(embed)
+    const embed = await currentLeaderboard('mockGuildId')
     expect(embed).toBeInstanceOf(Object)
   })
 
   test('Deleting leaderboard', async () => {
-    const reply = await deleteLeaderboard('mockId')
-    const lbFromDb = await Leaderboard.findOne({ guildId: 'mockId' })
+    const reply = await deleteLeaderboard('mockGuildId')
+    const lbFromDb = await Leaderboard.findOne({ guildId: 'mockGuildId' })
     expect(lbFromDb).toBe(null)
     expect(reply).toBe('Removed leaderboard')
   })

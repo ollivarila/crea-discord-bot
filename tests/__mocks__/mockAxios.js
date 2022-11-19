@@ -656,6 +656,10 @@ mock.onPatch(`${sendDmUrl}/mockMessageId`, expect.anything(), expect.objectConta
   Authorization: expect.not.stringContaining('undefined'),
 })).reply(200, { id: 'mockMessageId' })
 
+mock.onDelete(`${sendDmUrl}/mockMessageId`, expect.anything(), expect.objectContaining({
+  Authorization: expect.not.stringContaining('undefined'),
+})).reply(200, { id: 'mockMessageId' })
+
 // Esportal
 const requestUrl = 'https://esportal.com/api/user_profile/get?username=mockPlayer'
 

@@ -20,10 +20,17 @@ const sendMessage = async (channelId, data) => {
 }
 
 const updateMessage = async (channelId, messageId, data) => {
-  const endpoint = `/channels/${channelId}/messages${messageId}`
+  const endpoint = `/channels/${channelId}/messages/${messageId}`
   return discordRequest(endpoint, {
     method: 'patch',
     data,
+  })
+}
+
+const deleteMessage = async (channelId, messageId) => {
+  const endpoint = `/channels/${channelId}/messages/${messageId}`
+  return discordRequest(endpoint, {
+    method: 'delete',
   })
 }
 
@@ -31,4 +38,5 @@ module.exports = {
   createDmChannel,
   sendMessage,
   updateMessage,
+  deleteMessage,
 }
