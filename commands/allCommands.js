@@ -7,6 +7,7 @@ const { subscribe, unsubscribe } = require('./subscribe')
 const { weather } = require('./weather')
 const { challenge } = require('./challenge')
 const { remindme } = require('./remindme')
+const { esportal } = require('./esportal')
 
 const commands = [
   echo,
@@ -19,6 +20,7 @@ const commands = [
   unsubscribe,
   challenge,
   remindme,
+  esportal,
 ]
 
 module.exports = commands

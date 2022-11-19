@@ -47,6 +47,11 @@ const leaderboard = {
       name: 'current',
       description: 'displays current leaderboard',
     },
+    {
+      type: 1,
+      name: 'delete',
+      description: 'removes leaderboard',
+    },
   ],
 }
 
@@ -74,6 +79,75 @@ const esportal = {
   ],
 }
 
+const getLeaderboardEmbed = leaderboardData => {
+  // construct embed
+}
+
+const constructLeaderboard = async guildId => {
+  // get leaderboard from db (populated with players)
+
+  // get player data
+
+  // construct embed
+
+}
+
+const updateLeaderboard = async id => {
+  // get leaderboard from db
+
+  // get player data
+
+  // construct embed
+
+  // update leaderboard
+}
+
+const createLeaderboard = async channelId => {
+  // try to create leaderboard with channel id
+
+  // save to db
+
+  // create job to update leaderboard
+
+  // construct embed
+
+  // post leadeboard on channel
+
+}
+
+const addPlayer = async (guildId, playerName) => {
+  // try to get data from esportal
+
+  // create player info and save to db
+
+  // add player to leaderboard (db)
+
+  // return proper reply
+}
+
+const removePlayer = async (guildId, playerName) => {
+  // remove player from db
+
+  // update leaderboard ?
+}
+
+const currentLeaderboard = async guildId => {
+  // Get leaderboard from db
+
+  //
+}
+
+const deleteLeaderboard = async guildId => {
+  // remove leaderboard from db
+
+  // delete message
+}
+
 module.exports = {
   esportal,
+  createLeaderboard,
+  addPlayer,
+  removePlayer,
+  currentLeaderboard,
+  deleteLeaderboard,
 }
