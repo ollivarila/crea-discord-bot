@@ -178,6 +178,14 @@ const unsubscribeUser = async discordid => {
   return 'Unsubscribed!'
 }
 
+const setUpSubscriptions = async () => {
+  const subs = await subDao.getAll()
+  subs.forEach(sub => {
+    jobController.createJob(sub, handleWeatherUpdate)
+  })
+  info('Subscriptions set up')
+}
+
 const unsubscribe = {
   type: 1,
   name: 'unsubscribe',
@@ -190,4 +198,5 @@ module.exports = {
   unsubscribe,
   unsubscribeUser,
   handleWeatherUpdate,
+  setUpSubscriptions,
 }

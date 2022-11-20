@@ -1,15 +1,10 @@
 const express = require('express')
 require('express-async-errors')
-const mongoose = require('mongoose')
 const { VerifyDiscordRequest } = require('./utils/utils')
 const loggerMiddleware = require('./utils/loggerMiddleware')
 const interactionRouter = require('./controllers/interactionRouter')
-const { info, error } = require('./utils/logger')
-const subDao = require('./dao/subscriberDao')
-const jobController = require('./controllers/jobController')
-const config = require('./config')
-const Challenge = require('./models/Challenge')
-const { handleWeatherUpdate } = require('./commands/subscribe')
+const { info } = require('./utils/logger')
+const onStartUp = require('./utils/startUp')
 
 const {
   PUBLICKEY, GUILDID, APPID, DISCORDTOKEN, WEATHERTOKEN,
@@ -20,14 +15,7 @@ if (!(PUBLICKEY && GUILDID && APPID && DISCORDTOKEN && WEATHERTOKEN)) {
   throw new Error('Environment variables not set correctly')
 }
 
-mongoose.connect(config.MONGODB_URI).then(async () => {
-  info('Connected to MongoDB')
-  await Challenge.deleteMany({})
-  const subs = await subDao.getAll()
-  subs.forEach(sub => {
-    jobController.createJob(sub, handleWeatherUpdate)
-  })
-}).catch(err => error('Error connecting to MongoDB', err))
+onStartUp().then(() => info('startup completed'))
 
 // For health checks
 app.get('/health', (req, res) => {

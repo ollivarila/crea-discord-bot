@@ -4,7 +4,7 @@ const Leaderboard = require('../models/Leaderboard')
 const Player = require('../models/Player')
 const { sendMessage, updateMessage, deleteMessage } = require('../utils/discordUtils')
 const jobController = require('../controllers/jobController')
-const { error } = require('../utils/logger')
+const { info, error } = require('../utils/logger')
 const { request } = require('../utils/requests')
 
 const leaderboard = {
@@ -88,6 +88,20 @@ const esportal = {
   ],
 }
 
+const rankToEmoji = rank => {
+  const rankFloor = Math.floor(rank / 100) * 100
+  const ranks = {
+    1400: '🧢',
+    1500: '🥶',
+    1600: '👿',
+    1700: '😈',
+    1800: '💜',
+    1900: '🍆',
+    2000: '💣',
+  }
+  return ranks[rankFloor]
+}
+
 const getLeaderboardEmbed = leaderboardData => {
   const { name, players } = leaderboardData
   const sortedPlayers = [...players].sort((a, b) => b.elo - a.elo)
@@ -99,10 +113,12 @@ const getLeaderboardEmbed = leaderboardData => {
   let str = ''
   sortedPlayers.forEach((p, i) => {
     const kd = (p.kills / p.deaths).toFixed(2)
-    str = str.concat(`${i + 1}. ${p.username} rank: ${p.elo} k/d: ${kd} mvps: ${p.mvps} matches: ${p.matches}\n`)
+    const mvpP = ((p.mvps / p.matches) * 100).toFixed(2)
+    str = str.concat(`**${i + 1}**. ${p.username} elo: ${p.elo} ${rankToEmoji(p.elo)} k/d: ${kd} mvp (%): ${mvpP}\n\n`)
   })
   embed.setFields({ name: 'Leaderboard', value: str === '' ? 'empty' : str })
-  embed.setFooter({ text: 'CreaBot' })
+  const date = new Date(Date.now())
+  embed.setFooter({ text: `CreaBot updated: ${date.getHours()}.${date.getMinutes()}` })
   return embed
 }
 
@@ -151,7 +167,12 @@ const updateLeaderboard = async data => {
 
 const createLeaderboard = async (guildId, channelId, name = 'Esportal') => {
   try {
-  // try to create leaderboard with channel id
+    const found = await Leaderboard.findOne({ guildId })
+    console.log(found)
+    if (found) {
+      throw new Error('Guild already has a leaderboard')
+    }
+    // try to create leaderboard with channel id
     const lb = new Leaderboard({
       name,
       guildId,
@@ -248,7 +269,9 @@ const currentLeaderboard = async guildId => {
     // Get leaderboard from db
     const lb = await Leaderboard.findOne({ guildId }).populate('players')
     const playersData = await getPlayersData(lb.players)
-    return getLeaderboardEmbed({ name: lb.name, players: playersData })
+    const embed = getLeaderboardEmbed({ name: lb.name, players: playersData })
+    updateMessage(lb.channelId, { embeds: [embed] })
+    return embed
   } catch (err) {
     error(err)
     return err.message
@@ -274,6 +297,18 @@ const deleteLeaderboard = async guildId => {
   }
 }
 
+const setUpLeaderboards = async () => {
+  const leaderboards = await Leaderboard.find({})
+  leaderboards.forEach(lb => {
+    jobController.createJob({
+      time: '0 0 17-23,0 * * *',
+      utcOffset: 0,
+      id: lb._id,
+    }, updateLeaderboard)
+  })
+  info('Leaderboards set up')
+}
+
 module.exports = {
   esportal,
   createLeaderboard,
@@ -281,4 +316,5 @@ module.exports = {
   removePlayer,
   currentLeaderboard,
   deleteLeaderboard,
+  setUpLeaderboards,
 }
