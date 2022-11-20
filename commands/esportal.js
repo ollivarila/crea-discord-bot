@@ -93,10 +93,10 @@ const rankToEmoji = rank => {
   const ranks = {
     1400: '🧢',
     1500: '🥶',
-    1600: '👿',
-    1700: '😈',
-    1800: '💜',
-    1900: '🍆',
+    1600: '🥵',
+    1700: '🤬',
+    1800: '👿',
+    1900: '😈',
     2000: '💣',
   }
   return ranks[rankFloor]
@@ -118,7 +118,8 @@ const getLeaderboardEmbed = leaderboardData => {
   })
   embed.setFields({ name: 'Leaderboard', value: str === '' ? 'empty' : str })
   const date = new Date(Date.now())
-  embed.setFooter({ text: `CreaBot updated: ${date.getHours()}.${date.getMinutes()}` })
+  date.setTime(date.getTime() + (2 * 60 * 60 * 1000))
+  embed.setFooter({ text: `CreaBot updated: ${date.toLocaleString('en-GB', { hour: '2-digit', minute: '2-digit' })}` })
   return embed
 }
 
@@ -168,7 +169,6 @@ const updateLeaderboard = async data => {
 const createLeaderboard = async (guildId, channelId, name = 'Esportal') => {
   try {
     const found = await Leaderboard.findOne({ guildId })
-    console.log(found)
     if (found) {
       throw new Error('Guild already has a leaderboard')
     }
@@ -287,7 +287,6 @@ const deleteLeaderboard = async guildId => {
     }
     // delete message
     await deleteMessage(removed.channelId, removed.messageId)
-
     // remove users
     await Promise.all(removed.players.map(p => Player.findByIdAndRemove(p._id)))
     return 'Removed leaderboard'
