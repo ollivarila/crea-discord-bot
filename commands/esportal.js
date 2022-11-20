@@ -302,7 +302,7 @@ const setUpLeaderboards = async () => {
     jobController.createJob({
       time: '0 0 17-23,0 * * *',
       utcOffset: 0,
-      id: lb._id,
+      id: lb.guildId,
     }, updateLeaderboard)
   })
   info('Leaderboards set up')
