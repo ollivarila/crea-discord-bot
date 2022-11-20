@@ -6,6 +6,8 @@ const app = require('../app')
 const subDao = require('../dao/subscriberDao')
 const mock = require('./__mocks__/mockAxios')
 const Subscriber = require('../models/Subscriber')
+const Leaderboard = require('../models/Leaderboard')
+const Player = require('../models/Player')
 
 dotenv.config()
 let mockCommand
@@ -14,11 +16,12 @@ const api = supertest(app)
 beforeEach(() => {
   mockCommand = {
     data: {
+      guild_id: 'mockGuildId',
     },
     member: {
       user: {
-        username: 'testuser',
-        id: '188329879861723136',
+        username: 'mockUser',
+        id: 'mockDiscordId',
       },
     },
     type: 2,
@@ -145,11 +148,11 @@ describe('Discord interactions tests', () => {
 
     test('Api responds correctly to /unsubscribe', async () => {
       const mockUser = {
-        username: 'test',
-        discordid: '188329879861723136',
-        cities: 'test',
+        username: 'mockUser',
+        discordid: 'mockDiscordId',
+        cities: 'mockValue',
         utcOffset: 0,
-        dmChannel: 'test',
+        dmChannel: 'mockChannelId',
       }
       const sub = new Subscriber(mockUser)
       await sub.save()
@@ -171,6 +174,151 @@ describe('Discord interactions tests', () => {
       const res = await api.post('/interactions').send(mockCommand)
       expect(res.body.data.content).toBe('I will remind you in 5 seconds')
       expect(mock.history.post[0].url).toBe('https://discord.com/api/v10/users/@me/channels')
+    })
+
+    describe('Esportal commands', () => {
+      beforeEach(async () => {
+        const lb = new Leaderboard({
+          guildId: 'mockGuildId',
+          channelId: 'mockChannelId',
+          messageId: 'mockMessageId',
+        })
+        const saved = await lb.save()
+        const player = new Player({
+          name: 'mockPlayer',
+          guildId: 'mockGuildId',
+          leaderboard: saved._id,
+        })
+        const pl = await player.save()
+        saved.players = saved.players.concat(pl._id)
+        await lb.save()
+      })
+
+      afterEach(async () => {
+        await Leaderboard.deleteMany({})
+        return Player.deleteMany({})
+      })
+
+      test('/Leaderboard create', async () => {
+        await Leaderboard.deleteMany({})
+        mockCommand.data.name = 'esportal'
+        mockCommand.data.options = [
+          {
+            type: 2,
+            name: 'leaderboard',
+            options: [
+              {
+                type: 1,
+                name: 'create',
+                options: [
+                  {
+                    type: 3,
+                    name: 'channel',
+                    value: 'mockChannelId',
+                  },
+                ],
+              },
+            ],
+          },
+        ]
+        const res = await api.post('/interactions').send(mockCommand)
+        expect(res.body.data.content).toBe('Leaderboard created!')
+        const lb = await Leaderboard.findOne({ guildId: 'mockGuildId' })
+        expect(lb).not.toBe(null)
+      })
+
+      test('/Leaderboard add', async () => {
+        await Player.deleteMany({})
+        mockCommand.data.name = 'esportal'
+        mockCommand.data.options = [
+          {
+            type: 2,
+            name: 'leaderboard',
+            options: [
+              {
+                type: 1,
+                name: 'add',
+                options: [
+                  {
+                    type: 3,
+                    name: 'player',
+                    value: 'mockPlayer',
+                  },
+                ],
+              },
+            ],
+          },
+        ]
+        const res = await api.post('/interactions').send(mockCommand)
+        expect(res.body.data.content).toBe('Added player mockPlayer')
+        const lb = await Leaderboard.findOne({ guildId: 'mockGuildId' }).populate('players')
+        expect(lb.players[0].name).toBe('mockPlayer')
+      })
+
+      test('/Leaderboard current', async () => {
+        mockCommand.data.name = 'esportal'
+        mockCommand.data.options = [
+          {
+            type: 2,
+            name: 'leaderboard',
+            options: [
+              {
+                type: 1,
+                name: 'current',
+              },
+            ],
+          },
+        ]
+        const res = await api.post('/interactions').send(mockCommand)
+        expect(res.body.data.embeds).toBeInstanceOf(Object)
+      })
+
+      test('/Leaderboard remove', async () => {
+        mockCommand.data.name = 'esportal'
+        mockCommand.data.options = [
+          {
+            type: 2,
+            name: 'leaderboard',
+            options: [
+              {
+                type: 1,
+                name: 'remove',
+                options: [
+                  {
+                    type: 3,
+                    name: 'player',
+                    value: 'mockPlayer',
+                  },
+                ],
+              },
+            ],
+          },
+        ]
+        const res = await api.post('/interactions').send(mockCommand)
+        expect(res.body.data.content).toBe('Removed player mockPlayer')
+        const lb = await Leaderboard.findOne({ guildId: 'mockGuildId' })
+        expect(lb.players.length).toBe(0)
+      })
+
+      test('/Leaderboard delete', async () => {
+        mockCommand.data.name = 'esportal'
+        mockCommand.data.options = [
+          {
+            type: 2,
+            name: 'leaderboard',
+            options: [
+              {
+                type: 1,
+                name: 'delete',
+              },
+            ],
+          },
+        ]
+        const res = await api.post('/interactions').send(mockCommand)
+        expect(res.body.data.content).toBe('Removed leaderboard')
+        const lb = await Leaderboard.findOne({ guildId: 'mockGuildId' })
+        expect(lb).toBe(null)
+      })
     })
 
     describe('Incorrect interaction options', () => {
@@ -251,5 +399,7 @@ describe('Discord interactions tests', () => {
 
 afterAll(async () => {
   await subDao.removeAll({})
+  await Leaderboard.deleteMany({})
+  await Player.deleteMany({})
   mongoose.connection.close()
 })

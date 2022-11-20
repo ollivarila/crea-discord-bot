@@ -46,6 +46,7 @@ describe('Esportal command tests', () => {
   })
 
   test('Adding player to leaderboard', async () => {
+    await Player.deleteMany({})
     const reply = await addPlayer('mockGuildId', 'mockPlayer')
     const lbFromDb = await Leaderboard.findOne({ guildId: 'mockGuildId' })
     expect(reply).toBe('Added player mockPlayer')

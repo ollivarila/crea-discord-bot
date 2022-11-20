@@ -8,7 +8,7 @@ const { error } = require('../utils/logger')
 const { request } = require('../utils/requests')
 
 const leaderboard = {
-  type: 1,
+  type: 2,
   name: 'leaderboard',
   description: 'Esportal leaderboard',
   options: [
@@ -90,7 +90,7 @@ const esportal = {
 
 const getLeaderboardEmbed = leaderboardData => {
   const { name, players } = leaderboardData
-  const sortedPlayers = [...players].sort((a, b) => a.elo - b.elo)
+  const sortedPlayers = [...players].sort((a, b) => b.elo - a.elo)
   // construct embed
 
   const embed = new EmbedBuilder()
@@ -137,7 +137,7 @@ const updateLeaderboard = async data => {
     // construct embed
     const embed = getLeaderboardEmbed({ name: lb.name, players: playersData })
     // update leaderboard
-    const res = updateMessage(lb.channelId, lb.messageId, { embeds: embed })
+    const res = updateMessage(lb.channelId, lb.messageId, { embeds: [embed] })
 
     if (!res) {
       throw new Error('Error updating leaderboard message')
@@ -159,7 +159,7 @@ const createLeaderboard = async (guildId, channelId, name = 'Esportal') => {
     })
     // create job to update leaderboard
     jobController.createJob({
-      time: '* 12 12 * * *',
+      time: '0 0 17-23,0 * * *',
       utcOffset: 0,
       id: guildId,
     }, updateLeaderboard)
@@ -168,7 +168,7 @@ const createLeaderboard = async (guildId, channelId, name = 'Esportal') => {
     const embed = getLeaderboardEmbed({ name, players: [] })
 
     // post leaderboard on channel
-    const res = await sendMessage(channelId, embed)
+    const res = await sendMessage(channelId, { embeds: [embed] })
     if (!res) {
       throw new Error('Error sending leaderboard to channel')
     }
@@ -187,6 +187,10 @@ const createLeaderboard = async (guildId, channelId, name = 'Esportal') => {
 
 const addPlayer = async (guildId, playerName) => {
   try {
+    const found = await Player.findOne({ name: playerName })
+    if (found && found.guildId === guildId) {
+      throw new Error('Player already added')
+    }
     // try to get data from esportal
     const data = await getPlayerData(playerName)
 
@@ -201,6 +205,7 @@ const addPlayer = async (guildId, playerName) => {
     const player = new Player({
       name: playerName,
       guildId,
+      leaderboard: lb._id,
     })
     const saved = await player.save()
     lb.players = lb.players.concat(saved._id)
@@ -224,15 +229,13 @@ const removePlayer = async (guildId, playerName) => {
   if (!player) {
     return 'Player not found'
   }
-
   const lb = await Leaderboard.findById(player.leaderboard).populate('players')
   const removed = await Player.findByIdAndRemove(player._id)
 
   if (!removed) {
     return 'Player not found'
   }
-
-  lb.players = lb.players.filter(p => p.name !== removed.name)
+  lb.players = lb.players.filter(p => p.name !== playerName)
   await lb.save()
   // update leaderboard ?
   updateLeaderboard({ id: guildId })
