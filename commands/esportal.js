@@ -270,7 +270,7 @@ const currentLeaderboard = async guildId => {
     const lb = await Leaderboard.findOne({ guildId }).populate('players')
     const playersData = await getPlayersData(lb.players)
     const embed = getLeaderboardEmbed({ name: lb.name, players: playersData })
-    updateMessage(lb.channelId, { embeds: [embed] })
+    updateMessage(lb.channelId, lb.messageId, { embeds: [embed] })
     return embed
   } catch (err) {
     error(err)
