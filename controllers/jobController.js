@@ -51,7 +51,6 @@ const removeJob = id => {
 
 const createJob = (data, jobToRun) => {
   const { time, utcOffset, id } = data
-  info('creating job')
   const cj = new CronJob(
     time,
     async () => {

@@ -157,8 +157,7 @@ const subscribeUser = async (userdata) => {
     }
 
     await subDao.create(userObj)
-    const jobs = jobController.createJob(userObj, handleWeatherUpdate)
-    info('jobs', jobs)
+    jobController.createJob(userObj, handleWeatherUpdate)
 
     return 'Subscribed!'
   } catch (err) {
