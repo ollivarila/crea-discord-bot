@@ -29,7 +29,7 @@ jobs:
         uses: superfly/flyctl-actions/setup-flyctl@master
       - if: ${{ github.event_name == 'push' }}
         name: Deploy to fly.io
-        run: flyctl deploy --remote-only -e APPID=${{ secrets.APPID }} -e GUILDID=${{ secrets.GUILDID }} -e DISCORDTOKEN=${{ secrets.DISCORDTOKEN }} -e WEATHERTOKEN=${{ secrets.DISCORDTOKEN }} -e PUBLICKEY=${{ secrets.PUBLICKEY }} -e MONGODB_URI=${{ secrets.MONGODB_URI }} -e PORT=8080
+        run: flyctl deploy --remote-only -e APPID=${{ secrets.APPID }} -e GUILDID=${{ secrets.GUILDID }} -e DISCORDTOKEN=${{ secrets.DISCORDTOKEN }} -e WEATHERTOKEN=${{ secrets.WEATHERTOKEN }} -e PUBLICKEY=${{ secrets.PUBLICKEY }} -e MONGODB_URI=${{ secrets.MONGODB_URI }} -e PORT=8080
       - name: npm install
         run: npm install
       - name: lint
