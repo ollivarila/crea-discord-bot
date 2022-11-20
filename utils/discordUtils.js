@@ -11,15 +11,32 @@ const createDmChannel = async discordid => {
   return res ? res.data.id : null
 }
 
-const sendDm = async (dmChannel, data) => {
-  const endpoint = `/channels/${dmChannel}/messages`
+const sendMessage = async (channelId, data) => {
+  const endpoint = `/channels/${channelId}/messages`
   return discordRequest(endpoint, {
     method: 'post',
     data,
   })
 }
 
+const updateMessage = async (channelId, messageId, data) => {
+  const endpoint = `/channels/${channelId}/messages/${messageId}`
+  return discordRequest(endpoint, {
+    method: 'patch',
+    data,
+  })
+}
+
+const deleteMessage = async (channelId, messageId) => {
+  const endpoint = `/channels/${channelId}/messages/${messageId}`
+  return discordRequest(endpoint, {
+    method: 'delete',
+  })
+}
+
 module.exports = {
   createDmChannel,
-  sendDm,
+  sendMessage,
+  updateMessage,
+  deleteMessage,
 }

@@ -23,5 +23,6 @@ module.exports = {
     'consistent-return': 0,
     'no-plusplus': 0,
     'no-await-in-loop': 0,
+    'no-underscore-dangle': 0,
   },
 };

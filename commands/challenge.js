@@ -37,7 +37,7 @@ const getChallengeEmbed = (props) => {
     .setTitle('Match link')
     .setDescription(`${player1} vs. ${player2}`)
     .setURL(url)
-    .setFooter({ text: 'GreatestBotEver' })
+    .setFooter({ text: 'CreaBot' })
 
   return challengeEmbed
 }

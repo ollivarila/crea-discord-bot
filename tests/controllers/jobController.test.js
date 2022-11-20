@@ -20,7 +20,7 @@ describe('Job tests', () => {
       utcOffset: '+2',
       id: '234234',
     }
-    jobs = createJob(data, async () => {
+    jobs = createJob({ ...data, time: createCrontime(data.time) }, async () => {
     })
     expect(jobs.length).toBe(1)
   })
@@ -31,7 +31,7 @@ describe('Job tests', () => {
       utcOffset: '+2',
       id: '234234',
     }
-    createJob(data, async () => {
+    jobs = createJob({ ...data, time: createCrontime(data.time) }, async () => {
     })
     jobs = removeJob(data.id)
     expect(jobs.length).toBe(0)
@@ -43,7 +43,7 @@ describe('Job tests', () => {
       utcOffset: '+2',
       id: '234234',
     }
-    createJob(data, () => {
+    jobs = createJob({ ...data, time: createCrontime(data.time) }, async () => {
     })
     const job = getJob(data.id)
     expect(job.id).toBe(data.id)

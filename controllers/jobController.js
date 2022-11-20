@@ -44,7 +44,7 @@ const removeJob = id => {
 /**
  *
  // eslint-disable-next-line max-len
- * @param {{ time: String, utcOffset: number, discordid: String }} data
+ * @param {{ time: String, utcOffset: number, id: String }} data
  * @param {Function} jobToRun Function that will be called onTick
  * @returns
  */
@@ -52,13 +52,8 @@ const removeJob = id => {
 const createJob = (data, jobToRun) => {
   const { time, utcOffset, id } = data
   info('creating job')
-  const crontime = createCrontime(time)
-  if (!crontime) {
-    throw new Error(`Invalid time: ${time}`)
-  }
-
   const cj = new CronJob(
-    crontime,
+    time,
     async () => {
       info(`running job ${id}`)
       return jobToRun(data)
@@ -77,7 +72,7 @@ const createJob = (data, jobToRun) => {
     null,
     utcOffset,
   )
-  info(`created job ${id} running at ${time} / ${crontime} UTC offset: ${utcOffset}`)
+  info(`created job ${id} running at ${time} UTC offset: ${utcOffset}`)
   jobs.push({
     cj,
     id,

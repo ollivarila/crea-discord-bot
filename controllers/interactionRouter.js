@@ -17,6 +17,7 @@ const { getChallengeUrl, getChallengeEmbed } = require('../commands/challenge')
 const Challenge = require('../models/Challenge')
 const { discordRequest } = require('../utils/requests')
 const { createReminder } = require('../commands/remindme')
+const { handleEsportalInteraction } = require('./esportalInteraction')
 
 async function handleBadQuery(req, res, message) {
   return res.send({
@@ -280,6 +281,9 @@ async function handleInteractions(req, res) {
       break
     case 'remindme':
       handleRemindme(req, res)
+      break
+    case 'esportal':
+      handleEsportalInteraction(req, res)
       break
     default:
       return res.send({

@@ -47,7 +47,6 @@ TODO:
 - user can only have one? subscription at a time
 - caching
 - website with React to display information about the bot
-- remindme command
 - esportal leaderboard (/add, /leaderboard, /create, /remove)
+- esportal stats for user
 - /stats command for esportal statistics
-- proper axios mock

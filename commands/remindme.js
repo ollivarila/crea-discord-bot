@@ -1,6 +1,6 @@
 /* eslint-disable prefer-destructuring */
 /* eslint-disable no-const-assign */
-const { createDmChannel, sendDm } = require('../utils/discordUtils')
+const { createDmChannel, sendMessage } = require('../utils/discordUtils')
 
 const remindme = {
   type: 1,
@@ -30,7 +30,7 @@ const timeToMs = (hours, minutes, seconds) => {
 const handleReminder = async data => {
   const { message, channelid } = data
   // Send message to dm
-  sendDm(channelid, { content: message })
+  sendMessage(channelid, { content: message })
 }
 // 1 hours 1 minute 20 seconds
 const parseTime = time => {

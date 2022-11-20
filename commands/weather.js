@@ -88,7 +88,7 @@ const getEmbed = data => {
         { name: `${city} sääennuste ${dateStr}`, value: str },
       )
   })
-  weatherEmbed.setFooter({ text: 'GreatestBotEver' })
+  weatherEmbed.setFooter({ text: 'CreaBot' })
 
   return weatherEmbed
 }
