@@ -28,9 +28,9 @@ async function handleBadQuery(req, res, message) {
 }
 
 async function handleChallenge(req, res) {
-  const challengerid = req.body.member.user.id
-  const challengedid = req.body.data.options[0].value
-  const interactionid = req.body.data.id
+  const challengerid = req.user.id
+  const challengedid = req.options[0].value
+  const interactionid = req.interactionId
   const challengeObj = {
     interactionid,
     challengerName: req.body.member.user.username,
@@ -76,9 +76,9 @@ async function handleChallenge(req, res) {
 
 async function handleSubscribe(req, res) {
   // Gather user data
-  const { options } = req.body.data
-  const { username } = req.body.member.user
-  const discordid = req.body.member.user.id
+  const { options } = req
+  const { username } = req.user
+  const discordid = req.user.id
   const citiesCsv = options[0].value
   let time = '8:00'
   let utcOffset = 0
@@ -111,7 +111,7 @@ async function handleSubscribe(req, res) {
 }
 
 function handleEcho(req, res) {
-  const echo = req.body.data.options[0].value
+  const echo = req.options[0].value
   return res.send({
     type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
     data: {
@@ -195,7 +195,7 @@ async function handleWeather(req, res) {
 }
 
 async function handleUnsubscribbe(req, res) {
-  const discordid = req.body.member.user.id
+  const discordid = req.user.id
   const reply = await unsubscribeUser(discordid)
 
   return res.send({
