@@ -157,7 +157,7 @@ const subscribeUser = async (userdata) => {
     }
 
     await subDao.create(userObj)
-    jobController.createJob(userObj, handleWeatherUpdate)
+    jobController.createJob({ ...userObj, id: userObj.discordid }, handleWeatherUpdate)
 
     return 'Subscribed!'
   } catch (err) {
@@ -180,7 +180,7 @@ const unsubscribeUser = async discordid => {
 const setUpSubscriptions = async () => {
   const subs = await subDao.getAll()
   subs.forEach(sub => {
-    jobController.createJob(sub, handleWeatherUpdate)
+    jobController.createJob({ ...sub, id: sub.discordid }, handleWeatherUpdate)
   })
   info('Subscriptions set up')
 }
