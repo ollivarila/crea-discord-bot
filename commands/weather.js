@@ -17,12 +17,7 @@ const adjustForTimezone = (date, offset) => {
   return date
 }
 
-const parseDate = (date) => {
-  const day = date.getUTCDate()
-  const month = date.getUTCMonth()
-
-  return `${day}.${month}`
-}
+const parseDate = (date) => date.toLocaleString('fi-FI', { dateStyle: 'short' })
 
 const getForecastLine = (fc, date) => {
   let emoji
