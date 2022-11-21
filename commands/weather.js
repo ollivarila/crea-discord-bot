@@ -1,5 +1,5 @@
 const { EmbedBuilder } = require('discord.js')
-const { capitalize } = require('../utils/utils')
+const { capitalize } = require('../utils/misc')
 const { request } = require('../utils/requests')
 
 const baseUrl = 'https://api.openweathermap.org/data/2.5/forecast?units=metric&lang=en&'

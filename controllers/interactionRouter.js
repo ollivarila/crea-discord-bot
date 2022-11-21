@@ -8,7 +8,7 @@ const {
 } = require('discord-interactions')
 const { getRoute } = require('../commands/route')
 const { forecastAndPopulate } = require('../commands/weather')
-const { capitalize } = require('../utils/utils')
+const { capitalize } = require('../utils/misc')
 const { subscribeUser, unsubscribeUser } = require('../commands/subscribe')
 const { getPP } = require('../commands/pp')
 const { error } = require('../utils/logger')

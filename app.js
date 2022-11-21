@@ -1,6 +1,6 @@
 const express = require('express')
 require('express-async-errors')
-const { VerifyDiscordRequest } = require('./utils/utils')
+const { verifyDiscordRequest } = require('./utils/discordUtils')
 const loggerMiddleware = require('./utils/loggerMiddleware')
 const interactionRouter = require('./controllers/interactionRouter')
 const { info } = require('./utils/logger')
@@ -29,7 +29,7 @@ app.get('/version', (req, res) => {
 
 // Parse request body and verifies incoming requests using discord-interactions package
 if (process.env.NODE_ENV !== 'test') {
-  app.use(express.json({ verify: VerifyDiscordRequest(process.env.PUBLICKEY) }));
+  app.use(express.json({ verify: verifyDiscordRequest(process.env.PUBLICKEY) }));
 } else {
   app.use(express.json())
 }
