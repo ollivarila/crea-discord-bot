@@ -25,20 +25,32 @@ const parseDate = (date) => {
 }
 
 const getForecastLine = (fc, date) => {
-  const emoji = {
-    'overcast clouds': '☁️',
-    'light rain': '☁️💧',
-    'broken clouds': '⛅',
-    'scattered clouds': '⛅',
-    'few clouds': '⛅',
-    'shower rain': '🌧',
-    rain: '☔',
-    thunderstorm: '⛈⚡',
-    snow: '🌨',
-    mist: '🌫',
-    'clear sky': '🌞',
+  let emoji
+  const mainToEmoji = {
+    Thunderstorm: '⛈⚡',
+    Drizzle: '🌦',
+    Rain: '🌧',
+    Snow: '❄️',
+    Mist: '🌫',
+    Clear: '🌞',
+    Clouds: '☁️',
   }
-  return `Klo. ${date.getUTCHours()} Lämpötila: ${Math.round(fc.main.temp)} C ${emoji[fc.weather[0].description]}\n`
+  emoji = mainToEmoji[fc.weather[0].main]
+  if (emoji === '☁️') {
+    const betterClouds = {
+      801: '🌤',
+      802: '⛅️',
+      803: '☁️',
+      804: '☁️',
+    }
+    emoji = betterClouds[fc.weather[0].id]
+  }
+
+  if (emoji === undefined) {
+    emoji = '🌫'
+  }
+
+  return `Klo. ${date.getUTCHours()} Lämpötila: ${Math.round(fc.main.temp)} C ${emoji}\n`
 }
 
 const parseForecast = (city, forecast, offset) => {
