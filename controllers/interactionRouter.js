@@ -300,7 +300,7 @@ async function handleInteractions(req, res) {
         const embed = getChallengeEmbed(
           {
             player1: challenge.challengerName,
-            player2: userWhoClicked,
+            player2: req.user.username,
             url: challengeUrl,
           },
         )

@@ -37,6 +37,7 @@ describe('Discord interactions tests', () => {
 
   test('Api responds to verification requests', async () => {
     const res = await api.post('/interactions').send({ type: 1 })
+    console.log(res.body)
     expect(res.status).toBe(200)
     expect(res.body.type).toBe(1)
   })
@@ -190,7 +191,7 @@ describe('Discord interactions tests', () => {
       test('/Leaderboard create', async () => {
         await Leaderboard.deleteMany({})
         mockCommand.data.name = 'esportal'
-        mockCommand.data.type = 1
+        mockCommand.data.type = 2
         mockCommand.data.options = [
           {
             type: 2,
@@ -219,7 +220,7 @@ describe('Discord interactions tests', () => {
       test('/Leaderboard add', async () => {
         await Player.deleteMany({})
         mockCommand.data.name = 'esportal'
-        mockCommand.data.type = 1
+        mockCommand.data.type = 2
         mockCommand.data.options = [
           {
             type: 2,
@@ -247,7 +248,7 @@ describe('Discord interactions tests', () => {
 
       test('/Leaderboard current', async () => {
         mockCommand.data.name = 'esportal'
-        mockCommand.data.type = 1
+        mockCommand.data.type = 2
         mockCommand.data.options = [
           {
             type: 2,
@@ -266,7 +267,7 @@ describe('Discord interactions tests', () => {
 
       test('/Leaderboard remove', async () => {
         mockCommand.data.name = 'esportal'
-        mockCommand.data.type = 1
+        mockCommand.data.type = 2
         mockCommand.data.options = [
           {
             type: 2,
@@ -294,7 +295,7 @@ describe('Discord interactions tests', () => {
 
       test('/Leaderboard delete', async () => {
         mockCommand.data.name = 'esportal'
-        mockCommand.data.type = 1
+        mockCommand.data.type = 2
         mockCommand.data.options = [
           {
             type: 2,
