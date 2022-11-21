@@ -29,7 +29,7 @@ app.get('/version', (req, res) => {
 })
 
 // Parse request body and verifies incoming requests using discord-interactions package
-if (process.env.NODE_ENV !== 'test') {
+if (process.env.NODE_ENV !== 'test' && process.env.NODE_ENV !== 'test:debug') {
   app.use('/interactions', express.json({ verify: verifyDiscordRequest(process.env.PUBLICKEY) }));
 } else {
   app.use(express.json())
