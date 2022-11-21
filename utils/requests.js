@@ -1,6 +1,6 @@
 const axios = require('axios')
 const dotenv = require('dotenv')
-const { sleep } = require('./utils')
+const { sleep } = require('./misc')
 const { info, error } = require('./logger')
 
 dotenv.config()

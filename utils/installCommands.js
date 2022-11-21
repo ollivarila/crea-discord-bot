@@ -1,7 +1,7 @@
 const dotenv = require('dotenv')
-const { HasGuildCommands } = require('../commands')
+const { hasGuildCommands } = require('./discordUtils')
 const commands = require('../commands/allCommands')
 
 dotenv.config()
 
-HasGuildCommands(process.env.APPID, process.env.GUILDID, commands)
+hasGuildCommands(process.env.APPID, process.env.GUILDID, commands)

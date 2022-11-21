@@ -1,10 +1,11 @@
 const express = require('express')
 require('express-async-errors')
-const { VerifyDiscordRequest } = require('./utils/utils')
+const { verifyDiscordRequest } = require('./utils/discordUtils')
 const loggerMiddleware = require('./utils/loggerMiddleware')
 const interactionRouter = require('./controllers/interactionRouter')
 const { info } = require('./utils/logger')
 const onStartUp = require('./utils/startUp')
+const { interactionExtractor } = require('./utils/middleware')
 
 const {
   PUBLICKEY, GUILDID, APPID, DISCORDTOKEN, WEATHERTOKEN,
@@ -28,12 +29,13 @@ app.get('/version', (req, res) => {
 })
 
 // Parse request body and verifies incoming requests using discord-interactions package
-if (process.env.NODE_ENV !== 'test') {
-  app.use(express.json({ verify: VerifyDiscordRequest(process.env.PUBLICKEY) }));
+if (process.env.NODE_ENV !== 'test' && process.env.NODE_ENV !== 'test:debug') {
+  app.use('/interactions', express.json({ verify: verifyDiscordRequest(process.env.PUBLICKEY) }));
 } else {
   app.use(express.json())
 }
 
+app.use('/interactions', interactionExtractor)
 app.use(loggerMiddleware)
 
 /**

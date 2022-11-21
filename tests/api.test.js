@@ -15,6 +15,8 @@ const api = supertest(app)
 
 beforeEach(() => {
   mockCommand = {
+    id: 'mockInteractionId',
+    guild_id: 'mockGuildId',
     data: {
       guild_id: 'mockGuildId',
     },
@@ -34,9 +36,7 @@ describe('Discord interactions tests', () => {
   })
 
   test('Api responds to verification requests', async () => {
-    const res = await api.post('/interactions').send({
-      type: 1,
-    })
+    const res = await api.post('/interactions').send({ type: 1 })
     expect(res.status).toBe(200)
     expect(res.body.type).toBe(1)
   })
@@ -93,18 +93,6 @@ describe('Discord interactions tests', () => {
       mockCommand.data.name = 'pp'
       const res = await api.post('/interactions').send(mockCommand)
       expect(res.body.data.content).toMatch(/B=*D/)
-      expect(res.status).toBe(200)
-    })
-
-    test('Api responds correctly to /search', async () => {
-      mockCommand.data.name = 'search'
-      mockCommand.data.options = [{
-        name: 'query',
-        type: 3,
-        value: 'test',
-      }]
-      const res = await api.post('/interactions').send(mockCommand)
-      expect(res.body.data.content).toMatch(/https:/)
       expect(res.status).toBe(200)
     })
 
@@ -202,6 +190,7 @@ describe('Discord interactions tests', () => {
       test('/Leaderboard create', async () => {
         await Leaderboard.deleteMany({})
         mockCommand.data.name = 'esportal'
+        mockCommand.data.type = 1
         mockCommand.data.options = [
           {
             type: 2,
@@ -230,6 +219,7 @@ describe('Discord interactions tests', () => {
       test('/Leaderboard add', async () => {
         await Player.deleteMany({})
         mockCommand.data.name = 'esportal'
+        mockCommand.data.type = 1
         mockCommand.data.options = [
           {
             type: 2,
@@ -257,6 +247,7 @@ describe('Discord interactions tests', () => {
 
       test('/Leaderboard current', async () => {
         mockCommand.data.name = 'esportal'
+        mockCommand.data.type = 1
         mockCommand.data.options = [
           {
             type: 2,
@@ -275,6 +266,7 @@ describe('Discord interactions tests', () => {
 
       test('/Leaderboard remove', async () => {
         mockCommand.data.name = 'esportal'
+        mockCommand.data.type = 1
         mockCommand.data.options = [
           {
             type: 2,
@@ -302,6 +294,7 @@ describe('Discord interactions tests', () => {
 
       test('/Leaderboard delete', async () => {
         mockCommand.data.name = 'esportal'
+        mockCommand.data.type = 1
         mockCommand.data.options = [
           {
             type: 2,

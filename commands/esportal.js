@@ -181,7 +181,7 @@ const createLeaderboard = async (guildId, channelId, name = 'Esportal') => {
     // create job to update leaderboard
     jobController.createJob({
       time: '0 0 17-23,0 * * *',
-      utcOffset: 0,
+      utcOffset: 2,
       id: guildId,
     }, updateLeaderboard)
 
@@ -301,7 +301,7 @@ const setUpLeaderboards = async () => {
   leaderboards.forEach(lb => {
     jobController.createJob({
       time: '0 0 17-23,0 * * *',
-      utcOffset: 0,
+      utcOffset: 2,
       id: lb.guildId,
     }, updateLeaderboard)
   })

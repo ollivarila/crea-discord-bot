@@ -1,4 +1,4 @@
-const { capitalize } = require('../utils/utils')
+const { capitalize } = require('../utils/misc')
 const { request } = require('../utils/requests')
 const { error } = require('../utils/logger')
 

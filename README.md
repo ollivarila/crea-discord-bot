@@ -1,45 +1,128 @@
-Crea's discord bot
-======
+# Crea's discord bot
 
 ## Features:
+___
 
+```
+/echo
+```
 
 Sends the received message back  
 **Options**:
 - message
 
-      /echo
+___
       
+```
+/route
+```
+
 Get a planned itinerary from [Digitransit](https://digitransit.fi/en/developers/apis/4-realtime-api/) api (Helsinki, Espoo, Vantaa only).
 
 **Options**:
 - start
 - end
+___
 
-
-      /route
+```
+/ping
+```
 
 Ping the bot
 
-      /ping
+___
+
+```
+/weather
+```
 
 Get weather forecast from a city for the next 24 hours from [OpenWeather](https://openweathermap.org/api).
 
 **Options**:
-- query1
-- query2
-- query3
+- query
+- utc offset
+___
 
-      /weather
+```
+/subscribe
+```
 
 Subscribe to daily weather updates
 
-**Options**
+**Options**:
 - cities
 - time
 - timezone
 
-      /subscribe
+___
+
+```
+/unsubscribe
+```
+
+Unsubscrbe from daily weather updates
+
+___
+
+```
+/challenge
+```
+
+Challenge a user to a game of chess
+
+**Options**:
+- user
+
+___
+
+```
+/esportal
+```
+
+Esportal commands
+
+**Subcommands**:
+
+```
+/leaderboard
+```
+- **Subcommands**:
+  - create
+    - creates a leaderboard for server
+    - **Options**:
+      - channel id
+  - add
+    - add player to leaderboard
+    - **Options**:
+      - player
+  - remove
+    - remove player from leaderboard
+    - **Options**:
+      - player
+  - delete
+    - deletes leaderboard from server
+  - current
+    - returns the current state of the leaderboard
+
+```
+/stats
+```
+
+**Options**:
+
+- player
+
+___
+
+```
+/remindme
+```
+
+Sends a reminder to you
+
+**Options**:
+- time
+- message
 
 TODO:
 ====
@@ -47,6 +130,6 @@ TODO:
 - user can only have one? subscription at a time
 - caching
 - website with React to display information about the bot
-- esportal leaderboard (/add, /leaderboard, /create, /remove)
 - esportal stats for user
-- /stats command for esportal statistics
+- polish existing commands
+

@@ -7,9 +7,8 @@ const {
   ButtonStyleTypes,
 } = require('discord-interactions')
 const { getRoute } = require('../commands/route')
-const { createUrl } = require('../commands/search')
 const { forecastAndPopulate } = require('../commands/weather')
-const { capitalize } = require('../utils/utils')
+const { capitalize } = require('../utils/misc')
 const { subscribeUser, unsubscribeUser } = require('../commands/subscribe')
 const { getPP } = require('../commands/pp')
 const { error } = require('../utils/logger')
@@ -29,9 +28,9 @@ async function handleBadQuery(req, res, message) {
 }
 
 async function handleChallenge(req, res) {
-  const challengerid = req.body.member.user.id
-  const challengedid = req.body.data.options[0].value
-  const interactionid = req.body.data.id
+  const challengerid = req.user.id
+  const challengedid = req.options[0].value
+  const interactionid = req.interactionId
   const challengeObj = {
     interactionid,
     challengerName: req.body.member.user.username,
@@ -77,9 +76,9 @@ async function handleChallenge(req, res) {
 
 async function handleSubscribe(req, res) {
   // Gather user data
-  const { options } = req.body.data
-  const { username } = req.body.member.user
-  const discordid = req.body.member.user.id
+  const { options } = req
+  const { username } = req.user
+  const discordid = req.user.id
   const citiesCsv = options[0].value
   let time = '8:00'
   let utcOffset = 0
@@ -112,7 +111,7 @@ async function handleSubscribe(req, res) {
 }
 
 function handleEcho(req, res) {
-  const echo = req.body.data.options[0].value
+  const echo = req.options[0].value
   return res.send({
     type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
     data: {
@@ -122,7 +121,7 @@ function handleEcho(req, res) {
 }
 
 async function handleRoute(req, res) {
-  const { options } = req.body.data
+  const { options } = req
   const route = await getRoute({
     start: options[0].value,
     end: options[1].value,
@@ -150,14 +149,13 @@ function handlePing(req, res) {
 }
 
 function handlePP(req, res) {
-  const user = req.body.member.user.username
-
+  const { user, options } = req
   let selection
-  if (req.body.data.options) {
-    selection = capitalize(req.body.data.options[0].value)
+  if (options) {
+    selection = capitalize(options[0].value)
   }
 
-  const ppString = getPP(selection || user)
+  const ppString = getPP(selection || user.username)
 
   return res.send({
     type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
@@ -167,19 +165,8 @@ function handlePP(req, res) {
   })
 }
 
-function handleSearch(req, res) {
-  const query = req.body.data.options[0].value
-  const url = createUrl(query)
-  return res.send({
-    type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-    data: {
-      content: url,
-    },
-  })
-}
-
 async function handleWeather(req, res) {
-  const [queryOpt, offsetOpt] = req.body.data.options
+  const [queryOpt, offsetOpt] = req.options
   const cities = queryOpt.value.split(/,\s*/)
   let utcOffset
   if (offsetOpt) {
@@ -208,7 +195,7 @@ async function handleWeather(req, res) {
 }
 
 async function handleUnsubscribbe(req, res) {
-  const discordid = req.body.member.user.id
+  const discordid = req.user.id
   const reply = await unsubscribeUser(discordid)
 
   return res.send({
@@ -220,9 +207,10 @@ async function handleUnsubscribbe(req, res) {
 }
 
 async function handleRemindme(req, res) {
-  const discordid = req.body.member.user.id
-  const time = req.body.data.options[0].value
-  const message = req.body.data.options[1] ? req.body.data.options[1].value : undefined
+  const discordid = req.user.id
+  const { options } = req
+  const time = options[0].value
+  const message = options[1] ? options[1].value : undefined
   const reply = await createReminder(discordid, time, message)
 
   return res.send({
@@ -234,24 +222,14 @@ async function handleRemindme(req, res) {
 }
 
 async function handleInteractions(req, res) {
-  // Interaction type and data
-  const { type } = req.body;
-
-  /**
-   * Handle verification requests
-   */
-  if (type === InteractionType.PING) {
+  // Verification requests
+  if (req.iType === InteractionType.PING) {
     return res.send({ type: InteractionResponseType.PONG });
   }
 
-  /**
-   * Handle slash command requests
-   * See https://discord.com/developers/docs/interactions/application-commands#slash-commands
-   */
-  if (type === InteractionType.APPLICATION_COMMAND) {
-    const { name } = req.body.data;
-
-    switch (name) {
+  // Slash commands
+  if (req.iType === InteractionType.APPLICATION_COMMAND) {
+    switch (req.commandName) {
     case 'echo':
       handleEcho(req, res)
       break
@@ -263,9 +241,6 @@ async function handleInteractions(req, res) {
       break
     case 'pp':
       handlePP(req, res)
-      break
-    case 'search':
-      handleSearch(req, res)
       break
     case 'weather':
       handleWeather(req, res)
@@ -289,13 +264,14 @@ async function handleInteractions(req, res) {
       return res.send({
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: {
-          content: `${name} not yet implemented`,
+          content: `${req.commandName} not yet implemented`,
         },
       })
     }
   }
 
-  if (type === InteractionType.MESSAGE_COMPONENT) {
+  // Message components
+  if (req.iType === InteractionType.MESSAGE_COMPONENT) {
     const { name } = req.body.message.interaction
     switch (name) {
     case 'challenge':
@@ -310,9 +286,9 @@ async function handleInteractions(req, res) {
           },
         })
       }
-      const userWhoClicked = req.body.member.user.id
+      const userWhoClicked = req.user.id
       if (challenge.challengedid !== userWhoClicked) {
-        return handleBadQuery(req, res, `<@${req.body.member.user.id}> you cannot accept/decline this challenge`)
+        return handleBadQuery(req, res, `<@${userWhoClicked}> you cannot accept/decline this challenge`)
       }
 
       await challenge.remove()
@@ -324,7 +300,7 @@ async function handleInteractions(req, res) {
         const embed = getChallengeEmbed(
           {
             player1: challenge.challengerName,
-            player2: req.body.member.user.username,
+            player2: userWhoClicked,
             url: challengeUrl,
           },
         )

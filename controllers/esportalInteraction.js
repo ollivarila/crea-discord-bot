@@ -13,26 +13,23 @@ const sendReply = (res, reply) => res.send({
   },
 })
 
-const handleCreate = async (req, res, options) => {
-  const { data } = req.body
-  const { guild_id } = data
-  const channelId = options[0].value
-  const reply = await createLeaderboard(guild_id, channelId)
+const handleCreate = async (req, res) => {
+  const { guildId } = req
+  const channelId = req.subSubCommand.options[0].value
+  const reply = await createLeaderboard(guildId, channelId)
   sendReply(res, reply)
 }
 
-const handleAdd = async (req, res, options) => {
-  const { data } = req.body
-  const { guild_id } = data
-  const player = options[0].value
-  const reply = await addPlayer(guild_id, player)
+const handleAdd = async (req, res) => {
+  const { guildId } = req
+  const player = req.subSubCommand.options[0].value
+  const reply = await addPlayer(guildId, player)
   sendReply(res, reply)
 }
 
 const handleCurrent = async (req, res) => {
-  const { data } = req.body
-  const { guild_id } = data
-  const reply = await currentLeaderboard(guild_id)
+  const { guildId } = req
+  const reply = await currentLeaderboard(guildId)
   return res.send({
     type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
     data: {
@@ -44,29 +41,26 @@ const handleCurrent = async (req, res) => {
 }
 
 const handleDelete = async (req, res) => {
-  const { data } = req.body
-  const { guild_id } = data
-  const reply = await deleteLeaderboard(guild_id)
+  const { guildId } = req
+  const reply = await deleteLeaderboard(guildId)
   sendReply(res, reply)
 }
 
-const handleRemove = async (req, res, options) => {
-  const { data } = req.body
-  const { guild_id } = data
-  const player = options[0].value
-  const reply = await removePlayer(guild_id, player)
+const handleRemove = async (req, res) => {
+  const { guildId } = req
+  const player = req.subSubCommand.options[0].value
+  const reply = await removePlayer(guildId, player)
   sendReply(res, reply)
 }
 
 const handleLeaderboard = async (req, res) => {
-  const { options } = req.body.data.options[0]
-  const { name } = options[0]
+  const { name } = req.subSubCommand
   switch (name) {
   case 'create':
-    handleCreate(req, res, options[0].options)
+    handleCreate(req, res)
     break
   case 'add':
-    handleAdd(req, res, options[0].options)
+    handleAdd(req, res)
     break
   case 'current':
     handleCurrent(req, res)
@@ -75,7 +69,7 @@ const handleLeaderboard = async (req, res) => {
     handleDelete(req, res)
     break
   case 'remove':
-    handleRemove(req, res, options[0].options)
+    handleRemove(req, res)
     break
   default:
     return res.send({
@@ -88,9 +82,8 @@ const handleLeaderboard = async (req, res) => {
 }
 
 const handleEsportalInteraction = (req, res) => {
-  const { options } = req.body.data
   // Subcommand name
-  const { name } = options[0]
+  const { name } = req.subCommand
   switch (name) {
   case 'leaderboard':
     handleLeaderboard(req, res)
