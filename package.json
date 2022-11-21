@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node app.js",
     "dev": "cross-env NODE_ENV=development nodemon app.js",
-    "test": "clear && cross-env NODE_ENV=test jest --verbose --runInBand --forceExit",
+    "test": "clear && cross-env NODE_ENV=test jest --verbose --runInBand --forceExit --watchAll",
     "test:debug": "clear && cross-env NODE_ENV=test:debug jest --verbose --runInBand --forceExit",
     "test:deployment": "jest --verbose --runInBand --forceExit",
     "install:commands": "node ./utils/installCommands.js",

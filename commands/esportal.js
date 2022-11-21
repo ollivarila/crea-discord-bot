@@ -268,6 +268,11 @@ const currentLeaderboard = async guildId => {
   try {
     // Get leaderboard from db
     const lb = await Leaderboard.findOne({ guildId }).populate('players')
+
+    if (!lb) {
+      return 'Leaderboard not found'
+    }
+
     const playersData = await getPlayersData(lb.players)
     const embed = getLeaderboardEmbed({ name: lb.name, players: playersData })
     updateMessage(lb.channelId, lb.messageId, { embeds: [embed] })

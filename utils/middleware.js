@@ -2,7 +2,6 @@
 const interactionExtractor = (req, res, next) => {
   if (req.body) {
     req.iType = req.body.type
-
     if (req.body.type === 1) {
       next()
       return
@@ -17,11 +16,16 @@ const interactionExtractor = (req, res, next) => {
     req.user = member.user
     req.commandName = data.name
     req.int = data
-
-    req.options = data.options
-    // Subcommand stuff
     const { options } = data
-    if (data.type === 2) {
+
+    if (!options) {
+      next()
+      return
+    }
+    req.options = options
+
+    // Subcommand stuff
+    if (options && options[0].type === 2) {
       const subCommand = options[0]
       const subSubCommand = subCommand.options[0]
 

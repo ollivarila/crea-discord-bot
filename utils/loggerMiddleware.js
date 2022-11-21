@@ -5,7 +5,11 @@ const loggerMiddleware = (req, res, next) => {
   if (process.env.NODE_ENV !== 'test') {
     logger.info(`NEW REQUEST method: ${req.method} path: ${req.path}`)
     if (req.path === '/interactions') {
-      logger.info(`user: ${req.user.username} used: /${req.commandName}`)
+      try {
+        logger.info(`user: ${req.user.username} used: /${req.commandName}`)
+      } catch (error) {
+        next()
+      }
     }
   }
   next()

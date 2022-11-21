@@ -37,7 +37,6 @@ describe('Discord interactions tests', () => {
 
   test('Api responds to verification requests', async () => {
     const res = await api.post('/interactions').send({ type: 1 })
-    console.log(res.body)
     expect(res.status).toBe(200)
     expect(res.body.type).toBe(1)
   })

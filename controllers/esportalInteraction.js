@@ -30,6 +30,15 @@ const handleAdd = async (req, res) => {
 const handleCurrent = async (req, res) => {
   const { guildId } = req
   const reply = await currentLeaderboard(guildId)
+  if (typeof reply === 'string') {
+    return res.send({
+      type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+      data: {
+        content: reply,
+      },
+    })
+  }
+
   return res.send({
     type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
     data: {
