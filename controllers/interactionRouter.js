@@ -7,7 +7,6 @@ const {
   ButtonStyleTypes,
 } = require('discord-interactions')
 const { getRoute } = require('../commands/route')
-const { createUrl } = require('../commands/search')
 const { forecastAndPopulate } = require('../commands/weather')
 const { capitalize } = require('../utils/utils')
 const { subscribeUser, unsubscribeUser } = require('../commands/subscribe')
@@ -167,17 +166,6 @@ function handlePP(req, res) {
   })
 }
 
-function handleSearch(req, res) {
-  const query = req.body.data.options[0].value
-  const url = createUrl(query)
-  return res.send({
-    type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-    data: {
-      content: url,
-    },
-  })
-}
-
 async function handleWeather(req, res) {
   const [queryOpt, offsetOpt] = req.body.data.options
   const cities = queryOpt.value.split(/,\s*/)
@@ -263,9 +251,6 @@ async function handleInteractions(req, res) {
       break
     case 'pp':
       handlePP(req, res)
-      break
-    case 'search':
-      handleSearch(req, res)
       break
     case 'weather':
       handleWeather(req, res)
