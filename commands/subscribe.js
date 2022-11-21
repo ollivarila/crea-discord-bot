@@ -180,7 +180,12 @@ const unsubscribeUser = async discordid => {
 const setUpSubscriptions = async () => {
   const subs = await subDao.getAll()
   subs.forEach(sub => {
-    jobController.createJob({ ...sub, id: sub.discordid }, handleWeatherUpdate)
+    jobController.createJob({
+      time: sub.time,
+      id: sub.discordid,
+      utcOffset: sub.utcOffset,
+      discordid: sub.discordid,
+    }, handleWeatherUpdate)
   })
   info('Subscriptions set up')
 }
