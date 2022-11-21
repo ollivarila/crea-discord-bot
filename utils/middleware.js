@@ -19,10 +19,9 @@ const interactionExtractor = (req, res, next) => {
     req.int = data
 
     req.options = data.options
-
     // Subcommand stuff
     const { options } = data
-    if (data.type === 1) {
+    if (data.type === 2) {
       const subCommand = options[0]
       const subSubCommand = subCommand.options[0]
 
