@@ -130,5 +130,3 @@ TODO:
 - website with React to display information about the bot
 - esportal stats for user
 - polish /route
-- better request logging (interactions and all separate)
-
