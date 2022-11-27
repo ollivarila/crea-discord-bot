@@ -441,7 +441,7 @@ describe('Discord interactions tests', () => {
           },
         ]
         const res = await api.post('/interactions').send(mockCommand)
-        expect(res.body.data.content).toBe('Error parsing time')
+        expect(res.body.data.content).toBe('Invalid time')
         expect(mock.history.post[0].url).toBe('https://discord.com/api/v10/users/@me/channels')
       })
     })

@@ -105,8 +105,8 @@ const rankToEmoji = rank => {
 const getLeaderboardEmbed = leaderboardData => {
   const { name, players } = leaderboardData
   const sortedPlayers = [...players].sort((a, b) => b.elo - a.elo)
-  // construct embed
 
+  // construct embed
   const embed = new EmbedBuilder()
   embed.setColor('#8a00c2')
     .setTitle(`${name} leaderboard`)
@@ -117,9 +117,7 @@ const getLeaderboardEmbed = leaderboardData => {
     str = str.concat(`**${i + 1}**. ${p.username} elo: ${p.elo} ${rankToEmoji(p.elo)} k/d: ${kd} mvp (%): ${mvpP}\n\n`)
   })
   embed.setFields({ name: 'Leaderboard', value: str === '' ? 'empty' : str })
-  const date = new Date(Date.now())
-  date.setTime(date.getTime() + (2 * 60 * 60 * 1000))
-  embed.setFooter({ text: `CreaBot updated: ${date.toLocaleString('en-GB', { hour: '2-digit', minute: '2-digit' })}` })
+  embed.setFooter({ text: 'CreaBot' }).setTimestamp()
   return embed
 }
 
@@ -143,7 +141,7 @@ const getPlayersData = async (players) => {
 
   await Promise.all(players.map(async p => {
     const playerData = await getPlayerData(p.name)
-    playersData.push(playerData)
+    if (playerData) playersData.push(playerData)
   }))
   return playersData
 }
@@ -213,39 +211,36 @@ const createLeaderboard = async (guildId, channelId, name = 'Esportal') => {
 }
 
 const addPlayer = async (guildId, playerName) => {
+  const found = await Player.findOne({ name: playerName })
+  if (found && found.guildId === guildId) return 'Player already added to the leaderboard'
+  // try to get data from esportal
+  const data = await getPlayerData(playerName)
+
+  if (!data) return 'Name might be invalid'
+
+  const lb = await Leaderboard.findOne({ guildId })
+  // create player and save to db
+  // add player to leaderboard (db)
+
+  const player = new Player({
+    name: playerName,
+    guildId,
+    leaderboard: lb._id,
+  })
+
   try {
-    const found = await Player.findOne({ name: playerName })
-    if (found && found.guildId === guildId) {
-      throw new Error('Player already added')
-    }
-    // try to get data from esportal
-    const data = await getPlayerData(playerName)
-
-    if (!data) {
-      throw new Error(`Could not find player with that name ${playerName}`)
-    }
-
-    const lb = await Leaderboard.findOne({ guildId })
-    // create player and save to db
-    // add player to leaderboard (db)
-
-    const player = new Player({
-      name: playerName,
-      guildId,
-      leaderboard: lb._id,
-    })
     const saved = await player.save()
     lb.players = lb.players.concat(saved._id)
     await lb.save()
-
-    updateLeaderboard({ id: guildId })
-
-    // return proper reply
-    return `Added player ${playerName}`
   } catch (err) {
-    error(err)
-    return err.message
+    error('Error saving player to database')
+    return 'Error saving player'
   }
+
+  updateLeaderboard({ id: guildId })
+
+  // return proper reply
+  return `Added player ${playerName}`
 }
 
 const removePlayer = async (guildId, playerName) => {
@@ -253,58 +248,44 @@ const removePlayer = async (guildId, playerName) => {
   const found = await Player.find({ name: playerName })
   const player = found.filter(p => p.guildId === guildId).pop()
 
-  if (!player) {
-    return 'Player not found'
-  }
+  if (!player) return 'Player not found'
+
   const lb = await Leaderboard.findById(player.leaderboard).populate('players')
   const removed = await Player.findByIdAndRemove(player._id)
 
-  if (!removed) {
-    return 'Player not found'
-  }
+  if (!removed) return 'Player not found'
+
   lb.players = lb.players.filter(p => p.name !== playerName)
   await lb.save()
-  // update leaderboard ?
+
   updateLeaderboard({ id: guildId })
 
   return `Removed player ${playerName}`
 }
 
 const currentLeaderboard = async guildId => {
-  try {
-    // Get leaderboard from db
-    const lb = await Leaderboard.findOne({ guildId }).populate('players')
+  // Get leaderboard from db
+  const lb = await Leaderboard.findOne({ guildId }).populate('players')
 
-    if (!lb) {
-      return 'Leaderboard not found'
-    }
-
-    const playersData = await getPlayersData(lb.players)
-    const embed = getLeaderboardEmbed({ name: lb.name, players: playersData })
-    updateMessage(lb.channelId, lb.messageId, { embeds: [embed] })
-    return embed
-  } catch (err) {
-    error(err)
-    return err.message
+  if (!lb) {
+    return { content: 'Leaderboard not found' }
   }
+
+  const playersData = await getPlayersData(lb.players)
+  const embed = getLeaderboardEmbed({ name: lb.name, players: playersData })
+  updateMessage(lb.channelId, lb.messageId, { embeds: [embed] })
+  return { embeds: [embed] }
 }
 
 const deleteLeaderboard = async guildId => {
-  try {
-    // remove leaderboard from db
-    const removed = await Leaderboard.findOneAndRemove({ guildId }).populate('players')
-    if (!removed) {
-      throw new Error('Could not remove leaderboard')
-    }
-    // delete message
-    await deleteMessage(removed.channelId, removed.messageId)
-    // remove users
-    await Promise.all(removed.players.map(p => Player.findByIdAndRemove(p._id)))
-    return 'Removed leaderboard'
-  } catch (err) {
-    error(err)
-    return err.message
-  }
+  // remove leaderboard from db
+  const removed = await Leaderboard.findOneAndRemove({ guildId }).populate('players')
+  if (!removed) return 'Did not find a leaderboard to remove'
+  // delete message
+  await deleteMessage(removed.channelId, removed.messageId)
+  // remove users
+  await Promise.all(removed.players.map(p => Player.findByIdAndRemove(p._id)))
+  return 'Removed leaderboard'
 }
 
 const setUpLeaderboards = async () => {
@@ -344,41 +325,40 @@ const parseRecentMatches = matches => {
 }
 
 const getStatsEmbed = async (player) => {
-  try {
-    const data = await getPlayerData(player)
-    const matches = await getRecentMatches(data.id)
-    const { eloChange, recentKd, recentWinrate } = parseRecentMatches(matches)
+  const data = await getPlayerData(player)
+  const matches = await getRecentMatches(data.id)
 
-    const kd = (data.kills / data.deaths).toFixed(2)
-    const winrate = ((data.wins / (data.wins + data.losses)) * 100).toFixed(2)
+  if (!data) return { content: 'Could not find player' }
+  if (!matches) return { content: 'Could not get recent matches' }
 
-    const embed = new EmbedBuilder()
-    embed.setTitle(`${data.username} stats`)
-      .addFields(
-        { name: 'Elo', value: `${data.elo} ${rankToEmoji(data.elo)}`, inline: true },
-        { name: 'K/D', value: `${kd}`, inline: true },
-        { name: 'Winrate', value: `${winrate} %`, inline: true },
-      )
-      .addFields(
-        {
-          name: 'Recent 9 games',
-          value: `
+  const { eloChange, recentKd, recentWinrate } = parseRecentMatches(matches)
+
+  const kd = (data.kills / data.deaths).toFixed(2)
+  const winrate = ((data.wins / (data.wins + data.losses)) * 100).toFixed(2)
+
+  const embed = new EmbedBuilder()
+  embed.setTitle(`${data.username} stats`)
+    .addFields(
+      { name: 'Elo', value: `${data.elo} ${rankToEmoji(data.elo)}`, inline: true },
+      { name: 'K/D', value: `${kd}`, inline: true },
+      { name: 'Winrate', value: `${winrate} %`, inline: true },
+    )
+    .addFields(
+      {
+        name: 'Recent 9 games',
+        value: `
         Elo change: ${eloChange} ${eloChange < 0 ? '🤡' : '🟢'}
         K/D: ${recentKd}
         Winrate: ${recentWinrate} %
         `,
-        },
-      )
-      .setThumbnail(`https://avatars.steamstatic.com/${data.avatar_hash}_medium.jpg`)
-      .setURL(`https://esportal.com/en/profile/${data.username}`)
-      .setFooter({ text: 'CreaBot' })
-      .setTimestamp()
-      .setColor('#8a00c2')
-    return embed
-  } catch (err) {
-    error(err.message)
-    return null
-  }
+      },
+    )
+    .setThumbnail(`https://avatars.steamstatic.com/${data.avatar_hash}_medium.jpg`)
+    .setURL(`https://esportal.com/en/profile/${data.username}`)
+    .setFooter({ text: 'CreaBot' })
+    .setTimestamp()
+    .setColor('#8a00c2')
+  return { embeds: [embed] }
 }
 
 module.exports = {

@@ -29,23 +29,10 @@ const handleAdd = async (req, res) => {
 
 const handleCurrent = async (req, res) => {
   const { guildId } = req
-  const reply = await currentLeaderboard(guildId)
-  if (typeof reply === 'string') {
-    return res.send({
-      type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-      data: {
-        content: reply,
-      },
-    })
-  }
-
+  const data = await currentLeaderboard(guildId)
   return res.send({
     type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-    data: {
-      embeds: [
-        reply,
-      ],
-    },
+    data,
   })
 }
 
@@ -92,24 +79,10 @@ const handleLeaderboard = async (req, res) => {
 
 const handleStats = async (req, res) => {
   const player = req.subCommand.options[0].value
-  const embed = await getStatsEmbed(player)
-  if (!embed) {
-    res.send({
-      type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-      data: {
-        content: `Player ${player} not found`,
-      },
-    })
-    return
-  }
-
-  res.send({
+  const data = await getStatsEmbed(player)
+  return res.send({
     type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-    data: {
-      embeds: [
-        embed,
-      ],
-    },
+    data,
   })
 }
 
