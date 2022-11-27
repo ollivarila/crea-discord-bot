@@ -206,7 +206,7 @@ const createLeaderboard = async (guildId, channelId, name = 'Esportal') => {
 
     return 'Leaderboard created!'
   } catch (err) {
-    error(err)
+    error(err.message)
     jobController.removeJob(guildId)
     return err.message
   }
