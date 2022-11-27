@@ -216,6 +216,28 @@ describe('Discord interactions tests', () => {
         return Player.deleteMany({})
       })
 
+      test('/stats', async () => {
+        mockCommand.data.name = 'esportal'
+        mockCommand.data.type = 2
+        mockCommand.data.options = [
+          {
+            type: 1,
+            name: 'stats',
+            options: [
+              {
+                type: 3,
+                name: 'player',
+                value: 'mockPlayer',
+              },
+            ],
+          },
+        ]
+
+        const res = await api.post('/interactions').send(mockCommand)
+        expect(res.body.data.embeds).toBeDefined()
+        expect(res.status).toBe(200)
+      })
+
       test('/Leaderboard create', async () => {
         await Leaderboard.deleteMany({})
         mockCommand.data.name = 'esportal'

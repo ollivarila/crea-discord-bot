@@ -619,6 +619,7 @@ const mockPlayerData = {
   matches: 1301,
   mvps: 123,
   headshots: 9258,
+  id: 12345,
 }
 
 const currentWeatherRes = {
@@ -656,6 +657,105 @@ const currentWeatherRes = {
   name: 'Espoo',
   cod: 200,
 }
+
+const matchesRes = [
+  {
+    id: 5050298,
+    map_id: 4,
+    country_id: 162,
+    unranked: false,
+    elo_change: -25,
+    inserted: 1669492109,
+    type: 0,
+    tournament_id: null,
+    tournament_slug: null,
+    winner: false,
+    voided: false,
+    stats: {
+      kills: 18,
+      assists: 7,
+      deaths: 21,
+      headshots: 4,
+      opening_kills: 5,
+      opening_deaths: 3,
+      clutches: 0,
+    },
+    info: {
+      team1_name: 'wannabi',
+      team2_name: 'HermanGatevold',
+      team1_logo: null,
+      team2_logo: null,
+      team1_captain_logo: '94601cf87f612256a431a72326de4b8b71599b7b',
+      team2_captain_logo: '8c6abd4120e2e913f7d1b78fbb96b11bf3a1bfe1',
+      team1_score: 13,
+      team2_score: 16,
+    },
+  },
+  {
+    id: 5050032,
+    map_id: 34,
+    country_id: 210,
+    unranked: false,
+    elo_change: -25,
+    inserted: 1669488795,
+    type: 0,
+    tournament_id: null,
+    tournament_slug: null,
+    winner: false,
+    voided: false,
+    stats: {
+      kills: 22,
+      assists: 4,
+      deaths: 21,
+      headshots: 8,
+      opening_kills: 7,
+      opening_deaths: 4,
+      clutches: 0,
+    },
+    info: {
+      team1_name: 'wannabi',
+      team2_name: 'KL4DDKAKA',
+      team1_logo: null,
+      team2_logo: null,
+      team1_captain_logo: '94601cf87f612256a431a72326de4b8b71599b7b',
+      team2_captain_logo: '847e0463120bf709065ac899479142092c15236e',
+      team1_score: 14,
+      team2_score: 16,
+    },
+  },
+  {
+    id: 5047790,
+    map_id: 2,
+    country_id: 210,
+    unranked: false,
+    elo_change: 27,
+    inserted: 1669414657,
+    type: 0,
+    tournament_id: null,
+    tournament_slug: null,
+    winner: true,
+    voided: false,
+    stats: {
+      kills: 20,
+      assists: 8,
+      deaths: 28,
+      headshots: 6,
+      opening_kills: 7,
+      opening_deaths: 8,
+      clutches: 0,
+    },
+    info: {
+      team1_name: 'trickycool',
+      team2_name: 'DeviNeZe',
+      team1_logo: null,
+      team2_logo: null,
+      team1_captain_logo: '1601a6b52d94b8e2868ab648f1c54fee871ae617',
+      team2_captain_logo: '47a422c4bf6a59d4b7e9df1e28884a7c040475ff',
+      team1_score: 19,
+      team2_score: 17,
+    },
+  },
+]
 
 const mock = new MockAdapter(axios)
 mock.onGet('https://api.digitransit.fi/geocoding/v1/search?text=mockValue').reply(200, { features: [{ geometry: { coordinates: [123, 321] } }] })
@@ -702,7 +802,8 @@ mock.onDelete(`${sendDmUrl}/mockMessageId`, expect.anything(), expect.objectCont
 
 // Esportal
 const requestUrl = 'https://esportal.com/api/user_profile/get?username=mockPlayer'
-
+const matchesUrl = 'https://esportal.com/api/user_profile/get_latest_matches?id=12345&page=1&v=2'
 mock.onGet(requestUrl).reply(200, mockPlayerData)
+mock.onGet(matchesUrl).reply(200, matchesRes)
 
 module.exports = mock

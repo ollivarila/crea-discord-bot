@@ -3,7 +3,7 @@ const {
   InteractionResponseType,
 } = require('discord-interactions')
 const {
-  addPlayer, createLeaderboard, deleteLeaderboard, currentLeaderboard, removePlayer,
+  addPlayer, createLeaderboard, deleteLeaderboard, currentLeaderboard, removePlayer, getStatsEmbed,
 } = require('../commands/esportal')
 
 const sendReply = (res, reply) => res.send({
@@ -90,12 +90,38 @@ const handleLeaderboard = async (req, res) => {
   }
 }
 
+const handleStats = async (req, res) => {
+  const player = req.subCommand.options[0].value
+  const embed = await getStatsEmbed(player)
+  if (!embed) {
+    res.send({
+      type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+      data: {
+        content: `Player ${player} not found`,
+      },
+    })
+    return
+  }
+
+  res.send({
+    type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+    data: {
+      embeds: [
+        embed,
+      ],
+    },
+  })
+}
+
 const handleEsportalInteraction = (req, res) => {
   // Subcommand name
   const { name } = req.subCommand
   switch (name) {
   case 'leaderboard':
     handleLeaderboard(req, res)
+    break
+  case 'stats':
+    handleStats(req, res)
     break
   default:
     return res.send({

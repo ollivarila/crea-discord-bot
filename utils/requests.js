@@ -56,16 +56,13 @@ const installCommand = async command => {
 }
 
 async function request(url, options) {
-  try {
-    const res = await axios.request({
-      url,
-      ...options,
-    })
-    return res
-  } catch (err) {
-    error(err)
-    return null
-  }
+  return axios.request({
+    url,
+    ...options,
+  })
+    .then(res => res)
+    // eslint-disable-next-line no-unused-vars
+    .catch(err => null)
 }
 
 module.exports = {

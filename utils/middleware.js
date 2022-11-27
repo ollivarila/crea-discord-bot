@@ -52,7 +52,8 @@ const requestLogger = (req, res, next) => {
 }
 
 const interactionLogger = (req, res, next) => {
-  if (req.iType === 1) next()
+  if (req.iType === 1 || req.path === '/health') next()
+
   info(chalk.blue(`user: ${req.user.username} used: /${req.commandName}`))
   next()
 }
