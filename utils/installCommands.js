@@ -1,6 +1,6 @@
 const dotenv = require('dotenv')
 const { hasGuildCommands } = require('./discordUtils')
-const commands = require('../commands/allCommands')
+const commands = require('../commands')
 
 dotenv.config()
 

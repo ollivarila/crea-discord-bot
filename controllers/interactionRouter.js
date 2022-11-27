@@ -7,7 +7,7 @@ const {
   ButtonStyleTypes,
 } = require('discord-interactions')
 const { getRoute } = require('../commands/route')
-const { forecastAndPopulate } = require('../commands/weather')
+const { handleWeather } = require('../commands/weather')
 const { capitalize } = require('../utils/misc')
 const { subscribeUser, unsubscribeUser } = require('../commands/subscribe')
 const { getPP } = require('../commands/pp')
@@ -82,12 +82,10 @@ async function handleSubscribe(req, res) {
   const citiesCsv = options[0].value
   let time = '8:00'
   let utcOffset = 0
-  try {
-    time = options[1].value
-    utcOffset = options[2].value
-  } catch (err) {
-    error(err)
-  }
+
+  if (options[1]) time = options[1].value
+
+  if (options[2]) utcOffset = options[2].value
 
   const userdata = {
     username,
@@ -161,35 +159,6 @@ function handlePP(req, res) {
     type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
     data: {
       content: ppString,
-    },
-  })
-}
-
-async function handleWeather(req, res) {
-  const [queryOpt, offsetOpt] = req.options
-  const cities = queryOpt.value.split(/,\s*/)
-  let utcOffset
-  if (offsetOpt) {
-    utcOffset = offsetOpt.value
-  }
-
-  const forecastEmbed = await forecastAndPopulate(cities, utcOffset)
-
-  if (!forecastEmbed) {
-    let queries = ''
-    cities.forEach(c => {
-      queries += `${c} `
-    })
-    queries = queries.trimEnd()
-    return handleBadQuery(req, res, `Weather not found with queries: ${queries}`)
-  }
-
-  return res.send({
-    type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-    data: {
-      embeds: [
-        forecastEmbed,
-      ],
     },
   })
 }

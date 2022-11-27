@@ -141,6 +141,11 @@ const handleWeatherUpdate = async data => {
 }
 
 const subscribeUser = async (userdata) => {
+  const sub = await subDao.get(userdata.discordid)
+  if (sub) {
+    return 'You already have an existing subscription'
+  }
+
   try {
     // Parse and verify user data
     let badData = null
@@ -161,7 +166,7 @@ const subscribeUser = async (userdata) => {
 
     return 'Subscribed!'
   } catch (err) {
-    error(err)
+    error('Subscription failed', userdata)
     return err.message
   }
 }

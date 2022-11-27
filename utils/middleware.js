@@ -1,4 +1,8 @@
+const { ApplicationCommandOptionType } = require('discord.js')
+const chalk = require('chalk')
+const { info } = require('./logger')
 /* eslint-disable camelcase */
+
 const interactionExtractor = (req, res, next) => {
   if (req.body) {
     req.iType = req.body.type
@@ -6,7 +10,6 @@ const interactionExtractor = (req, res, next) => {
       next()
       return
     }
-
     const {
       data, guild_id, id, member,
     } = req.body
@@ -25,7 +28,7 @@ const interactionExtractor = (req, res, next) => {
     req.options = options
 
     // Subcommand stuff
-    if (options && options[0].type === 2) {
+    if (options && options[0].type === ApplicationCommandOptionType.SubcommandGroup) {
       const subCommand = options[0]
       const subSubCommand = subCommand.options[0]
 
@@ -34,10 +37,28 @@ const interactionExtractor = (req, res, next) => {
         req.subSubCommand = subSubCommand
       }
     }
+
+    if (options && options[0].type === ApplicationCommandOptionType.Subcommand) {
+      const subCommand = options[0]
+      req.subCommand = subCommand
+    }
   }
+  next()
+}
+
+const requestLogger = (req, res, next) => {
+  info(chalk.green(`new request, method: ${req.method} path: ${req.path}`))
+  next()
+}
+
+const interactionLogger = (req, res, next) => {
+  if (req.iType === 1) next()
+  info(chalk.blue(`user: ${req.user.username} used: /${req.commandName}`))
   next()
 }
 
 module.exports = {
   interactionExtractor,
+  requestLogger,
+  interactionLogger,
 }

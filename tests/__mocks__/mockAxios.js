@@ -621,14 +621,54 @@ const mockPlayerData = {
   headshots: 9258,
 }
 
+const currentWeatherRes = {
+  coord: { lon: 24.6667, lat: 60.25 },
+  weather: [
+    {
+      id: 803,
+      main: 'Clouds',
+      description: 'broken clouds',
+      icon: '04n',
+    },
+  ],
+  base: 'stations',
+  main: {
+    temp: -4.81,
+    feels_like: -9.85,
+    temp_min: -4.81,
+    temp_max: -2.49,
+    pressure: 1030,
+    humidity: 100,
+  },
+  visibility: 3000,
+  wind: { speed: 3.6, deg: 50 },
+  clouds: { all: 75 },
+  dt: 1669556711,
+  sys: {
+    type: 1,
+    id: 1332,
+    country: 'FI',
+    sunrise: 1669531764,
+    sunset: 1669555726,
+  },
+  timezone: 7200,
+  id: 660129,
+  name: 'Espoo',
+  cod: 200,
+}
+
 const mock = new MockAdapter(axios)
 mock.onGet('https://api.digitransit.fi/geocoding/v1/search?text=mockValue').reply(200, { features: [{ geometry: { coordinates: [123, 321] } }] })
 mock.onPost('https://api.digitransit.fi/routing/v1/routers/hsl/index/graphql', expect.objectContaining({
   query: expect.anything(),
 })).reply(200, { data: mockItinerary })
 
+// Weather
 mock.onGet(`https://api.openweathermap.org/data/2.5/forecast?units=metric&lang=en&q=mockValue&appid=${process.env.WEATHERTOKEN}`)
   .reply(200, weatherRes)
+
+mock.onGet(`https://api.openweathermap.org/data/2.5/weather?q=mockValue&appid=${process.env.WEATHERTOKEN}&units=metric`)
+  .reply(200, currentWeatherRes)
 
 mock.onPost(lichessUrl, expect.objectContaining({
   clock: {
