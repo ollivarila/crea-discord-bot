@@ -1,4 +1,5 @@
 /* eslint-disable no-undef */
+const { ApplicationCommandOptionType } = require('discord.js')
 const mongoose = require('mongoose')
 const supertest = require('supertest')
 const dotenv = require('dotenv')
@@ -96,13 +97,39 @@ describe('Discord interactions tests', () => {
       expect(res.status).toBe(200)
     })
 
-    test('Api responds correctly to /weather', async () => {
+    test('Api responds correctly to /weather 24h', async () => {
       mockCommand.data.name = 'weather'
       mockCommand.data.options = [{
-        name: 'query',
-        type: 3,
-        value: 'mockValue',
+        name: '24h',
+        type: ApplicationCommandOptionType.Subcommand,
+        options: [
+          {
+            name: 'query',
+            type: 3,
+            value: 'mockValue',
+          },
+        ],
       }]
+
+      const res = await api.post('/interactions').send(mockCommand)
+      expect(res.body.data.embeds).toBeDefined()
+      expect(res.status).toBe(200)
+    })
+
+    test('Api responds correctly to /weather current', async () => {
+      mockCommand.data.name = 'weather'
+      mockCommand.data.options = [{
+        name: 'current',
+        type: ApplicationCommandOptionType.Subcommand,
+        options: [
+          {
+            name: 'query',
+            type: 3,
+            value: 'mockValue',
+          },
+        ],
+      }]
+
       const res = await api.post('/interactions').send(mockCommand)
       expect(res.body.data.embeds).toBeDefined()
       expect(res.status).toBe(200)
@@ -339,10 +366,17 @@ describe('Discord interactions tests', () => {
       test('/weather', async () => {
         mockCommand.data.name = 'weather'
         mockCommand.data.options = [{
-          name: 'query',
-          type: 3,
-          value: 'incorrect',
+          name: '24h',
+          type: ApplicationCommandOptionType.Subcommand,
+          options: [
+            {
+              name: 'query',
+              type: 3,
+              value: 'incorrect',
+            },
+          ],
         }]
+
         const res = await api.post('/interactions').send(mockCommand)
         expect(res.body.data.content).toBe('Weather not found with queries: incorrect')
         expect(res.status).toBe(200)

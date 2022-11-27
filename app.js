@@ -17,9 +17,6 @@ if (!(PUBLICKEY && GUILDID && APPID && DISCORDTOKEN && WEATHERTOKEN)) {
 }
 
 onStartUp().then(() => info('startup completed'))
-
-app.use(loggerMiddleware)
-
 // For health checks
 app.get('/health', (req, res) => {
   res.send('ok')
@@ -38,6 +35,7 @@ if (process.env.NODE_ENV !== 'test' && process.env.NODE_ENV !== 'test:debug') {
 }
 
 app.use('/interactions', interactionExtractor)
+app.use(loggerMiddleware)
 
 /**
  * Interactions endpoint URL where Discord will send HTTP requests

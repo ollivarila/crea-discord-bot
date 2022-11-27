@@ -1,4 +1,6 @@
+const { ApplicationCommandOptionType } = require('discord.js')
 /* eslint-disable camelcase */
+
 const interactionExtractor = (req, res, next) => {
   if (req.body) {
     req.iType = req.body.type
@@ -6,7 +8,6 @@ const interactionExtractor = (req, res, next) => {
       next()
       return
     }
-
     const {
       data, guild_id, id, member,
     } = req.body
@@ -25,7 +26,7 @@ const interactionExtractor = (req, res, next) => {
     req.options = options
 
     // Subcommand stuff
-    if (options && options[0].type === 2) {
+    if (options && options[0].type === ApplicationCommandOptionType.SubcommandGroup) {
       const subCommand = options[0]
       const subSubCommand = subCommand.options[0]
 
@@ -33,6 +34,11 @@ const interactionExtractor = (req, res, next) => {
       if (subSubCommand) {
         req.subSubCommand = subSubCommand
       }
+    }
+
+    if (options && options[0].type === ApplicationCommandOptionType.Subcommand) {
+      const subCommand = options[0]
+      req.subCommand = subCommand
     }
   }
   next()

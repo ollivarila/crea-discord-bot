@@ -1,8 +1,17 @@
-const { EmbedBuilder } = require('discord.js')
+const {
+  EmbedBuilder, ApplicationCommandOptionType, ApplicationCommandType,
+} = require('discord.js')
+const { InteractionResponseType } = require('discord-interactions')
 const { capitalize } = require('../utils/misc')
 const { request } = require('../utils/requests')
 
 const baseUrl = 'https://api.openweathermap.org/data/2.5/forecast?units=metric&lang=en&'
+
+const getCurrentWeather = async city => {
+  const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${process.env.WEATHERTOKEN}&units=metric`
+  const res = await request(url, { method: 'get' })
+  return res ? res.data : null
+}
 
 const getForecast = async (city) => {
   const endpoint = `q=${city}&appid=${process.env.WEATHERTOKEN}`
@@ -82,7 +91,7 @@ const parseForecast = (city, forecast, offset) => {
   }
 }
 
-const getEmbed = data => {
+const get24hEmbed = data => {
   const weatherEmbed = new EmbedBuilder()
     .setColor(0x8a00c2)
     .setTitle('Sääennusteet')
@@ -124,7 +133,7 @@ const forecastAndPopulate = async (cities, offset = 0) => {
   const forecasts = []
 
   // Get forecasts
-  for (const city of cities) {
+  for await (const city of cities) {
     const forecast = await getForecast(city)
 
     if (!forecast) { return null }
@@ -144,7 +153,7 @@ const forecastAndPopulate = async (cities, offset = 0) => {
   }
 
   // Build embed
-  return getEmbed(parsedForecasts)
+  return get24hEmbed(parsedForecasts)
 }
 
 const checkInvalid = async city => {
@@ -152,11 +161,10 @@ const checkInvalid = async city => {
   if (!forecast) { return true }
   return false
 }
-
-const weather = {
-  type: 1,
-  name: 'weather',
-  description: 'get weather forecast for a city',
+const hour24 = {
+  type: ApplicationCommandOptionType.Subcommand,
+  name: '24h',
+  description: 'Get 24 hour weather forecast for a city',
   options: [
     {
       type: 3,
@@ -172,8 +180,156 @@ const weather = {
   ],
 }
 
+const current = {
+  type: ApplicationCommandOptionType.Subcommand,
+  name: 'current',
+  description: 'Get 24 hour weather forecast for a city',
+  options: [
+    {
+      type: 3,
+      name: 'query',
+      description: 'Name of the city',
+      required: true,
+    },
+  ],
+}
+
+const weather = {
+  type: ApplicationCommandType.ChatInput,
+  description: 'Weather commands',
+  name: 'weather',
+  options: [
+    hour24,
+    current,
+  ],
+}
+
+const handle24h = async (req, res) => {
+  const [queryOpt, offsetOpt] = req.subCommand.options
+  const cities = queryOpt.value.split(/,\s*/)
+  let utcOffset
+  if (offsetOpt) {
+    utcOffset = offsetOpt.value
+  }
+
+  const forecastEmbed = await forecastAndPopulate(cities, utcOffset)
+
+  if (!forecastEmbed) {
+    let queries = ''
+    cities.forEach(c => {
+      queries += `${c} `
+    })
+    queries = queries.trimEnd()
+    res.send({
+      type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+      data: {
+        content: `Weather not found with queries: ${queries}`,
+      },
+    })
+    return
+  }
+
+  res.send({
+    type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+    data: {
+      embeds: [
+        forecastEmbed,
+      ],
+    },
+  })
+}
+
+const getCurrentForecastEmbed = async (city) => {
+  const forecast = await getCurrentWeather(city)
+  if (!forecast) return null
+
+  const {
+    main, wind, sys,
+  } = forecast
+
+  const sunrise = new Date(0)
+  const sunset = new Date(0)
+  sunrise.setUTCSeconds(sys.sunrise + forecast.timezone)
+  sunset.setUTCSeconds(sys.sunset + forecast.timezone)
+  const image = `http://openweathermap.org/img/wn/${forecast.weather[0].icon}@2x.png`
+  const embed = new EmbedBuilder()
+    .setTitle(`Weather ${forecast.name}`)
+    .setImage(image)
+    .setThumbnail(image)
+    .setDescription(`${forecast.weather[0].main}: ${forecast.weather[0].description}`)
+    .addFields(
+      { name: 'Temp', value: `${main.temp} C`, inline: true },
+      { name: 'Feels like', value: `${main.feels_like} C`, inline: true },
+      { name: '\u200B', value: '\u200B' },
+    )
+    .addFields(
+      { name: 'Pressure', value: `${main.pressure} Pa`, inline: true },
+      { name: 'Humidity', value: `${main.humidity}`, inline: true },
+      { name: '\u200B', value: '\u200B' },
+    )
+    .addFields(
+      { name: 'Wind', value: `${wind.speed} m/s`, inline: true },
+      { name: '\u200B', value: '\u200B' },
+    )
+    .addFields(
+      { name: 'Sunrise', value: `${sunrise.toUTCString().match(/\d+:\d+/)[0]}`, inline: true },
+      { name: 'Sunset', value: `${sunset.toUTCString().match(/\d+:\d+/)[0]}`, inline: true },
+      { name: '\u200B', value: '\u200B' },
+    )
+    .setColor('#8a00c2')
+    .setTimestamp()
+    .setFooter({ text: 'CreaBot' })
+
+  return embed
+}
+
+const handleCurrent = async (req, res) => {
+  const queryOpt = req.subCommand.options[0]
+  const city = queryOpt.value
+
+  const embed = await getCurrentForecastEmbed(city)
+
+  if (!embed) {
+    res.send({
+      type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+      data: {
+        content: `Weather not found with query: ${queryOpt.value}`,
+      },
+    })
+    return
+  }
+
+  res.send({
+    type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+    data: {
+      embeds: [
+        embed,
+      ],
+    },
+  })
+}
+
+const handleWeather = async (req, res) => {
+  switch (req.subCommand.name) {
+  case '24h':
+    handle24h(req, res)
+    break
+  case 'current':
+    handleCurrent(req, res)
+    break
+  default:
+    return res.send({
+      type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+      data: {
+        content: `${req.commandName} not yet implemented`,
+      },
+    })
+  }
+}
+
 module.exports = {
   weather,
   forecastAndPopulate,
   checkInvalid,
+  handleWeather,
 }

@@ -126,10 +126,10 @@ Sends a reminder to you
 
 TODO:
 ====
-- update subscription
 - user can only have one? subscription at a time
 - caching
 - website with React to display information about the bot
 - esportal stats for user
 - polish existing commands
+- better request logging (interactions and all separate)
 
