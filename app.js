@@ -1,11 +1,10 @@
 const express = require('express')
 require('express-async-errors')
 const { verifyDiscordRequest } = require('./utils/discordUtils')
-const loggerMiddleware = require('./utils/loggerMiddleware')
 const interactionRouter = require('./controllers/interactionRouter')
 const { info } = require('./utils/logger')
 const onStartUp = require('./utils/startUp')
-const { interactionExtractor } = require('./utils/middleware')
+const { interactionExtractor, interactionLogger, requestLogger } = require('./utils/middleware')
 
 const {
   PUBLICKEY, GUILDID, APPID, DISCORDTOKEN, WEATHERTOKEN,
@@ -17,6 +16,8 @@ if (!(PUBLICKEY && GUILDID && APPID && DISCORDTOKEN && WEATHERTOKEN)) {
 }
 
 onStartUp().then(() => info('startup completed'))
+
+app.use(requestLogger)
 // For health checks
 app.get('/health', (req, res) => {
   res.send('ok')
@@ -35,7 +36,7 @@ if (process.env.NODE_ENV !== 'test' && process.env.NODE_ENV !== 'test:debug') {
 }
 
 app.use('/interactions', interactionExtractor)
-app.use(loggerMiddleware)
+app.use('/interactions', interactionLogger)
 
 /**
  * Interactions endpoint URL where Discord will send HTTP requests

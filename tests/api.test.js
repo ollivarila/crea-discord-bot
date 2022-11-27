@@ -14,7 +14,7 @@ dotenv.config()
 let mockCommand
 const api = supertest(app)
 
-beforeEach(() => {
+beforeEach(async () => {
   mockCommand = {
     id: 'mockInteractionId',
     guild_id: 'mockGuildId',
@@ -29,6 +29,7 @@ beforeEach(() => {
     },
     type: 2,
   }
+  await Subscriber.deleteMany({})
 })
 
 describe('Discord interactions tests', () => {
@@ -37,7 +38,8 @@ describe('Discord interactions tests', () => {
   })
 
   test('Api responds to verification requests', async () => {
-    const res = await api.post('/interactions').send({ type: 1 })
+    mockCommand.type = 1
+    const res = await api.post('/interactions').send(mockCommand)
     expect(res.status).toBe(200)
     expect(res.body.type).toBe(1)
   })

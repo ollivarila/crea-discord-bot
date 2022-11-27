@@ -1,4 +1,6 @@
 const { ApplicationCommandOptionType } = require('discord.js')
+const chalk = require('chalk')
+const { info } = require('./logger')
 /* eslint-disable camelcase */
 
 const interactionExtractor = (req, res, next) => {
@@ -44,6 +46,19 @@ const interactionExtractor = (req, res, next) => {
   next()
 }
 
+const requestLogger = (req, res, next) => {
+  info(chalk.green(`new request, method: ${req.method} path: ${req.path}`))
+  next()
+}
+
+const interactionLogger = (req, res, next) => {
+  if (req.iType === 1) next()
+  info(chalk.blue(`user: ${req.user.username} used: /${req.commandName}`))
+  next()
+}
+
 module.exports = {
   interactionExtractor,
+  requestLogger,
+  interactionLogger,
 }
