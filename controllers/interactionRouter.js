@@ -163,7 +163,7 @@ function handlePP(req, res) {
   })
 }
 
-async function handleUnsubscribbe(req, res) {
+async function handleUnsubscribe(req, res) {
   const discordid = req.user.id
   const reply = await unsubscribeUser(discordid)
 
@@ -218,7 +218,7 @@ async function handleInteractions(req, res) {
       handleSubscribe(req, res)
       break
     case 'unsubscribe':
-      handleUnsubscribbe(req, res)
+      handleUnsubscribe(req, res)
       break
     case 'challenge':
       handleChallenge(req, res)

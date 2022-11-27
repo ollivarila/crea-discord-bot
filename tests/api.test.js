@@ -402,7 +402,7 @@ describe('Discord interactions tests', () => {
         }]
 
         const res = await api.post('/interactions').send(mockCommand)
-        expect(res.body.data.content).toBe('Weather not found with queries: incorrect')
+        expect(res.body.data.content).toBe('Weather not found with: incorrect')
         expect(res.status).toBe(200)
       })
 
