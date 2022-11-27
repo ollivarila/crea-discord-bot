@@ -132,6 +132,12 @@ const getPlayerData = async name => {
   return res.data
 }
 
+const getRecentMatches = async id => {
+  const url = `https://esportal.com/api/user_profile/get_latest_matches?id=${id}&page=1&v=2`
+  const res = await request(url, { method: 'get' })
+  return res ? res.data : null
+}
+
 const getPlayersData = async (players) => {
   const playersData = []
 
@@ -313,6 +319,68 @@ const setUpLeaderboards = async () => {
   info('Leaderboards set up')
 }
 
+const parseRecentMatches = matches => {
+  let eloChange = 0
+  let recentKills = 0
+  let recentDeaths = 0
+  let totalMatches = 0
+  let totalWins = 0
+
+  matches.forEach(m => {
+    eloChange += m.elo_change
+    recentKills += m.stats.kills
+    recentDeaths += m.stats.deaths
+    if (m.winner) {
+      totalWins++
+    }
+    totalMatches++
+  })
+
+  return {
+    eloChange,
+    recentKd: (recentKills / recentDeaths).toFixed(2),
+    recentWinrate: ((totalWins / totalMatches) * 100).toFixed(2),
+  }
+}
+
+const getStatsEmbed = async (player) => {
+  try {
+    const data = await getPlayerData(player)
+    const matches = await getRecentMatches(data.id)
+    const { eloChange, recentKd, recentWinrate } = parseRecentMatches(matches)
+
+    const kd = (data.kills / data.deaths).toFixed(2)
+    const winrate = ((data.wins / (data.wins + data.losses)) * 100).toFixed(2)
+
+    const embed = new EmbedBuilder()
+    embed.setTitle(`${data.username} stats`)
+      .addFields(
+        { name: 'Elo', value: `${data.elo} ${rankToEmoji(data.elo)}`, inline: true },
+        { name: 'K/D', value: `${kd}`, inline: true },
+        { name: 'Winrate', value: `${winrate} %`, inline: true },
+      )
+      .addFields(
+        {
+          name: 'Recent 9 games',
+          value: `
+        Elo change: ${eloChange} ${eloChange < 0 ? '🤡' : '🟢'}
+        K/D: ${recentKd}
+        Winrate: ${recentWinrate} %
+        `,
+        },
+      )
+      .setThumbnail(`https://avatars.steamstatic.com/${data.avatar_hash}_medium.jpg`)
+      .setURL(`https://esportal.com/en/profile/${data.username}`)
+      .setFooter({ text: 'CreaBot' })
+      .setTimestamp()
+      .setColor('#8a00c2')
+    return embed
+  } catch (err) {
+    error(err.message)
+    return null
+  }
+}
+
 module.exports = {
   esportal,
   createLeaderboard,
@@ -321,4 +389,5 @@ module.exports = {
   currentLeaderboard,
   deleteLeaderboard,
   setUpLeaderboards,
+  getStatsEmbed,
 }
