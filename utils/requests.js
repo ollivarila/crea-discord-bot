@@ -13,9 +13,8 @@ async function checkLimit(res) {
 
   if (limitRemaining === undefined) { return }
 
-  info(`Limit remaining: ${limitRemaining}`)
   if (parseInt(limitRemaining, 10) === 0) {
-    info(`Sleeping for ${timeUntilReset}`);
+    info(`Limit reachedd sleeping for ${timeUntilReset}`);
     await sleep(timeUntilReset * 1000 + 100)
   }
 }
@@ -27,32 +26,27 @@ async function discordRequest(endpoint, options) {
     Authorization: `Bot ${DISCORDTOKEN}`,
     'User-Agent': 'DiscordBot (1.0.0)',
   }
-  try {
-    const res = await axios.request({
-      url,
-      headers,
-      ...options,
-    })
-    await checkLimit(res)
-    return res
-  } catch (err) {
-    error(err)
-    return null
-  }
+  const res = await axios.request({
+    url,
+    headers,
+    ...options,
+  })
+  if (!res) return null
+
+  await checkLimit(res)
+
+  return res
 }
 
 const installCommand = async command => {
   const endpoint = `/applications/${APPID}/guilds/${GUILDID}/commands`
   info(`Installing "${command.name}"`);
-  const res = await discordRequest(endpoint, {
+  discordRequest(endpoint, {
     method: 'post',
     data: command,
   })
-  if (!res) {
-    error('Error installing command')
-  } else {
-    info(`installed command ${command.name}`)
-  }
+    .then(() => info(`installed command ${command.name}`))
+    .catch(() => error('Error installing command'))
 }
 
 async function request(url, options) {
@@ -61,8 +55,10 @@ async function request(url, options) {
     ...options,
   })
     .then(res => res)
-    // eslint-disable-next-line no-unused-vars
-    .catch(err => null)
+    .catch(err => {
+      error('Error with request', err.message)
+      return null
+    })
 }
 
 module.exports = {

@@ -47,12 +47,13 @@ const interactionExtractor = (req, res, next) => {
 }
 
 const requestLogger = (req, res, next) => {
+  if (req.path === '/health') next()
   info(chalk.green(`new request, method: ${req.method} path: ${req.path}`))
   next()
 }
 
 const interactionLogger = (req, res, next) => {
-  if (req.iType === 1 || req.path === '/health') next()
+  if (req.iType === 1) next()
 
   info(chalk.blue(`user: ${req.user.username} used: /${req.commandName}`))
   next()
