@@ -166,7 +166,7 @@ const subscribeUser = async (userdata) => {
 
     return 'Subscribed!'
   } catch (err) {
-    error(err)
+    error('Subscription failed', userdata)
     return err.message
   }
 }

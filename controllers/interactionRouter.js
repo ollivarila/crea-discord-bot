@@ -82,12 +82,10 @@ async function handleSubscribe(req, res) {
   const citiesCsv = options[0].value
   let time = '8:00'
   let utcOffset = 0
-  try {
-    time = options[1].value
-    utcOffset = options[2].value
-  } catch (err) {
-    error(err)
-  }
+
+  if (options[1]) time = options[1].value
+
+  if (options[2]) utcOffset = options[2].value
 
   const userdata = {
     username,
