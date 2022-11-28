@@ -29,7 +29,7 @@ async function discordRequest(endpoint, options) {
     headers,
     ...options,
   }).catch(err => {
-    error('Error with discord request', err.message)
+    error('Error with discord request', err)
     return null
   })
 
