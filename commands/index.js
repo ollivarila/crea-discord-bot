@@ -1,18 +1,14 @@
-const { echo } = require('./echo')
 const { route } = require('./route')
-const { ping } = require('./ping')
-const { pp } = require('./pp')
 const { subscribe, unsubscribe } = require('./subscribe')
 const { weather } = require('./weather')
 const { challenge } = require('./challenge')
 const { remindme } = require('./remindme')
 const { esportal } = require('./esportal')
+const { misc } = require('./misc')
 
 const commands = [
-  echo,
+  misc,
   route,
-  ping,
-  pp,
   weather,
   subscribe,
   unsubscribe,

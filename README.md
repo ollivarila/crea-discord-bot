@@ -132,3 +132,4 @@ TODO:
 - ping echo pp to misc command group
 - better version control and deployment pipeline
 - remove chalk and update dependencies
+- funny bot usage stats

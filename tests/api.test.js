@@ -52,11 +52,17 @@ describe('Discord interactions tests', () => {
 
   describe('Interactions', () => {
     test('Api responds correctly to /echo', async () => {
-      mockCommand.data.name = 'echo'
+      mockCommand.data.name = 'misc'
       mockCommand.data.options = [{
-        name: 'message',
-        type: 3,
-        value: 'moi',
+        type: ApplicationCommandOptionType.Subcommand,
+        name: 'echo',
+        options: [
+          {
+            name: 'message',
+            type: 3,
+            value: 'moi',
+          },
+        ],
       }]
       const res = await api.post('/interactions').send(mockCommand)
       expect(res.body.data.content).toBe('moi')
@@ -86,14 +92,23 @@ describe('Discord interactions tests', () => {
     })
 
     test('Api responds correctly to /ping', async () => {
-      mockCommand.data.name = 'ping'
+      mockCommand.data.name = 'misc'
+      mockCommand.data.options = [{
+        type: ApplicationCommandOptionType.Subcommand,
+        name: 'ping',
+      }]
       const res = await api.post('/interactions').send(mockCommand)
       expect(res.body.data.content).toBe('pong')
       expect(res.status).toBe(200)
     })
 
     test('Api responds correctly to /pp', async () => {
-      mockCommand.data.name = 'pp'
+      mockCommand.data.name = 'misc'
+      mockCommand.data.options = [{
+        type: ApplicationCommandOptionType.Subcommand,
+        name: 'pp',
+        options: [],
+      }]
       const res = await api.post('/interactions').send(mockCommand)
       expect(res.body.data.content).toMatch(/B=*D/)
       expect(res.status).toBe(200)
