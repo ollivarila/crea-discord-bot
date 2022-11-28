@@ -37,7 +37,7 @@ async function discordRequest(endpoint, options) {
 
   await checkLimit(res)
 
-  return res
+  return res.data
 }
 
 const installCommand = async command => {
@@ -55,7 +55,7 @@ async function request(url, options) {
     url,
     ...options,
   })
-    .then(res => res)
+    .then(res => res.data)
     .catch(err => {
       error('Error with request', err.message)
       return null

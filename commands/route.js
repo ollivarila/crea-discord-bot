@@ -29,11 +29,11 @@ const addressToCoords = async (locations) => {
   try {
     const { start, end } = locations
     const url = `${addressToCoordsBaseUrl}?text=`
-    let res = await request(url + start, { method: 'get' })
+    let data = await request(url + start, { method: 'get' })
 
-    const coordsStart = res.data.features[0].geometry.coordinates
-    res = await request(url + end, { method: 'get' })
-    const coordsEnd = res.data.features[0].geometry.coordinates
+    const coordsStart = data.features[0].geometry.coordinates
+    data = await request(url + end, { method: 'get' })
+    const coordsEnd = data.features[0].geometry.coordinates
 
     return {
       start: {
@@ -46,7 +46,7 @@ const addressToCoords = async (locations) => {
       },
     }
   } catch (err) {
-    error(err)
+    error('Error converting address to coords, ', err.message)
     return null
   }
 }
@@ -96,8 +96,8 @@ const getRoute = async (locations) => {
   `,
   }
   try {
-    const res = await request(routeBaseUrl, { method: 'post', data: query })
-    const itins = res.data.data.plan.itineraries
+    const { data } = await request(routeBaseUrl, { method: 'post', data: query })
+    const itins = data.plan.itineraries
     const waypoints = []
 
     itins.forEach(it => {
@@ -113,7 +113,7 @@ const getRoute = async (locations) => {
 
     return getRouteString(waypoints)
   } catch (err) {
-    error(err)
+    error('Error with route, ', err.message)
     return 'Route not found'
   }
 }

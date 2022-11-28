@@ -17,7 +17,7 @@ const challenge = {
 
 const getChallengeUrl = async () => {
   const url = 'https://lichess.org/api/challenge/open'
-  const res = await request(url, {
+  const data = await request(url, {
     method: 'post',
     data: {
       clock: {
@@ -27,7 +27,7 @@ const getChallengeUrl = async () => {
     },
   })
 
-  return res ? res.data.challenge.url : null
+  return data ? data.challenge.url : null
 }
 
 const getChallengeEmbed = (props) => {

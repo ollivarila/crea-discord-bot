@@ -18,7 +18,7 @@ describe('Request utils internal functionality tests', () => {
     const testurl = 'https://localhost:3000/test'
     mock.onGet(testurl, { test: 'test' }).reply(200, { test: 'test' })
 
-    const res = await request(testurl, {
+    const data = await request(testurl, {
       method: 'get',
       headers: {
         Authorization: 'test',
@@ -27,7 +27,7 @@ describe('Request utils internal functionality tests', () => {
         test: 'test',
       },
     })
-    expect(res.data.test).toBe('test')
+    expect(data.test).toBe('test')
     expect(mock.history.get[0].url).toBe(testurl)
   })
 
@@ -37,13 +37,13 @@ describe('Request utils internal functionality tests', () => {
       Authorization: expect.not.stringContaining('undefined'),
     })).reply(200, { testRes: 'test' })
 
-    const res = await discordRequest('/channels', {
+    const data = await discordRequest('/channels', {
       method: 'post',
       data: {
         testBody: 'test',
       },
     })
-    expect(res.data.testRes).toBe('test')
+    expect(data.testRes).toBe('test')
     expect(mock.history.post[0].url).toBe(`${testUrl}/channels`)
   })
 
