@@ -122,7 +122,7 @@ const handleWeatherUpdate = async data => {
   // Get subscriber
   const sub = await subDao.get(discordid)
   // Get forecast
-  const forecastEmbed = await forecastAndPopulate(sub.cities.split(/,\s*/), sub.utcOffset)
+  const forecastEmbed = await forecastAndPopulate(sub.cities)
 
   // Send embed as dm to user
   const endpoint = `/channels/${sub.dmChannel}/messages`
