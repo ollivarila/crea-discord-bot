@@ -132,8 +132,9 @@ const get24hEmbed = (data, img) => {
   return { embeds: [weatherEmbed] }
 }
 
-const forecastAndPopulate = async (cities) => {
+const forecastAndPopulate = async (query) => {
   const forecasts = []
+  const cities = query.split(/,\s*/)
 
   // Get forecasts
   for await (const city of cities) {
@@ -166,9 +167,8 @@ const checkInvalid = async city => {
 
 const handle24h = async (req, res) => {
   const query = req.subCommand.options[0].value
-  const cities = query.split(/,\s*/)
 
-  const data = await forecastAndPopulate(cities)
+  const data = await forecastAndPopulate(query)
 
   return res.send({
     type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
