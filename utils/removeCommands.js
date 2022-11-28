@@ -21,22 +21,22 @@ const removeCommand = async name => {
 }
 
 const removeCommands = async () => {
+  info('Removing commands...')
   const res = await discordRequest(baseUrl, {
     method: 'get',
   })
   const { data } = res
   const commandIds = data.map(e => e.id)
 
-  await Promise.all(commandIds.map(async id => {
+  for await (const id of commandIds) {
     const response = await discordRequest(`${baseUrl}/${id}`, {
       method: 'delete',
     })
     if (!response) {
-      error('Error removing command')
-    } else {
-      info('Removed command')
+      error(`Error removing command ${data.filter(e => e.id === id).pop()}`)
     }
-  }))
+  }
+  info('Commands removed!')
 }
 
 if (process.env.NODE_ENV !== 'test') {
