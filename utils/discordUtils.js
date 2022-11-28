@@ -59,7 +59,7 @@ async function hasGuildCommands(appId, guildId, commands) {
   const res = await discordRequest(endpoint, { method: 'get' })
   const { data } = res
 
-  for (const command of commands) {
+  for await (const command of commands) {
     await hasGuildCommand(data, command)
   }
 }

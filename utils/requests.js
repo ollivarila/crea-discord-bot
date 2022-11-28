@@ -10,11 +10,9 @@ const { APPID, GUILDID, DISCORDTOKEN } = process.env
 async function checkLimit(res) {
   const limitRemaining = res.headers['x-ratelimit-remaining']
   const timeUntilReset = res.headers['x-ratelimit-reset-after']
-
-  if (limitRemaining === undefined) { return }
-
+  if (limitRemaining === undefined) return
   if (parseInt(limitRemaining, 10) === 0) {
-    info(`Limit reachedd sleeping for ${timeUntilReset}`);
+    info(`Limit reached sleeping for ${timeUntilReset}s`);
     await sleep(timeUntilReset * 1000 + 100)
   }
 }
@@ -30,7 +28,11 @@ async function discordRequest(endpoint, options) {
     url,
     headers,
     ...options,
+  }).catch(err => {
+    error('Error with discord request', err.message)
+    return null
   })
+
   if (!res) return null
 
   await checkLimit(res)
@@ -40,12 +42,11 @@ async function discordRequest(endpoint, options) {
 
 const installCommand = async command => {
   const endpoint = `/applications/${APPID}/guilds/${GUILDID}/commands`
-  info(`Installing "${command.name}"`);
-  discordRequest(endpoint, {
+  await discordRequest(endpoint, {
     method: 'post',
     data: command,
   })
-    .then(() => info(`installed command ${command.name}`))
+    .then(() => info(`Installed command ${command.name}`))
     .catch(() => error('Error installing command'))
 }
 
