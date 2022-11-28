@@ -4,10 +4,9 @@ const { checkInvalid } = require('./weather')
 const { info, error } = require('../utils/logger')
 const { forecastAndPopulate } = require('./weather')
 const { createDmChannel, sendMessage } = require('../utils/discordUtils')
+const jobController = require('../controllers/jobController')
 
 dotenv.config()
-
-const jobController = require('../controllers/jobController')
 
 const subscribe = {
   type: 1,
@@ -79,38 +78,34 @@ const verifyTime = time => {
   return true
 }
 
-const parseAndVerifydata = async (userdata, callback) => {
+const parseAndVerifydata = async (userdata) => {
   const {
     username, discordid, citiesCsv, time, utcOffset,
   } = userdata
-  const badData = []
+  const badParams = []
   // Verify that data is correct
   const parsedCities = parseCities(citiesCsv)
   const unverified = await verifyCities(parsedCities)
   if (unverified.length > 0) {
-    badData.push(unverified)
+    badParams.push(unverified)
   }
 
   if (!verifyTime(time)) {
-    badData.push(time)
+    badParams.push(time)
   }
 
   if (!parseUtcOffset(utcOffset)) {
-    badData.push('Offset should be between -12 and 14')
+    badParams.push('Offset should be between -12 and 14')
   }
 
-  if (badData.length > 0) {
-    callback(badData)
-    return null
+  if (badParams.length > 0) {
+    return badParams
   }
 
   // Create dm channel
-  // CAN BE NULL FIX THIS
   const dmChannel = await createDmChannel(discordid)
-    .catch(err => {
-      error(err.message)
-      throw new Error('Failed to create dm')
-    })
+
+  if (!dmChannel) return 'Could not create dm channel'
 
   return {
     username,
@@ -135,9 +130,7 @@ const handleWeatherUpdate = async data => {
 
   const res = await sendMessage(sub.dmChannel, { embeds: [forecastEmbed] })
 
-  if (res === null) {
-    error('Error occurred while sending request to discord')
-  }
+  if (!res) error('Error sending weather to user')
 }
 
 const subscribeUser = async (userdata) => {
@@ -146,29 +139,21 @@ const subscribeUser = async (userdata) => {
     return 'You already have an existing subscription'
   }
 
-  try {
-    // Parse and verify user data
-    let badData = null
-    const userObj = await parseAndVerifydata(userdata, data => {
-      badData = data
+  // Parse and verify user data
+  const data = await parseAndVerifydata(userdata)
+
+  if (Array.isArray(data)) {
+    let str = 'Subscription failed, reason: '
+    data.forEach(d => {
+      str += `${d}, `
     })
-
-    if (badData) {
-      let str = 'Subscription failed, reason: '
-      badData.forEach(d => {
-        str += `${d}, `
-      })
-      return str.substring(0, str.length - 2)
-    }
-
-    await subDao.create(userObj)
-    jobController.createJob({ ...userObj, id: userObj.discordid }, handleWeatherUpdate)
-
-    return 'Subscribed!'
-  } catch (err) {
-    error('Subscription failed', userdata)
-    return err.message
+    return str.substring(0, str.length - 2)
   }
+
+  await subDao.create(data)
+  jobController.createJob({ ...data, id: data.discordid }, handleWeatherUpdate)
+
+  return 'Subscribed!'
 }
 
 const unsubscribeUser = async discordid => {
