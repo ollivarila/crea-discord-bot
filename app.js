@@ -7,7 +7,7 @@ const onStartUp = require('./utils/startUp')
 const { interactionExtractor, interactionLogger, requestLogger } = require('./utils/middleware')
 
 const {
-  PUBLICKEY, GUILDID, APPID, DISCORDTOKEN, WEATHERTOKEN,
+  PUBLICKEY, GUILDID, APPID, DISCORDTOKEN, WEATHERTOKEN, PORT,
 } = process.env
 const app = express()
 
@@ -42,7 +42,6 @@ app.use('/interactions', interactionLogger)
  * Interactions endpoint URL where Discord will send HTTP requests
  */
 app.use('/interactions', interactionRouter)
-const port = process.env.PORT || 3000
-app.listen(port, () => info(`Listening on port ${port}`))
+app.listen(PORT || 3000, () => info(`Listening on port ${PORT}`))
 
 module.exports = app

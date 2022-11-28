@@ -126,7 +126,7 @@ Sends a reminder to you
 
 TODO:
 ====
-- caching
 - website with React to display information about the bot
-- esportal stats for user
 - polish /route
+- /quote command (add remove get)
+- ping echo pp to misc command group

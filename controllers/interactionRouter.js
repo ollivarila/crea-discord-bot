@@ -27,6 +27,13 @@ async function handleBadQuery(req, res, message) {
   })
 }
 
+async function replyToInteraction(req, res, data) {
+  return res.send({
+    type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+    data,
+  })
+}
+
 async function handleChallenge(req, res) {
   const challengerid = req.user.id
   const challengedid = req.options[0].value
@@ -93,29 +100,18 @@ async function handleSubscribe(req, res) {
     citiesCsv,
     time,
     utcOffset,
-    token: req.body.data.token,
   }
 
   // Try to subscribe
   const message = await subscribeUser(userdata)
 
   // Respond with message
-  return res.send({
-    type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-    data: {
-      content: message,
-    },
-  })
+  replyToInteraction(req, res, { content: message })
 }
 
 function handleEcho(req, res) {
   const echo = req.options[0].value
-  return res.send({
-    type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-    data: {
-      content: echo,
-    },
-  })
+  replyToInteraction(req, res, { content: echo })
 }
 
 async function handleRoute(req, res) {
@@ -129,50 +125,30 @@ async function handleRoute(req, res) {
     return handleBadQuery(req, res, 'Route not found')
   }
 
-  return res.send({
-    type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-    data: {
-      content: route,
-    },
-  })
+  replyToInteraction(req, res, { content: route })
 }
 
 function handlePing(req, res) {
-  return res.send({
-    type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-    data: {
-      content: 'pong',
-    },
-  })
+  replyToInteraction(req, res, { content: 'pong' })
 }
 
 function handlePP(req, res) {
   const { user, options } = req
   let selection
+
   if (options) {
     selection = capitalize(options[0].value)
   }
 
   const ppString = getPP(selection || user.username)
 
-  return res.send({
-    type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-    data: {
-      content: ppString,
-    },
-  })
+  replyToInteraction(req, res, { content: ppString })
 }
 
-async function handleUnsubscribbe(req, res) {
+async function handleUnsubscribe(req, res) {
   const discordid = req.user.id
   const reply = await unsubscribeUser(discordid)
-
-  return res.send({
-    type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-    data: {
-      content: reply,
-    },
-  })
+  replyToInteraction(req, res, { content: reply })
 }
 
 async function handleRemindme(req, res) {
@@ -182,11 +158,41 @@ async function handleRemindme(req, res) {
   const message = options[1] ? options[1].value : undefined
   const reply = await createReminder(discordid, time, message)
 
+  replyToInteraction(req, res, { content: reply })
+}
+
+async function handleChallengeAccept(req, res) {
+  const componentId = req.body.data.custom_id
+  const interactionid = componentId.substring(componentId.lastIndexOf('_') + 1, componentId.length)
+  const challenge = await Challenge.findOne({ interactionid })
+
+  if (!challenge) {
+    return replyToInteraction(req, res, { content: 'Could not find challenge' })
+  }
+
+  const userWhoClicked = req.user.id
+  if (challenge.challengedid !== userWhoClicked) {
+    return handleBadQuery(req, res, `<@${userWhoClicked}> you cannot accept/decline this challenge`)
+  }
+
+  await challenge.remove()
+  const endpoint = `/webhooks/${process.env.APPID}/${challenge.token}/messages/@original`
+  await discordRequest(endpoint, { method: 'delete' })
+
+  if (componentId.includes('accept')) {
+    const challengeUrl = await getChallengeUrl()
+    const embed = getChallengeEmbed(
+      {
+        player1: challenge.challengerName,
+        player2: req.user.username,
+        url: challengeUrl,
+      },
+    )
+
+    replyToInteraction(req, res, { embeds: [embed] })
+  }
   return res.send({
-    type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-    data: {
-      content: reply,
-    },
+    type: InteractionResponseType.DEFERRED_UPDATE_MESSAGE,
   })
 }
 
@@ -218,7 +224,7 @@ async function handleInteractions(req, res) {
       handleSubscribe(req, res)
       break
     case 'unsubscribe':
-      handleUnsubscribbe(req, res)
+      handleUnsubscribe(req, res)
       break
     case 'challenge':
       handleChallenge(req, res)
@@ -244,48 +250,8 @@ async function handleInteractions(req, res) {
     const { name } = req.body.message.interaction
     switch (name) {
     case 'challenge':
-      const componentId = req.body.data.custom_id
-      const interactionid = componentId.substring(componentId.lastIndexOf('_') + 1, componentId.length)
-      const challenge = await Challenge.findOne({ interactionid })
-      if (!challenge) {
-        return res.send({
-          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-          data: {
-            content: 'did not find challenge',
-          },
-        })
-      }
-      const userWhoClicked = req.user.id
-      if (challenge.challengedid !== userWhoClicked) {
-        return handleBadQuery(req, res, `<@${userWhoClicked}> you cannot accept/decline this challenge`)
-      }
-
-      await challenge.remove()
-      const endpoint = `/webhooks/${process.env.APPID}/${challenge.token}/messages/@original`
-      await discordRequest(endpoint, { method: 'delete' })
-
-      if (componentId.includes('accept')) {
-        const challengeUrl = await getChallengeUrl()
-        const embed = getChallengeEmbed(
-          {
-            player1: challenge.challengerName,
-            player2: req.user.username,
-            url: challengeUrl,
-          },
-        )
-        return res.send({
-          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-          data: {
-            embeds: [
-              embed,
-            ],
-          },
-        })
-      }
-      return res.send({
-        type: InteractionResponseType.DEFERRED_UPDATE_MESSAGE,
-      })
-
+      handleChallengeAccept(req, res)
+      break
     default:
       error(`${name} not implemented`)
       break

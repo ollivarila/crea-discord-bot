@@ -5,49 +5,38 @@ const { info, error } = require('./logger')
 const baseUrl = `/applications/${process.env.APPID}/guilds/${process.env.GUILDID}/commands`
 
 const removeCommand = async name => {
-  try {
-    let res = await discordRequest(baseUrl, { method: 'get' })
-    const { data } = res
-    const { id } = data.find(e => e.name === name)
+  let res = await discordRequest(baseUrl, { method: 'get' })
+  const { data } = res
+  const { id } = data.find(e => e.name === name)
 
-    res = await discordRequest(`${baseUrl}/${id}`, {
-      method: 'delete',
-    })
+  res = await discordRequest(`${baseUrl}/${id}`, {
+    method: 'delete',
+  })
 
-    if (res.status === 204) {
-      info(`Removed command ${id}`)
-    } else {
-      error(`Error removing command ${id}`)
-    }
-  } catch (err) {
-    error(error)
+  if (!res) {
+    error(`Error removing command ${name}`)
+  } else {
+    info(`Removed command ${name}`)
   }
 }
 
 const removeCommands = async () => {
-  try {
-    const res = await discordRequest(baseUrl, {
-      method: 'get',
+  const res = await discordRequest(baseUrl, {
+    method: 'get',
+  })
+  const { data } = res
+  const commandIds = data.map(e => e.id)
+
+  await Promise.all(commandIds.map(async id => {
+    const response = await discordRequest(`${baseUrl}/${id}`, {
+      method: 'delete',
     })
-    const { data } = res
-    const commandIds = data.map(e => e.id)
-
-    for (const id of commandIds) {
-      const response = await discordRequest(`${baseUrl}/${id}`, {
-        method: 'delete',
-      })
-
-      if (response.status === 204) {
-        info(`Removed command ${id}`)
-      } else {
-        error(`Error removing command ${id}`)
-      }
+    if (!response) {
+      error('Error removing command')
+    } else {
+      info('Removed command')
     }
-  } catch (err) {
-    info('CODE', err.code)
-    info('DATA', err.response.data)
-    process.exit(1)
-  }
+  }))
 }
 
 if (process.env.NODE_ENV !== 'test') {

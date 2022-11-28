@@ -1,6 +1,7 @@
 /* eslint-disable prefer-destructuring */
 /* eslint-disable no-const-assign */
 const { createDmChannel, sendMessage } = require('../utils/discordUtils')
+const { error } = require('../utils/logger')
 
 const remindme = {
   type: 1,
@@ -53,34 +54,34 @@ const parseTime = time => {
       const parsed = time.match(/\d+\s*hour/)[0]
       hours = parsed.match(/\d+/)[0]
     }
-  } catch (error) {
-    throw new Error('Error parsing time')
+  } catch (err) {
+    error('Error parsing time')
+    return null
   }
 
   const MAX_VALUE = 24 * 60 * 60 * 1000 // 24 hours
   const ms = timeToMs(hours, minutes, seconds)
 
-  if (ms > MAX_VALUE) {
-    throw new Error('Time too large')
-  }
+  if (ms > MAX_VALUE) return null
 
   return ms
 }
 
 const createReminder = async (discordid, time, message = 'Hey I\'m here to remind you') => {
-  try {
-    // Create dm channel
-    const channelid = await createDmChannel(discordid)
+  // Create dm channel
+  const channelid = await createDmChannel(discordid)
 
-    const ms = parseTime(time)
-    // Set timeout for message
-    setTimeout(() => { handleReminder({ message, channelid }) }, ms)
+  if (!channelid) return 'Error creating dm channel'
 
-    // Return appropriate message
-    return `I will remind you in ${time}`
-  } catch (err) {
-    return err.message
-  }
+  const ms = parseTime(time)
+
+  if (!ms) return 'Invalid time'
+
+  // Set timeout for message
+  setTimeout(() => handleReminder({ message, channelid }), ms)
+
+  // Return appropriate message
+  return `I will remind you in ${time}`
 }
 
 module.exports = {
