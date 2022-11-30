@@ -35,8 +35,9 @@ async function discordRequest(endpoint, options) {
 
   if (!res) return null
 
-  await checkLimit(res)
+  if (res.status === 204 && res.config.method === 'delete') return true
 
+  await checkLimit(res)
   return res.data
 }
 

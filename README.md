@@ -126,13 +126,11 @@ Sends a reminder to you
 
 TODO:
 ====
+- remove guildid env and get it from req
+- better version control and deployment pipeline
 - website with React to display information about the bot
 - polish /route
 - /quote command (add remove get)
-- ping echo pp to misc command group
-- better version control and deployment pipeline
-- remove chalk and update dependencies
-- funny bot usage stats
 - comment code
 - improve challenge command
 - use DEFERRED_UPDATE_MESSAGE to make bot seem smoother
