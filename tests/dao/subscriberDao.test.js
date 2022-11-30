@@ -1,18 +1,10 @@
 /* eslint-disable no-undef */
-const mongoose = require('mongoose')
 const dao = require('../../dao/subscriberDao')
-const config = require('../../config')
 const Subscriber = require('../../models/Subscriber')
-const { info, error } = require('../../utils/logger')
-
-// Connect to test DB
-beforeAll(async () => mongoose.connect(config.MONGODB_URI)
-  .then(() => {
-    info('connected to mongodb')
-  })
-  .catch(err => error(err)))
+const { createConnection } = require('../../utils/misc')
 
 describe('SubscriberDao', () => {
+  beforeAll(async () => createConnection())
   let testSub
   // Remove all subs and create one
   beforeEach(async () => {
@@ -99,8 +91,4 @@ describe('SubscriberDao', () => {
 
 afterAll(async () => {
   await Subscriber.deleteMany({})
-  return mongoose.connection.close().then(() => {
-    info('connection closed')
-  })
-    .catch(err => error(err))
 })

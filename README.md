@@ -126,7 +126,6 @@ Sends a reminder to you
 
 TODO:
 ====
-- remove guildid env and get it from req
 - better version control and deployment pipeline
 - website with React to display information about the bot
 - polish /route

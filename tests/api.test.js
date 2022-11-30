@@ -1,6 +1,5 @@
 /* eslint-disable no-undef */
 const { ApplicationCommandOptionType } = require('discord.js')
-const mongoose = require('mongoose')
 const supertest = require('supertest')
 const dotenv = require('dotenv')
 const app = require('../app')
@@ -482,5 +481,4 @@ afterAll(async () => {
   await subDao.removeAll({})
   await Leaderboard.deleteMany({})
   await Player.deleteMany({})
-  mongoose.connection.close()
 })

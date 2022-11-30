@@ -1,19 +1,17 @@
 /* eslint-disable */
 const mock = require('../__mocks__/mockAxios')
-const { default: mongoose } = require('mongoose')
 const {
   addPlayer, createLeaderboard, deleteLeaderboard, currentLeaderboard, removePlayer,
 } = require('../../commands/esportal')
 const Leaderboard = require('../../models/Leaderboard')
 const Player = require('../../models/Player')
-const config = require('../../config')
 const jobController = require('../../controllers/jobController')
+const { createConnection } = require('../../utils/misc')
 
 describe('Esportal command tests', () => {
   
-  beforeAll(async () => {
-    return mongoose.connect(config.MONGODB_URI)
-  })
+  beforeAll(async () => createConnection())
+
   beforeEach(async () => {
     const mockLb = new Leaderboard({
       guildId: 'mockGuildId',

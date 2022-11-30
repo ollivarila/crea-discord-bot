@@ -8,11 +8,11 @@ const { interactionExtractor, interactionLogger, requestLogger } = require('./ut
 const { recordStatistics } = require('./controllers/statsController')
 
 const {
-  PUBLICKEY, GUILDID, APPID, DISCORDTOKEN, WEATHERTOKEN, PORT,
+  PUBLICKEY, APPID, DISCORDTOKEN, WEATHERTOKEN, PORT,
 } = process.env
 const app = express()
 
-if (!(PUBLICKEY && GUILDID && APPID && DISCORDTOKEN && WEATHERTOKEN)) {
+if (!(PUBLICKEY && APPID && DISCORDTOKEN && WEATHERTOKEN)) {
   throw new Error('Environment variables not set correctly')
 }
 

@@ -1,6 +1,9 @@
 /* eslint-disable no-await-in-loop */
+const dotenv = require('dotenv')
 const { discordRequest } = require('./requests')
 const { info, error } = require('./logger')
+
+dotenv.config()
 
 const baseUrl = `/applications/${process.env.APPID}/guilds/${process.env.GUILDID}/commands`
 

@@ -1,4 +1,8 @@
 const { InteractionResponseType } = require('discord-interactions')
+const mongoose = require('mongoose')
+const config = require('../config')
+
+const createConnection = async () => mongoose.connect(config.MONGODB_URI)
 
 function capitalize(str) {
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
@@ -20,4 +24,5 @@ module.exports = {
   capitalize,
   sleep,
   replyToInteraction,
+  createConnection,
 }

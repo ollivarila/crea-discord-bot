@@ -3,11 +3,13 @@ const dotenv = require('dotenv')
 const {
   createJob, removeJob, getJob, createCrontime,
 } = require('../../controllers/jobController')
+const { createConnection } = require('../../utils/misc')
 
 dotenv.config()
 
 describe('Job tests', () => {
   let jobs
+  beforeAll(async () => createConnection())
 
   afterEach(() => {
     removeJob('234234')

@@ -1,20 +1,14 @@
 /* eslint-disable no-console */
 /* eslint-disable no-undef */
-const mongoose = require('mongoose')
 const axios = require('axios')
 const { default: MockAdapter } = require('axios-mock-adapter')
 const { subscribeUser } = require('../../commands/subscribe')
-const config = require('../../config')
-const { info, error } = require('../../utils/logger')
+const { createConnection } = require('../../utils/misc')
 
 describe('Subscribe tests', () => {
   beforeAll(async () => {
     mock = new MockAdapter(axios)
-    return mongoose.connect(config.MONGODB_URI)
-      .then(() => {
-        info('connected to mongodb')
-      })
-      .catch(err => error(err))
+    return createConnection()
   })
 
   afterEach(async () => {
