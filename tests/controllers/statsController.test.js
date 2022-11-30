@@ -3,9 +3,11 @@ const { recordStatistics } = require('../../controllers/statsController')
 const User = require('../../models/User')
 const GuildStats = require('../../models/GuildStats')
 const Command = require('../../models/Command')
+const { createConnection } = require('../../utils/misc')
 
 describe('StatsController', () => {
   beforeAll(async () => {
+    createConnection()
     await User.deleteMany({})
     await GuildStats.deleteMany({})
     await Command.deleteMany({})
