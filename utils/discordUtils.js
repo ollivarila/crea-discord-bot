@@ -3,13 +3,13 @@ const { discordRequest, installCommand } = require('./requests')
 
 const createDmChannel = async discordid => {
   const endpoint = '/users/@me/channels'
-  const res = await discordRequest(endpoint, {
+  const data = await discordRequest(endpoint, {
     method: 'post',
     data: {
       recipient_id: discordid,
     },
   })
-  return res ? res.data.id : null
+  return data ? data.id : null
 }
 
 const sendMessage = async (channelId, data) => {
@@ -56,8 +56,7 @@ async function hasGuildCommands(appId, guildId, commands) {
   if (guildId === '' || appId === '') return
 
   const endpoint = `/applications/${appId}/guilds/${guildId}/commands`
-  const res = await discordRequest(endpoint, { method: 'get' })
-  const { data } = res
+  const data = await discordRequest(endpoint, { method: 'get' })
 
   for await (const command of commands) {
     await hasGuildCommand(data, command)

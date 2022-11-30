@@ -47,15 +47,13 @@ const baseUrl = 'https://api.openweathermap.org/data/2.5/forecast?units=metric&l
 
 const getCurrentWeather = async city => {
   const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${process.env.WEATHERTOKEN}&units=metric`
-  const res = await request(url, { method: 'get' })
-  return res ? res.data : null
+  return request(url, { method: 'get' })
 }
 
 const getForecast = async (city) => {
   const endpoint = `q=${city}&appid=${process.env.WEATHERTOKEN}`
   const url = baseUrl + endpoint
-  const res = await request(url, { method: 'get' })
-  return res ? res.data : null
+  return request(url, { method: 'get' })
 }
 
 const parseDate = (date) => date.toLocaleString('fi-FI', { day: '2-digit', month: '2-digit' })

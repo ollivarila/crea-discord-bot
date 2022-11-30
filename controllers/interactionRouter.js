@@ -8,15 +8,15 @@ const {
 } = require('discord-interactions')
 const { getRoute } = require('../commands/route')
 const { handleWeather } = require('../commands/weather')
-const { capitalize } = require('../utils/misc')
+const { replyToInteraction } = require('../utils/misc')
 const { subscribeUser, unsubscribeUser } = require('../commands/subscribe')
-const { getPP } = require('../commands/pp')
 const { error } = require('../utils/logger')
 const { getChallengeUrl, getChallengeEmbed } = require('../commands/challenge')
 const Challenge = require('../models/Challenge')
 const { discordRequest } = require('../utils/requests')
 const { createReminder } = require('../commands/remindme')
 const { handleEsportalInteraction } = require('./esportalInteraction')
+const { handleMisc } = require('../commands/misc')
 
 async function handleBadQuery(req, res, message) {
   return res.send({
@@ -24,13 +24,6 @@ async function handleBadQuery(req, res, message) {
     data: {
       content: message,
     },
-  })
-}
-
-async function replyToInteraction(req, res, data) {
-  return res.send({
-    type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-    data,
   })
 }
 
@@ -109,11 +102,6 @@ async function handleSubscribe(req, res) {
   replyToInteraction(req, res, { content: message })
 }
 
-function handleEcho(req, res) {
-  const echo = req.options[0].value
-  replyToInteraction(req, res, { content: echo })
-}
-
 async function handleRoute(req, res) {
   const { options } = req
   const route = await getRoute({
@@ -126,23 +114,6 @@ async function handleRoute(req, res) {
   }
 
   replyToInteraction(req, res, { content: route })
-}
-
-function handlePing(req, res) {
-  replyToInteraction(req, res, { content: 'pong' })
-}
-
-function handlePP(req, res) {
-  const { user, options } = req
-  let selection
-
-  if (options) {
-    selection = capitalize(options[0].value)
-  }
-
-  const ppString = getPP(selection || user.username)
-
-  replyToInteraction(req, res, { content: ppString })
 }
 
 async function handleUnsubscribe(req, res) {
@@ -205,17 +176,11 @@ async function handleInteractions(req, res) {
   // Slash commands
   if (req.iType === InteractionType.APPLICATION_COMMAND) {
     switch (req.commandName) {
-    case 'echo':
-      handleEcho(req, res)
-      break
     case 'route':
       handleRoute(req, res)
       break
-    case 'ping':
-      handlePing(req, res)
-      break
-    case 'pp':
-      handlePP(req, res)
+    case 'misc':
+      handleMisc(req, res)
       break
     case 'weather':
       handleWeather(req, res)

@@ -1,6 +1,5 @@
 /* eslint-disable no-undef */
 const { ApplicationCommandOptionType } = require('discord.js')
-const mongoose = require('mongoose')
 const supertest = require('supertest')
 const dotenv = require('dotenv')
 const app = require('../app')
@@ -52,11 +51,17 @@ describe('Discord interactions tests', () => {
 
   describe('Interactions', () => {
     test('Api responds correctly to /echo', async () => {
-      mockCommand.data.name = 'echo'
+      mockCommand.data.name = 'misc'
       mockCommand.data.options = [{
-        name: 'message',
-        type: 3,
-        value: 'moi',
+        type: ApplicationCommandOptionType.Subcommand,
+        name: 'echo',
+        options: [
+          {
+            name: 'message',
+            type: 3,
+            value: 'moi',
+          },
+        ],
       }]
       const res = await api.post('/interactions').send(mockCommand)
       expect(res.body.data.content).toBe('moi')
@@ -86,14 +91,23 @@ describe('Discord interactions tests', () => {
     })
 
     test('Api responds correctly to /ping', async () => {
-      mockCommand.data.name = 'ping'
+      mockCommand.data.name = 'misc'
+      mockCommand.data.options = [{
+        type: ApplicationCommandOptionType.Subcommand,
+        name: 'ping',
+      }]
       const res = await api.post('/interactions').send(mockCommand)
       expect(res.body.data.content).toBe('pong')
       expect(res.status).toBe(200)
     })
 
     test('Api responds correctly to /pp', async () => {
-      mockCommand.data.name = 'pp'
+      mockCommand.data.name = 'misc'
+      mockCommand.data.options = [{
+        type: ApplicationCommandOptionType.Subcommand,
+        name: 'pp',
+        options: [],
+      }]
       const res = await api.post('/interactions').send(mockCommand)
       expect(res.body.data.content).toMatch(/B=*D/)
       expect(res.status).toBe(200)
@@ -191,6 +205,21 @@ describe('Discord interactions tests', () => {
       const res = await api.post('/interactions').send(mockCommand)
       expect(res.body.data.content).toBe('I will remind you in 5 seconds')
       expect(mock.history.post[0].url).toBe('https://discord.com/api/v10/users/@me/channels')
+    })
+
+    test('Api responds correctly to /challenge', async () => {
+      mockCommand.data.name = 'challenge'
+      mockCommand.data.options = [
+        {
+          type: ApplicationCommandOptionType.User,
+          name: 'username',
+          value: 'mockUser2',
+        },
+      ]
+
+      const res = await api.post('/interactions').send(mockCommand)
+      expect(res.body.data.content).toContain('mockUser2')
+      expect(res.body.data.content).toContain('mockDiscordId')
     })
 
     describe('Esportal commands', () => {
@@ -452,5 +481,4 @@ afterAll(async () => {
   await subDao.removeAll({})
   await Leaderboard.deleteMany({})
   await Player.deleteMany({})
-  mongoose.connection.close()
 })

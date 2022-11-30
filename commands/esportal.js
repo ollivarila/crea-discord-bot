@@ -123,17 +123,12 @@ const getLeaderboardEmbed = leaderboardData => {
 
 const getPlayerData = async name => {
   const url = `https://esportal.com/api/user_profile/get?username=${name}`
-  const res = await request(url, { method: 'get' })
-  if (!res) {
-    throw new Error(`Error getting data from esportal with name ${name}`)
-  }
-  return res.data
+  return request(url, { method: 'get' })
 }
 
 const getRecentMatches = async id => {
   const url = `https://esportal.com/api/user_profile/get_latest_matches?id=${id}&page=1&v=2`
-  const res = await request(url, { method: 'get' })
-  return res ? res.data : null
+  return request(url, { method: 'get' })
 }
 
 const getPlayersData = async (players) => {
@@ -193,12 +188,12 @@ const createLeaderboard = async (guildId, channelId, name = 'Esportal') => {
     const embed = getLeaderboardEmbed({ name, players: [] })
 
     // post leaderboard on channel
-    const res = await sendMessage(channelId, { embeds: [embed] })
-    if (!res) {
+    const data = await sendMessage(channelId, { embeds: [embed] })
+    if (!data) {
       throw new Error('Error sending leaderboard to channel')
     }
 
-    lb.messageId = res.data.id
+    lb.messageId = data.id
     // save to db
     await lb.save()
 

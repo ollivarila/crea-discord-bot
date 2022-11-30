@@ -35,9 +35,10 @@ async function discordRequest(endpoint, options) {
 
   if (!res) return null
 
-  await checkLimit(res)
+  if (res.status === 204 && res.config.method === 'delete') return true
 
-  return res
+  await checkLimit(res)
+  return res.data
 }
 
 const installCommand = async command => {
@@ -55,7 +56,7 @@ async function request(url, options) {
     url,
     ...options,
   })
-    .then(res => res)
+    .then(res => res.data)
     .catch(err => {
       error('Error with request', err.message)
       return null
