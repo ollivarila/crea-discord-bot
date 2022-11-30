@@ -208,6 +208,21 @@ describe('Discord interactions tests', () => {
       expect(mock.history.post[0].url).toBe('https://discord.com/api/v10/users/@me/channels')
     })
 
+    test('Api responds correctly to /challenge', async () => {
+      mockCommand.data.name = 'challenge'
+      mockCommand.data.options = [
+        {
+          type: ApplicationCommandOptionType.User,
+          name: 'username',
+          value: 'mockUser2',
+        },
+      ]
+
+      const res = await api.post('/interactions').send(mockCommand)
+      expect(res.body.data.content).toContain('mockUser2')
+      expect(res.body.data.content).toContain('mockDiscordId')
+    })
+
     describe('Esportal commands', () => {
       beforeEach(async () => {
         const lb = new Leaderboard({

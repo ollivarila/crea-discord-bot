@@ -133,3 +133,6 @@ TODO:
 - better version control and deployment pipeline
 - remove chalk and update dependencies
 - funny bot usage stats
+- comment code
+- improve challenge command
+- use DEFERRED_UPDATE_MESSAGE to make bot seem smoother

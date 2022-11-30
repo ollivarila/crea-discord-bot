@@ -5,6 +5,7 @@ const interactionRouter = require('./controllers/interactionRouter')
 const { info } = require('./utils/logger')
 const onStartUp = require('./utils/startUp')
 const { interactionExtractor, interactionLogger, requestLogger } = require('./utils/middleware')
+const { recordStatistics } = require('./controllers/statsController')
 
 const {
   PUBLICKEY, GUILDID, APPID, DISCORDTOKEN, WEATHERTOKEN, PORT,
@@ -41,7 +42,9 @@ app.use('/interactions', interactionLogger)
 /**
  * Interactions endpoint URL where Discord will send HTTP requests
  */
+app.use('/interactions', recordStatistics)
 app.use('/interactions', interactionRouter)
+
 app.listen(PORT || 3000, () => info(`Listening on port ${PORT}`))
 
 module.exports = app
