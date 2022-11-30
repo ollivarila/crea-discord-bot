@@ -96,17 +96,3 @@ jobs:
             severity: info
             details: ${{ github.event_name }} succeeded!
             webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
-        if: failure()
-      - name: Failure
-        uses: rjstone/discord-webhook-notify@v1
-        with:
-            severity: error
-            details: ${{ github.event_name }}
-            webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
-        if: cancelled()
-        name: Cancelled
-        uses: rjstone/discord-webhook-notify@v1
-        with:
-            severity: warn
-            details: ${{ github.event_name }} cancelled!
-            webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
