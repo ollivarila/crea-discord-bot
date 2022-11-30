@@ -82,9 +82,9 @@ jobs:
         run: flyctl deploy --remote-only -e APPID=${{ secrets.APPID }} -e DISCORDTOKEN=${{ secrets.DISCORDTOKEN }} -e WEATHERTOKEN=${{ secrets.WEATHERTOKEN }} -e PUBLICKEY=${{ secrets.PUBLICKEY }} -e MONGODB_URI=${{ secrets.MONGODB_URI }} -e PORT=8080
 
   notify_webhook:
-    if: 
+    if: always()
     name: Send discord notification
-    needs: lint_and_test
+    needs: [lint_and_test, update_commands, deployment, bump_version]
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout
@@ -96,3 +96,17 @@ jobs:
             severity: info
             details: ${{ github.event_name }} succeeded!
             webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
+      - name: Failure
+        if: failure()
+        uses: rjstone/discord-webhook-notify@v1
+        with:
+            severity: error
+            details: ${{ github.event_name }} failed!
+            webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}       
+      - name: Canceled
+        if: canceled()
+        uses: rjstone/discord-webhook-notify@v1
+        with:
+            severity: warn
+            details: ${{ github.event_name }} canceled!
+            webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}  
