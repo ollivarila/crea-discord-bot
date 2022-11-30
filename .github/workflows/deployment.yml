@@ -36,6 +36,7 @@ jobs:
         run: npm run test:deployment
         env:
           NODE_ENV: test
+
   update_commands:
     if: ${{ github.event_name == 'push' }}  
     needs: lint_and_test
@@ -51,7 +52,24 @@ jobs:
       - name: 'Update commands'
         run: 'npm run update:commands'
         env:
-          NODE_ENV: production        
+          NODE_ENV: production
+
+
+  bump_version:
+    if: ${{ github.event_name == 'push' }} 
+    needs: lint_and_test
+    name: Bump version and push tag
+    runs-on: ubuntu-20.04
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3        
+    - name: Bump version and push tag
+      uses: anothrNick/github-tag-action@1.36.0
+      env: 
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        NONE_STRING_TOKEN: '#skip'
+
+
   deployment:
     if: ${{ github.event_name == 'push' }}
     needs: [lint_and_test, update_commands]
@@ -62,3 +80,34 @@ jobs:
       - uses: superfly/flyctl-actions/setup-flyctl@master
       - name: Deploy to fly.io
         run: flyctl deploy --remote-only -e APPID=${{ secrets.APPID }} -e DISCORDTOKEN=${{ secrets.DISCORDTOKEN }} -e WEATHERTOKEN=${{ secrets.WEATHERTOKEN }} -e PUBLICKEY=${{ secrets.PUBLICKEY }} -e MONGODB_URI=${{ secrets.MONGODB_URI }} -e PORT=8080
+
+  notify_webhook:
+    if: 
+    name: Send discord notification
+    needs: lint_and_test
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: ${{ github.event_name }}
+        if: success()
+        name: Success
+        uses: rjstone/discord-webhook-notify@v1
+        with:
+            severity: info
+            details: Success!
+            webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
+        if: failure()
+      - name: Failure
+        uses: rjstone/discord-webhook-notify@v1
+        with:
+            severity: error
+            details: ${{ github.event_name }}
+            webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
+        if: cancelled()
+        name: Cancelled
+        uses: rjstone/discord-webhook-notify@v1
+        with:
+            severity: warn
+            details: ${{ github.event_name }} cancelled!
+            webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
