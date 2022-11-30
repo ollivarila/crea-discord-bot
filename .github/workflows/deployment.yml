@@ -35,7 +35,7 @@ jobs:
         env:
           NODE_ENV: test
   update_commands:
-  - if: ${{ github.event_name == 'push' }}  
+    if: ${{ github.event_name == 'push' }}  
     needs: lint_and_test
     name: Update commands
     runs-on: ubuntu-20.04
@@ -49,7 +49,7 @@ jobs:
         env:
           NODE_ENV: production        
   deployment:
-  - if: ${{ github.event_name == 'push' }}
+    if: ${{ github.event_name == 'push' }}
     needs: [lint_and_test, update_commands]
     runs-on: ubuntu-20.04
     steps:
