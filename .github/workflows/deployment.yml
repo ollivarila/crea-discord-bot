@@ -24,37 +24,37 @@ jobs:
     name: Lint and test
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-      - name: npm install
-        run: npm install
-      - name: lint
-        run: npm run lint
-      - name: test
-        run: npm run test:deployment
-        env:
-          NODE_ENV: test
+    - uses: actions/checkout@v3
+    - uses: actions/setup-node@v3
+    - name: npm install
+      run: npm install
+    - name: lint
+      run: npm run lint
+    - name: test
+      run: npm run test:deployment
+      env:
+        NODE_ENV: test
   update_commands:
     if: ${{ github.event_name == 'push' }}  
     needs: lint_and_test
     name: Update commands
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-      - name: npm install
-        run: npm install
-      - name: 'Update commands'
-        run: 'npm run update:commands'
-        env:
-          NODE_ENV: production        
+    - uses: actions/checkout@v3
+    - uses: actions/setup-node@v3
+    - name: npm install
+      run: npm install
+    - name: 'Update commands'
+      run: 'npm run update:commands'
+      env:
+        NODE_ENV: production        
   deployment:
     if: ${{ github.event_name == 'push' }}
     needs: [lint_and_test, update_commands]
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-      - uses: superfly/flyctl-actions/setup-flyctl@master
-        name: Deploy to fly.io
-        run: flyctl deploy --remote-only -e APPID=${{ secrets.APPID }} -e DISCORDTOKEN=${{ secrets.DISCORDTOKEN }} -e WEATHERTOKEN=${{ secrets.WEATHERTOKEN }} -e PUBLICKEY=${{ secrets.PUBLICKEY }} -e MONGODB_URI=${{ secrets.MONGODB_URI }} -e PORT=8080
+    - uses: actions/checkout@v3
+    - uses: actions/setup-node@v3
+    - uses: superfly/flyctl-actions/setup-flyctl@master
+      name: Deploy to fly.io
+      run: flyctl deploy --remote-only -e APPID=${{ secrets.APPID }} -e DISCORDTOKEN=${{ secrets.DISCORDTOKEN }} -e WEATHERTOKEN=${{ secrets.WEATHERTOKEN }} -e PUBLICKEY=${{ secrets.PUBLICKEY }} -e MONGODB_URI=${{ secrets.MONGODB_URI }} -e PORT=8080
