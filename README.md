@@ -126,10 +126,9 @@ Sends a reminder to you
 
 TODO:
 ====
-- better version control and deployment pipeline
 - website with React to display information about the bot
 - polish /route
 - /quote command (add remove get)
-- comment code
 - improve challenge command
 - use DEFERRED_UPDATE_MESSAGE to make bot seem smoother
+- comment code

@@ -30,6 +30,7 @@ const createCommand = async (name, guild) => {
   })
   return newCommand.save()
 }
+
 const recordStatistics = async (req, res, next) => {
   if (req.iType === 1) next()
 

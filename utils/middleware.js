@@ -16,6 +16,7 @@ const interactionExtractor = (req, res, next) => {
     req.guildId = guild_id
     req.interactionId = id
     req.user = member.user
+    req.discordId = member.user.id
     req.commandName = data.name
     req.int = data
     const { options } = data

@@ -14,6 +14,7 @@ describe('Subscribe tests', () => {
   afterEach(async () => {
     mock.reset()
   })
+
   test('subscribeUser()', async () => {
     const user = {
       username: 'test',
