@@ -1,15 +1,11 @@
 /* eslint-disable no-console */
 /* eslint-disable no-undef */
-const axios = require('axios')
-const { default: MockAdapter } = require('axios-mock-adapter')
 const { subscribeUser } = require('../../commands/subscribe')
 const { createConnection } = require('../../utils/misc')
+const mock = require('../__mocks__/mockAxios')
 
 describe('Subscribe tests', () => {
-  beforeAll(async () => {
-    mock = new MockAdapter(axios)
-    return createConnection()
-  })
+  beforeAll(async () => createConnection())
 
   afterEach(async () => {
     mock.reset()
