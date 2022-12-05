@@ -8,6 +8,7 @@
     "dev": "cross-env NODE_ENV=development nodemon app.js",
     "test": "clear && cross-env NODE_ENV=test jest --verbose --runInBand --forceExit --watchAll",
     "test:debug": "clear && cross-env NODE_ENV=test:debug jest --verbose --runInBand --forceExit",
+    "test:coverage": "cross-env NODE_ENV=test jest --verbose --runInBand --forceExit --coverage",
     "test:deployment": "cross-env NODE_ENV=test jest --verbose --runInBand --forceExit",
     "update:commands": "node ./utils/updateCommands.js",
     "reset": "node ./utils/removeCommands.js",
