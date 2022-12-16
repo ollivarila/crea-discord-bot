@@ -5,7 +5,8 @@
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
-    "dev": "cross-env NODE_ENV=development nodemon app.js",
+    "dev:b": "cross-env NODE_ENV=development nodemon app.js",
+    "dev:f": "cd website && npm run dev",
     "test": "clear && cross-env NODE_ENV=test jest --verbose --runInBand --forceExit --watchAll",
     "test:debug": "clear && cross-env NODE_ENV=test:debug jest --verbose --runInBand --forceExit",
     "test:coverage": "cross-env NODE_ENV=test jest --verbose --runInBand --forceExit --coverage",
