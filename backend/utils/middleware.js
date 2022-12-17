@@ -9,9 +9,7 @@ const interactionExtractor = (req, res, next) => {
       next()
       return
     }
-    const {
-      data, guild_id, id, member,
-    } = req.body
+    const { data, guild_id, id, member } = req.body
 
     req.guildId = guild_id
     req.interactionId = id
@@ -19,6 +17,8 @@ const interactionExtractor = (req, res, next) => {
     req.discordId = member.user.id
     req.commandName = data.name
     req.int = data
+
+    console.log(req.user)
     const { options } = data
 
     if (!options) {
@@ -28,7 +28,10 @@ const interactionExtractor = (req, res, next) => {
     req.options = options
 
     // Subcommand stuff
-    if (options && options[0].type === ApplicationCommandOptionType.SubcommandGroup) {
+    if (
+      options &&
+      options[0].type === ApplicationCommandOptionType.SubcommandGroup
+    ) {
       const subCommand = options[0]
       const subSubCommand = subCommand.options[0]
 
@@ -38,7 +41,10 @@ const interactionExtractor = (req, res, next) => {
       }
     }
 
-    if (options && options[0].type === ApplicationCommandOptionType.Subcommand) {
+    if (
+      options &&
+      options[0].type === ApplicationCommandOptionType.Subcommand
+    ) {
       const subCommand = options[0]
       req.subCommand = subCommand
     }

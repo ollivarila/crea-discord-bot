@@ -1,5 +1,4 @@
 const express = require('express')
-require('express-async-errors')
 const { verifyDiscordRequest } = require('./utils/discordUtils')
 const interactionRouter = require('./controllers/interactionRouter')
 const { info } = require('./utils/logger')
@@ -50,6 +49,8 @@ app.use('/interactions', interactionLogger)
 app.use('/interactions', recordStatistics)
 app.use('/interactions', interactionRouter)
 
-app.listen(PORT || 3000, () => info(`Listening on port ${PORT}`))
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(PORT || 3000, () => info(`Listening on port ${PORT}`))
+}
 
 module.exports = app

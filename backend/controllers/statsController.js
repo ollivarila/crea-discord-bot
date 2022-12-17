@@ -32,11 +32,16 @@ const createCommand = async (name, guild) => {
 }
 
 const recordStatistics = async (req, res, next) => {
+  if (req.path !== '/interactions') {
+    next()
+    return
+  }
+
   if (req.iType === 1) next()
 
   const statsExist = await GuildStats.findOne({ guildId: req.guildId })
 
-  const gs = statsExist || await createGuildStats(req.guildId)
+  const gs = statsExist || (await createGuildStats(req.guildId))
 
   if (!gs) {
     error('Guildstats not found')
@@ -45,7 +50,8 @@ const recordStatistics = async (req, res, next) => {
 
   const userExists = await User.findOne({ discordId: req.discordId })
 
-  const user = userExists || await createUser(req.user.username, req.discordId, gs._id)
+  const user =
+    userExists || (await createUser(req.user.username, req.discordId, gs._id))
 
   if (!user) {
     error('User not found')
@@ -54,7 +60,8 @@ const recordStatistics = async (req, res, next) => {
 
   const commandExists = await Command.findOne({ name: req.commandName })
 
-  const command = commandExists || await createCommand(req.commandName, gs._id)
+  const command =
+    commandExists || (await createCommand(req.commandName, gs._id))
 
   if (!command) {
     error('Command not found')

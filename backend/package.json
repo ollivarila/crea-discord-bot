@@ -6,10 +6,9 @@
   "scripts": {
     "start": "node app.js",
     "dev": "NODE_ENV=development nodemon app.js",
-    "test": "clear && NODE_ENV=test jest --verbose --runInBand --forceExit --watchAll",
-    "test:debug": "clear && NODE_ENV=test:debug jest --verbose --runInBand --forceExit",
+    "test": "NODE_ENV=test jest --verbose --runInBand --forceExit",
+    "test:debug": "NODE_ENV=test:debug jest --verbose --runInBand --forceExit",
     "test:coverage": "NODE_ENV=test jest --verbose --runInBand --forceExit --coverage",
-    "test:deployment": "NODE_ENV=test jest --verbose --runInBand --forceExit",
     "update:commands": "node ./utils/updateCommands.js",
     "reset": "node ./utils/removeCommands.js",
     "lint": "eslint"

@@ -2,19 +2,22 @@
 const { ApplicationCommandOptionType } = require('discord.js')
 const supertest = require('supertest')
 const dotenv = require('dotenv')
+const mongoose = require('mongoose')
 const app = require('../app')
 const subDao = require('../dao/subscriberDao')
 const mock = require('./__mocks__/mockAxios')
 const Subscriber = require('../models/Subscriber')
 const Leaderboard = require('../models/Leaderboard')
 const Player = require('../models/Player')
+const config = require('../config')
 
 dotenv.config()
-let mockCommand
 const api = supertest(app)
 
-beforeEach(async () => {
-  mockCommand = {
+beforeAll(async () => mongoose.connect(config.MONGODB_URI))
+
+describe('Discord interactions tests', () => {
+  let mockCommand = {
     id: 'mockInteractionId',
     guild_id: 'mockGuildId',
     data: {
@@ -28,10 +31,24 @@ beforeEach(async () => {
     },
     type: 2,
   }
-  await Subscriber.deleteMany({})
-})
+  beforeEach(async () => {
+    mockCommand = {
+      id: 'mockInteractionId',
+      guild_id: 'mockGuildId',
+      data: {
+        guild_id: 'mockGuildId',
+      },
+      member: {
+        user: {
+          username: 'mockUser',
+          id: 'mockDiscordId',
+        },
+      },
+      type: 2,
+    }
+    await Subscriber.deleteMany({})
+  })
 
-describe('Discord interactions tests', () => {
   afterEach(() => {
     mock.resetHistory()
   })
@@ -52,17 +69,19 @@ describe('Discord interactions tests', () => {
   describe('Interactions', () => {
     test('Api responds correctly to /echo', async () => {
       mockCommand.data.name = 'misc'
-      mockCommand.data.options = [{
-        type: ApplicationCommandOptionType.Subcommand,
-        name: 'echo',
-        options: [
-          {
-            name: 'message',
-            type: 3,
-            value: 'moi',
-          },
-        ],
-      }]
+      mockCommand.data.options = [
+        {
+          type: ApplicationCommandOptionType.Subcommand,
+          name: 'echo',
+          options: [
+            {
+              name: 'message',
+              type: 3,
+              value: 'moi',
+            },
+          ],
+        },
+      ]
       const res = await api.post('/interactions').send(mockCommand)
       expect(res.body.data.content).toBe('moi')
       expect(res.body.type).toBe(4)
@@ -92,10 +111,12 @@ describe('Discord interactions tests', () => {
 
     test('Api responds correctly to /ping', async () => {
       mockCommand.data.name = 'misc'
-      mockCommand.data.options = [{
-        type: ApplicationCommandOptionType.Subcommand,
-        name: 'ping',
-      }]
+      mockCommand.data.options = [
+        {
+          type: ApplicationCommandOptionType.Subcommand,
+          name: 'ping',
+        },
+      ]
       const res = await api.post('/interactions').send(mockCommand)
       expect(res.body.data.content).toBe('pong')
       expect(res.status).toBe(200)
@@ -103,11 +124,13 @@ describe('Discord interactions tests', () => {
 
     test('Api responds correctly to /pp', async () => {
       mockCommand.data.name = 'misc'
-      mockCommand.data.options = [{
-        type: ApplicationCommandOptionType.Subcommand,
-        name: 'pp',
-        options: [],
-      }]
+      mockCommand.data.options = [
+        {
+          type: ApplicationCommandOptionType.Subcommand,
+          name: 'pp',
+          options: [],
+        },
+      ]
       const res = await api.post('/interactions').send(mockCommand)
       expect(res.body.data.content).toMatch(/B=*D/)
       expect(res.status).toBe(200)
@@ -115,17 +138,19 @@ describe('Discord interactions tests', () => {
 
     test('Api responds correctly to /weather 24h', async () => {
       mockCommand.data.name = 'weather'
-      mockCommand.data.options = [{
-        name: '24h',
-        type: ApplicationCommandOptionType.Subcommand,
-        options: [
-          {
-            name: 'query',
-            type: 3,
-            value: 'mockValue',
-          },
-        ],
-      }]
+      mockCommand.data.options = [
+        {
+          name: '24h',
+          type: ApplicationCommandOptionType.Subcommand,
+          options: [
+            {
+              name: 'query',
+              type: 3,
+              value: 'mockValue',
+            },
+          ],
+        },
+      ]
 
       const res = await api.post('/interactions').send(mockCommand)
       expect(res.body.data.embeds).toBeDefined()
@@ -134,17 +159,19 @@ describe('Discord interactions tests', () => {
 
     test('Api responds correctly to /weather current', async () => {
       mockCommand.data.name = 'weather'
-      mockCommand.data.options = [{
-        name: 'current',
-        type: ApplicationCommandOptionType.Subcommand,
-        options: [
-          {
-            name: 'query',
-            type: 3,
-            value: 'mockValue',
-          },
-        ],
-      }]
+      mockCommand.data.options = [
+        {
+          name: 'current',
+          type: ApplicationCommandOptionType.Subcommand,
+          options: [
+            {
+              name: 'query',
+              type: 3,
+              value: 'mockValue',
+            },
+          ],
+        },
+      ]
 
       const res = await api.post('/interactions').send(mockCommand)
       expect(res.body.data.embeds).toBeDefined()
@@ -204,7 +231,9 @@ describe('Discord interactions tests', () => {
       ]
       const res = await api.post('/interactions').send(mockCommand)
       expect(res.body.data.content).toBe('I will remind you in 5 seconds')
-      expect(mock.history.post[0].url).toBe('https://discord.com/api/v10/users/@me/channels')
+      expect(mock.history.post[0].url).toBe(
+        'https://discord.com/api/v10/users/@me/channels',
+      )
     })
 
     test('Api responds correctly to /challenge', async () => {
@@ -321,7 +350,9 @@ describe('Discord interactions tests', () => {
         ]
         const res = await api.post('/interactions').send(mockCommand)
         expect(res.body.data.content).toBe('Added player mockPlayer')
-        const lb = await Leaderboard.findOne({ guildId: 'mockGuildId' }).populate('players')
+        const lb = await Leaderboard.findOne({
+          guildId: 'mockGuildId',
+        }).populate('players')
         expect(lb.players[0].name).toBe('mockPlayer')
       })
 
@@ -418,17 +449,19 @@ describe('Discord interactions tests', () => {
 
       test('/weather', async () => {
         mockCommand.data.name = 'weather'
-        mockCommand.data.options = [{
-          name: '24h',
-          type: ApplicationCommandOptionType.Subcommand,
-          options: [
-            {
-              name: 'query',
-              type: 3,
-              value: 'incorrect',
-            },
-          ],
-        }]
+        mockCommand.data.options = [
+          {
+            name: '24h',
+            type: ApplicationCommandOptionType.Subcommand,
+            options: [
+              {
+                name: 'query',
+                type: 3,
+                value: 'incorrect',
+              },
+            ],
+          },
+        ]
 
         const res = await api.post('/interactions').send(mockCommand)
         expect(res.body.data.content).toBe('Weather not found with: incorrect')
@@ -456,7 +489,9 @@ describe('Discord interactions tests', () => {
         ]
         const res = await api.post('/interactions').send(mockCommand)
 
-        expect(res.body.data.content).toBe('Subscription failed, reason: incorrect, 80:0, Offset should be between -12 and 14')
+        expect(res.body.data.content).toBe(
+          'Subscription failed, reason: incorrect, 80:0, Offset should be between -12 and 14',
+        )
         expect(res.status).toBe(200)
       })
 
@@ -471,7 +506,9 @@ describe('Discord interactions tests', () => {
         ]
         const res = await api.post('/interactions').send(mockCommand)
         expect(res.body.data.content).toBe('Invalid time')
-        expect(mock.history.post[0].url).toBe('https://discord.com/api/v10/users/@me/channels')
+        expect(mock.history.post[0].url).toBe(
+          'https://discord.com/api/v10/users/@me/channels',
+        )
       })
     })
   })
