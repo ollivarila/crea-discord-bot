@@ -7,7 +7,6 @@
     "start": "node app.js",
     "dev": "NODE_ENV=development nodemon app.js",
     "test": "NODE_ENV=test jest --verbose --runInBand --forceExit",
-    "test:debug": "NODE_ENV=test:debug jest --verbose --runInBand --forceExit",
     "test:coverage": "NODE_ENV=test jest --verbose --runInBand --forceExit --coverage",
     "update:commands": "node ./utils/updateCommands.js",
     "reset": "node ./utils/removeCommands.js",
