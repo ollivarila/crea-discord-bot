@@ -1,5 +1,4 @@
+.turbo
+/backend/.turbo
+/website/.turbo
 /node_modules
-/build
-.env
-/coverage
-playground.js

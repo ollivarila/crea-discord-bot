@@ -4,12 +4,14 @@ const { verifyDiscordRequest } = require('./utils/discordUtils')
 const interactionRouter = require('./controllers/interactionRouter')
 const { info } = require('./utils/logger')
 const onStartUp = require('./utils/startUp')
-const { interactionExtractor, interactionLogger, requestLogger } = require('./utils/middleware')
+const {
+  interactionExtractor,
+  interactionLogger,
+  requestLogger,
+} = require('./utils/middleware')
 const { recordStatistics } = require('./controllers/statsController')
 
-const {
-  PUBLICKEY, APPID, DISCORDTOKEN, WEATHERTOKEN, PORT,
-} = process.env
+const { PUBLICKEY, APPID, DISCORDTOKEN, WEATHERTOKEN, PORT } = process.env
 const app = express()
 
 if (!(PUBLICKEY && APPID && DISCORDTOKEN && WEATHERTOKEN)) {
@@ -31,7 +33,10 @@ app.get('/version', (req, res) => {
 
 // Parse request body and verifies incoming requests using discord-interactions package
 if (process.env.NODE_ENV !== 'test' && process.env.NODE_ENV !== 'test:debug') {
-  app.use('/interactions', express.json({ verify: verifyDiscordRequest(process.env.PUBLICKEY) }));
+  app.use(
+    '/interactions',
+    express.json({ verify: verifyDiscordRequest(process.env.PUBLICKEY) }),
+  )
 } else {
   app.use(express.json())
 }

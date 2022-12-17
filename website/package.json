@@ -1,12 +1,14 @@
 {
-  "name": "website",
+  "name": "crea-discord-bot-frontend",
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "author": "Olli Varila",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
+    "dev": "vite --port 3000 --open http://localhost:3000",
+    "build": "vite build --outDir ../backend/dist",
+    "preview": "vite preview",
+    "lint": "eslint src/ --ext .js,.jsx"
   },
   "dependencies": {
     "@emotion/react": "^11.10.5",
@@ -21,6 +23,9 @@
     "@types/react": "^18.0.26",
     "@types/react-dom": "^18.0.9",
     "@vitejs/plugin-react": "^3.0.0",
+    "eslint": "^8.30.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-config-react-app": "^7.0.1",
     "vite": "^4.0.0"
   }
 }
