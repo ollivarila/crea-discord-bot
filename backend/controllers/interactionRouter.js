@@ -173,7 +173,6 @@ async function handleChallengeAccept(req, res) {
 }
 
 async function handleInteractions(req, res) {
-  console.log(req.path)
   // Verification requests
   if (req.iType === InteractionType.PING) {
     return res.send({ type: InteractionResponseType.PONG })
