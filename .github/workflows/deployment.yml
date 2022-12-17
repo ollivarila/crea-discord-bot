@@ -33,7 +33,7 @@ jobs:
       - name: lint
         run: npm run lint
       - name: test
-        run: npm run test:deployment
+        run: npm run test
         env:
           NODE_ENV: test
 
