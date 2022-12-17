@@ -134,7 +134,10 @@ async function handleRemindme(req, res) {
 
 async function handleChallengeAccept(req, res) {
   const componentId = req.body.data.custom_id
-  const interactionid = componentId.substring(componentId.lastIndexOf('_') + 1, componentId.length)
+  const interactionid = componentId.substring(
+    componentId.lastIndexOf('_') + 1,
+    componentId.length,
+  )
   const challenge = await Challenge.findOne({ interactionid })
 
   if (!challenge) {
@@ -143,7 +146,11 @@ async function handleChallengeAccept(req, res) {
 
   const userWhoClicked = req.user.id
   if (challenge.challengedid !== userWhoClicked) {
-    return handleBadQuery(req, res, `<@${userWhoClicked}> you cannot accept/decline this challenge`)
+    return handleBadQuery(
+      req,
+      res,
+      `<@${userWhoClicked}> you cannot accept/decline this challenge`,
+    )
   }
 
   await challenge.remove()
@@ -152,13 +159,11 @@ async function handleChallengeAccept(req, res) {
 
   if (componentId.includes('accept')) {
     const challengeUrl = await getChallengeUrl()
-    const embed = getChallengeEmbed(
-      {
-        player1: challenge.challengerName,
-        player2: req.user.username,
-        url: challengeUrl,
-      },
-    )
+    const embed = getChallengeEmbed({
+      player1: challenge.challengerName,
+      player2: req.user.username,
+      url: challengeUrl,
+    })
 
     replyToInteraction(req, res, { embeds: [embed] })
   }
@@ -170,43 +175,43 @@ async function handleChallengeAccept(req, res) {
 async function handleInteractions(req, res) {
   // Verification requests
   if (req.iType === InteractionType.PING) {
-    return res.send({ type: InteractionResponseType.PONG });
+    return res.send({ type: InteractionResponseType.PONG })
   }
 
   // Slash commands
   if (req.iType === InteractionType.APPLICATION_COMMAND) {
     switch (req.commandName) {
-    case 'route':
-      handleRoute(req, res)
-      break
-    case 'misc':
-      handleMisc(req, res)
-      break
-    case 'weather':
-      handleWeather(req, res)
-      break
-    case 'subscribe':
-      handleSubscribe(req, res)
-      break
-    case 'unsubscribe':
-      handleUnsubscribe(req, res)
-      break
-    case 'challenge':
-      handleChallenge(req, res)
-      break
-    case 'remindme':
-      handleRemindme(req, res)
-      break
-    case 'esportal':
-      handleEsportalInteraction(req, res)
-      break
-    default:
-      return res.send({
-        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-        data: {
-          content: `${req.commandName} not yet implemented`,
-        },
-      })
+      case 'route':
+        handleRoute(req, res)
+        break
+      case 'misc':
+        handleMisc(req, res)
+        break
+      case 'weather':
+        handleWeather(req, res)
+        break
+      case 'subscribe':
+        handleSubscribe(req, res)
+        break
+      case 'unsubscribe':
+        handleUnsubscribe(req, res)
+        break
+      case 'challenge':
+        handleChallenge(req, res)
+        break
+      case 'remindme':
+        handleRemindme(req, res)
+        break
+      case 'esportal':
+        handleEsportalInteraction(req, res)
+        break
+      default:
+        return res.send({
+          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+          data: {
+            content: `${req.commandName} not yet implemented`,
+          },
+        })
     }
   }
 
@@ -214,12 +219,12 @@ async function handleInteractions(req, res) {
   if (req.iType === InteractionType.MESSAGE_COMPONENT) {
     const { name } = req.body.message.interaction
     switch (name) {
-    case 'challenge':
-      handleChallengeAccept(req, res)
-      break
-    default:
-      error(`${name} not implemented`)
-      break
+      case 'challenge':
+        handleChallengeAccept(req, res)
+        break
+      default:
+        error(`${name} not implemented`)
+        break
     }
   }
 }
