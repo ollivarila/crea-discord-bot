@@ -9,12 +9,9 @@ const NavbarWrapper = () => {
 			<Navbar />
 			<Container
 				sx={{
-					display: 'flex',
 					height: '100%',
-					justifyContent: 'center',
-					marginTop: '24px',
-				}}
-			>
+					marginTop: '48px',
+				}}>
 				<Outlet />
 			</Container>
 		</>

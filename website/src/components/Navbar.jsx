@@ -11,7 +11,7 @@ import pages from '../pages'
 import TogglableNav from './TogglableNav'
 import { Link } from 'react-router-dom'
 
-const HeaderButton = ({ name, path }) => {
+const NavButton = ({ name, path }) => {
 	return (
 		<MenuItem>
 			<Typography textAlign="center" variant="h4">
@@ -33,7 +33,7 @@ const NavbarNormal = () => {
 			}}>
 			<Toolbar>
 				{pages.map((page, i) => {
-					return <HeaderButton {...page} key={i} />
+					return <NavButton {...page} key={i} />
 				})}
 			</Toolbar>
 		</AppBar>

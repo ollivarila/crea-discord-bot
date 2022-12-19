@@ -1,4 +1,5 @@
 const express = require('express')
+const cors = require('cors')
 const { verifyDiscordRequest } = require('./utils/discordUtils')
 const interactionRouter = require('./controllers/interactionRouter')
 const { info } = require('./utils/logger')
@@ -9,6 +10,7 @@ const {
 	requestLogger,
 } = require('./utils/middleware')
 const { recordStatistics } = require('./controllers/statsController')
+const commands = require('./commands')
 
 const { PUBLICKEY, APPID, DISCORDTOKEN, WEATHERTOKEN, PORT } = process.env
 const app = express()
@@ -18,6 +20,8 @@ if (!(PUBLICKEY && APPID && DISCORDTOKEN && WEATHERTOKEN)) {
 }
 
 onStartUp().then(() => info('startup completed'))
+
+app.use(cors())
 
 app.use(requestLogger)
 // For health checks
@@ -34,6 +38,10 @@ if (process.env.NODE_ENV !== 'test') {
 } else {
 	app.use(express.json())
 }
+
+app.get('/api/features', (req, res) => {
+	res.json(commands)
+})
 
 app.use('/interactions', interactionExtractor)
 app.use('/interactions', interactionLogger)

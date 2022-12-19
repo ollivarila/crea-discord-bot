@@ -4,6 +4,7 @@ import {
 	AccordionSummary,
 	Typography,
 	AccordionDetails,
+	Grow,
 } from '@mui/material'
 import { Rocket } from '@mui/icons-material'
 
@@ -18,16 +19,18 @@ const accordionItems = [
 	},
 ]
 
-const AccordionItem = ({ summary, details }) => {
+const AccordionItem = ({ summary, details, timeout }) => {
 	return (
-		<Accordion>
-			<AccordionSummary expandIcon={<Rocket />}>
-				<Typography>{summary}</Typography>
-			</AccordionSummary>
-			<AccordionDetails>
-				<Typography>{details}</Typography>
-			</AccordionDetails>
-		</Accordion>
+		<Grow in timeout={timeout}>
+			<Accordion sx={{ marginBottom: '12px' }}>
+				<AccordionSummary expandIcon={<Rocket />}>
+					<Typography>{summary}</Typography>
+				</AccordionSummary>
+				<AccordionDetails>
+					<Typography>{details}</Typography>
+				</AccordionDetails>
+			</Accordion>
+		</Grow>
 	)
 }
 
@@ -37,9 +40,9 @@ const HomeAccordion = () => {
 			style={{
 				width: '100%',
 			}}>
-			{accordionItems.map((item, i) => {
-				return <AccordionItem {...item} key={i} />
-			})}
+			{accordionItems.map((item, i) => (
+				<AccordionItem {...item} timeout={i * 500 + 500} key={i} />
+			))}
 		</div>
 	)
 }
