@@ -10,7 +10,7 @@ const {
 	requestLogger,
 } = require('./utils/middleware')
 const { recordStatistics } = require('./controllers/statsController')
-const commands = require('./commands')
+const features = require('./temp')
 
 const { PUBLICKEY, APPID, DISCORDTOKEN, WEATHERTOKEN, PORT } = process.env
 const app = express()
@@ -40,7 +40,7 @@ if (process.env.NODE_ENV !== 'test') {
 }
 
 app.get('/api/features', (req, res) => {
-	res.json(commands)
+	res.json(features)
 })
 
 app.use('/interactions', interactionExtractor)

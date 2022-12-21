@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react'
 import { Grow, Grid, useMediaQuery } from '@mui/material'
 import axios from 'axios'
 import FeatureCard from './components/FeatureCard'
+import FeaturesSkeleton from './components/FeaturesSkeleton'
 
 const Features = () => {
-	const matches = useMediaQuery('(min-width:600px)')
 	const [features, setFeatures] = useState(null)
 
 	useEffect(() => {
@@ -16,7 +16,11 @@ const Features = () => {
 
 		return () => setFeatures(null)
 	}, [])
-	console.log(features)
+
+	if (!features) {
+		return <FeaturesSkeleton amount={10} />
+	}
+
 	return (
 		<>
 			<Grow in>
