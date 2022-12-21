@@ -343,11 +343,13 @@ const parseRecentMatches = matches => {
 
 const getStatsEmbed = async player => {
 	const data = await getPlayerData(player)
-	const matches = await getRecentMatches(data.id)
 
 	if (!data) {
 		return { content: 'Could not find player' }
 	}
+
+	const matches = await getRecentMatches(data.id)
+
 	if (!matches) {
 		return { content: 'Could not get recent matches' }
 	}
