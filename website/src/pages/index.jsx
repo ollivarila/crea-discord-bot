@@ -1,6 +1,7 @@
 import React from 'react'
 import Features from './features/Features'
 import Home from './home/Home'
+import Statistics from './statistics/Statistics'
 
 const pages = [
 	{
@@ -12,6 +13,11 @@ const pages = [
 		name: 'Features',
 		path: '/features',
 		element: <Features />,
+	},
+	{
+		name: 'Statistics',
+		path: '/statistics',
+		element: <Statistics />,
 	},
 ]
 
