@@ -11,6 +11,7 @@ const {
 } = require('./utils/middleware')
 const { recordStatistics } = require('./controllers/statsController')
 const features = require('./temp')
+const GuildStats = require('./models/GuildStats')
 
 const { PUBLICKEY, APPID, DISCORDTOKEN, WEATHERTOKEN, PORT } = process.env
 const app = express()
@@ -41,6 +42,11 @@ if (process.env.NODE_ENV !== 'test') {
 
 app.get('/api/features', (req, res) => {
 	res.json(features)
+})
+
+app.get('/api/statistics', async (req, res) => {
+	const stats = await GuildStats.findOne({}).populate('commands')
+	res.json(stats)
 })
 
 app.use('/interactions', interactionExtractor)

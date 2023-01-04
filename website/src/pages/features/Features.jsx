@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Grow, Grid, useMediaQuery } from '@mui/material'
+import { Grow, Grid } from '@mui/material'
 import axios from 'axios'
 import FeatureCard from './components/FeatureCard'
 import FeaturesSkeleton from './components/FeaturesSkeleton'
