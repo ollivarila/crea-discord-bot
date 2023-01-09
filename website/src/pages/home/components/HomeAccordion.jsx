@@ -10,12 +10,19 @@ import { Rocket } from '@mui/icons-material'
 
 const accordionItems = [
 	{
-		summary: 'This is one summary',
-		details: 'These are the details for this item',
+		summary: 'About project',
+		details:
+			'This project has taken about two months of my time. I did this project because I have been very interested in how discord bots work and also wanted to get more hands on experience on fullstack development. This project uses turborepo for its monorepo solution. This project has been developed with the MERN stack. I have also setup a CI/CD pipeline with github actions.',
 	},
 	{
-		summary: 'This is the second summary',
-		details: 'Here are more details',
+		summary: 'Website',
+		details:
+			'This website has been developed with Vite using React and Material UI',
+	},
+	{
+		summary: 'Backend',
+		details:
+			'The backend has been developed using express and it uses various technologies like discord.js, discord-interactions and mongoose.',
 	},
 ]
 

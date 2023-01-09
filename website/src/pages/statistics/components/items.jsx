@@ -1,6 +1,7 @@
 import React from 'react'
 import { Info, Terminal } from '@mui/icons-material'
 import Information from './Information'
+import Commands from './Commands'
 
 const items = [
 	{
@@ -11,7 +12,7 @@ const items = [
 	{
 		name: 'Command usage',
 		icon: <Terminal />,
-		element: <h1>not implemented</h1>,
+		element: <Commands />,
 	},
 ]
 

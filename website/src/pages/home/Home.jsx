@@ -20,7 +20,10 @@ const Home = () => {
 						<Typography variant="h2" gutterBottom>
 							Hello there
 						</Typography>
-						<Typography>Here I will have some smaller text</Typography>
+						<Typography>
+							Welcome to my discord bot website. This website contains
+							information about my discord bot.
+						</Typography>
 					</Card>
 
 					<HomeAccordion />

@@ -16,12 +16,12 @@ const FeatureCard = ({ name, description, details }) => {
 					padding: '24px',
 				}}>
 				<Typography variant="h4" gutterBottom>
-					{name}
+					{name.toUpperCase()}
 				</Typography>
 				<Typography gutterBottom>{description}</Typography>
 				<Button onClick={toggleDetails}>details</Button>
 				<FeatureDetails
-					name={name}
+					name={name.toUpperCase()}
 					description={description}
 					open={open}
 					handleClose={toggleDetails}
