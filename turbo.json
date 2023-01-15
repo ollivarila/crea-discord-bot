@@ -1,18 +1,17 @@
 {
-  "$schema": "https://turbo.build/schema.json",
-  "pipeline": {
-    "build": {
-      "outputs": ["backend/dist/*"]
-    },
-    "lint": {
-      "outputs": []
-    },
-    "dev": {
-    },
-    "test": {
-    },
-    "update:commands": {
-      "cache": false
-    }
-  }
+	"$schema": "https://turbo.build/schema.json",
+	"pipeline": {
+		"build": {
+			"outputs": ["backend/dist/*"]
+		},
+		"lint": {
+			"outputs": []
+		},
+		"dev": {},
+		"test": {},
+		"update:commands": {
+			"cache": false
+		},
+		"deploy": {}
+	}
 }
