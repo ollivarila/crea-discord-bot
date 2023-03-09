@@ -2,3 +2,5 @@
 /backend/.turbo
 /website/.turbo
 /node_modules
+
+.env
