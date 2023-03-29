@@ -178,13 +178,6 @@ async function handleInteractions(req, res) {
 		return res.send({ type: InteractionResponseType.PONG })
 	}
 
-	if (req.user.id === '209654420999241728') {
-		return res.send({
-			type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-			content: 'Error',
-		})
-	}
-
 	// Slash commands
 	if (req.iType === InteractionType.APPLICATION_COMMAND) {
 		switch (req.commandName) {
